@@ -7,4 +7,5 @@ echo "Building c++ test app..."
 g++ test.cpp -o test -L . -limgutil
 
 echo "Running test app with ball.jpg param..."
+export LD_LIBRARY_PATH=.
 ./test ball.jpg
