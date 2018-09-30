@@ -1,0 +1,2 @@
+# GoStudy
+For studying Go
