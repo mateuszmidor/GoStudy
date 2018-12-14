@@ -16,5 +16,8 @@ To build the hello example without outputting any file:
 To install the hello example under workspace bin/: 
     go install github.com/mateuszmidor/GoStudy/hello/main 
 
+To run the hello example:
+    go run github.com/mateuszmidor/GoStudy/hello/main 
+
 To test the hello string package: 
     go test github.com/mateuszmidor/GoStudy/hello/string 
