@@ -2,15 +2,6 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build and run",
-            "type": "shell",
-            "command": "go build && ./d20",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
             "label": "run hello",
             "type": "shell",
             "command": "go run github.com/mateuszmidor/GoStudy/hello/main",
@@ -23,6 +14,24 @@
             "label": "run oracledb",
             "type": "shell",
             "command": "go run github.com/mateuszmidor/GoStudy/oracledb/main",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "run webcrawler",
+            "type": "shell",
+            "command": "go run github.com/mateuszmidor/GoStudy/webcrawler/main",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "run webtime",
+            "type": "shell",
+            "command": "go run github.com/mateuszmidor/GoStudy/webtime/main",
             "group": {
                 "kind": "build",
                 "isDefault": true

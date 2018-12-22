@@ -1,7 +1,10 @@
 # This is the Go workspace: GoStudy. 
 
 To let Go know the workspace location, do:  
-    export GOPATH="~/SoftwareDevelopment/GoStudy"  
+    export GOPATH="/home/user/SoftwareDevelopment/GoStudy"  
+
+To let shell know go tools, do:
+    export PATH="/home/user/SoftwareDevelopment/GoStudy/bin:$PATH" 
 
 To fix breaking builds eg "go can't find package fmt", do:  
     unset GOROOT  
