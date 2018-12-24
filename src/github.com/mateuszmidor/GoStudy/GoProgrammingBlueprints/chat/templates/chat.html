@@ -2,7 +2,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Komunikator</title>
+    <title>TalkTalk</title>
     <style>
         input {
             display: block;
@@ -18,7 +18,7 @@
     <ul id="messages"> </ul>
     <form id="chatbox">
         <textarea></textarea>
-        <input type="submit" value="wyślij" />
+        <input type="submit" value="send" />
     </form>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -31,7 +31,7 @@
         $("#chatbox").submit(function() {
             if (!msgBox.val()) return false;
             if (!socket) {
-                alert("Błąd: brak połączenia z serwerem");
+                alert("Error: no connection to server");
                 return false;
             }
 
@@ -41,11 +41,11 @@
         });
 
         if (!window["WebSocket"]) {
-            alert("Błąd: Przeglądarka nie obsługuje web socketów");
+            alert("Error: browser doesnt support web sockets");
         } else {
             socket = new WebSocket("ws://{{.Host}}/room");
             socket.onclose  = function() {
-                alert("Połączenie zamknięte");
+                alert("Connection closed");
             }
             socket.onmessage = function(e) {
                 messages.append($("<li>").text(e.data));

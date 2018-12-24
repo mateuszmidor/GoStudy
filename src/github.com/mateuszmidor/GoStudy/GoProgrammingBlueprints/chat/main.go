@@ -37,14 +37,14 @@ func newRoom() *room {
 
 // need: go get github.com/gorilla/websocket
 func main() {
-	var addr = flag.String("addr", ":8080", "Adres aplikacji internetowej")
+	var addr = flag.String("addr", ":8080", "Server http address")
 	flag.Parse()
 	r := newRoom()
 	r.tracer = trace.New(os.Stdout)
 	http.Handle("/", &templateHandler{filename: "chat.html"})
 	http.Handle("/room", r)
 	go r.run()
-	log.Println("Uruchamianie servera WWW pod adresem", *addr)
+	log.Println("Running the server at", *addr)
 	if err := http.ListenAndServe(*addr, nil); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}

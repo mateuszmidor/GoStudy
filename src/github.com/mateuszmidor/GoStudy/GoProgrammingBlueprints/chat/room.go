@@ -25,15 +25,15 @@ func (r *room) run() {
 		select {
 		case client := <-r.join:
 			r.clients[client] = true
-			r.tracer.Trace("Do pokoju dołączył nowy klient")
+			r.tracer.Trace("New client connected")
 		case client := <-r.leave:
 			delete(r.clients, client)
 			close(client.send)
-			r.tracer.Trace("Klient opuścił pokój")
+			r.tracer.Trace("Client left")
 		case msg := <-r.forward:
 			for client := range r.clients {
 				client.send <- msg
-				r.tracer.Trace(" -- wysłano do klienta")
+				r.tracer.Trace(" -- sent to client")
 			}
 		}
 	}
