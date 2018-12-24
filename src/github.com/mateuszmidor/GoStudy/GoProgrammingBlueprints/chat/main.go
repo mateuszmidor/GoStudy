@@ -4,9 +4,12 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"sync"
 	"text/template"
+
+	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/trace"
 )
 
 type templateHandler struct {
@@ -28,6 +31,7 @@ func newRoom() *room {
 		join:    make(chan *client),
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
+		tracer:  trace.Off(),
 	}
 }
 
@@ -36,6 +40,7 @@ func main() {
 	var addr = flag.String("addr", ":8080", "Adres aplikacji internetowej")
 	flag.Parse()
 	r := newRoom()
+	r.tracer = trace.New(os.Stdout)
 	http.Handle("/", &templateHandler{filename: "chat.html"})
 	http.Handle("/room", r)
 	go r.run()
