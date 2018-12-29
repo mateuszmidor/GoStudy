@@ -40,7 +40,7 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func newRoom() *room {
 	return &room{
-		forward: make(chan []byte),
+		forward: make(chan *message),
 		join:    make(chan *client),
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
@@ -48,11 +48,12 @@ func newRoom() *room {
 	}
 }
 
+// For google oauth2:
 // https://console.developers.google.com/apis/credentials?project=api-project-44918022082 :
-//Twój identyfikator klienta
-//v44918022082-b07tui5r5ud2snbe8ur7ag41qta643ng.apps.googleusercontent.com
-//Twój tajny klucz klienta
-//H3vEKMxxJu-tQjwcE4axM62q
+// Twój identyfikator klienta
+// 		v44918022082-b07tui5r5ud2snbe8ur7ag41qta643ng.apps.googleusercontent.com
+// Twój tajny klucz klienta
+// 		H3vEKMxxJu-tQjwcE4axM62q
 
 func initOAuth2() {
 	gomniauth.SetSecurityKey("AUTH_KEY")

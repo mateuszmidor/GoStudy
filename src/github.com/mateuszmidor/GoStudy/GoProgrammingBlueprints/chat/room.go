@@ -4,12 +4,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/stretchr/objx"
+
 	"github.com/gorilla/websocket"
 	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/trace"
 )
 
 type room struct {
-	forward chan []byte
+	forward chan *message
 
 	join chan *client
 
@@ -53,10 +55,15 @@ func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	authCookie, err := req.Cookie("auth")
+	if err != nil {
+		log.Fatal("Couldnt fetch auth cookie: ", err)
+	}
 	client := &client{
-		socket: socket,
-		send:   make(chan []byte, messageBufferSize),
-		room:   r,
+		socket:   socket,
+		send:     make(chan *message, messageBufferSize),
+		room:     r,
+		userData: objx.MustFromBase64(authCookie.Value),
 	}
 	r.join <- client
 	defer func() { r.leave <- client }()
