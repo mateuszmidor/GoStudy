@@ -63,6 +63,17 @@ func initOAuth2() {
 	)
 }
 
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:   "auth",
+		Value:  "",
+		Path:   "/",
+		MaxAge: -1,
+	})
+	w.Header().Set("Location", "/chat")
+	w.WriteHeader(http.StatusTemporaryRedirect)
+}
+
 // need:
 // go get github.com/gorilla/websocket
 // go get github.com/stretchr/gomniauth
@@ -81,6 +92,7 @@ func main() {
 	http.Handle("/login", &templateHandler{filename: "login.html"})
 	http.HandleFunc("/auth/", loginHandler)
 	http.Handle("/room", r)
+	http.HandleFunc("/logout", logoutHandler)
 	go r.run()
 	log.Println("Running the server at", *addr)
 	if err := http.ListenAndServe(*addr, nil); err != nil {
