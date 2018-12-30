@@ -19,6 +19,12 @@ import (
 	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/trace"
 )
 
+var avatars Avatar = TryAvatars{
+	UseFileSystemAvatar,
+	UseAuthAvatar,
+	UseGravatarAvatar,
+}
+
 type templateHandler struct {
 	once     sync.Once
 	filename string
@@ -38,14 +44,13 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.templ.Execute(w, data)
 }
 
-func newRoom(avatar Avatar) *room {
+func newRoom() *room {
 	return &room{
 		forward: make(chan *message),
 		join:    make(chan *client),
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
 		tracer:  trace.Off(),
-		avatar:  avatar,
 	}
 }
 
@@ -58,9 +63,10 @@ func newRoom(avatar Avatar) *room {
 
 func initOAuth2() {
 	gomniauth.SetSecurityKey("AUTH_KEY")
-	gomniauth.WithProviders(google.New("44918022082-b07tui5r5ud2snbe8ur7ag41qta643ng.apps.googleusercontent.com", "H3vEKMxxJu-tQjwcE4axM62q", "http://localhost:8080/auth/callback/google"),
-		facebook.New("id", "pass", "http://localhost:8080/auth/callback/facebook"),
-		github.New("id", "pass", "http://localhost:8080/auth/callback/github"),
+	callbackPrefix := "http://localhost:8080/auth/callback/"
+	gomniauth.WithProviders(google.New("44918022082-b07tui5r5ud2snbe8ur7ag41qta643ng.apps.googleusercontent.com", "H3vEKMxxJu-tQjwcE4axM62q", callbackPrefix+"google"),
+		facebook.New("id", "pass", callbackPrefix+"facebook"),
+		github.New("id", "pass", callbackPrefix+"github"),
 	)
 }
 
@@ -78,6 +84,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 // need:
 // go get github.com/gorilla/websocket
 // go get github.com/stretchr/gomniauth
+// go get github.com/stretchr/testify/mock
 // go get github.com/clbanning/x2j
 // go get github.com/ugorji/go/codec
 // go get gopkg.in/mgo.v2/bson
@@ -87,7 +94,7 @@ func main() {
 	var addr = flag.String("addr", ":8080", "Server http address")
 	flag.Parse()
 	initOAuth2()
-	r := newRoom(UseFileSystemAvatar)
+	r := newRoom()
 	r.tracer = trace.New(os.Stdout)
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/login", &templateHandler{filename: "login.html"})

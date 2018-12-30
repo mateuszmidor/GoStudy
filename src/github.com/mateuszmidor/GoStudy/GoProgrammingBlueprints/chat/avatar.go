@@ -11,7 +11,18 @@ var ErrNoAvatar = errors.New("chat: can't fetch avatar url")
 
 // Avatar represents chat user picture
 type Avatar interface {
-	GetAvatarURL(c *client) (string, error)
+	GetAvatarURL(ChatUser) (string, error)
+}
+
+type TryAvatars []Avatar
+
+func (a TryAvatars) GetAvatarURL(u ChatUser) (string, error) {
+	for _, avatar := range a {
+		if url, err := avatar.GetAvatarURL(u); err == nil {
+			return url, nil
+		}
+	}
+	return "", ErrNoAvatar
 }
 
 type AuthAvatar struct{}
@@ -19,13 +30,13 @@ type AuthAvatar struct{}
 var UseAuthAvatar AuthAvatar
 
 // GetAvatarURL returns avatar url for given client
-func (AuthAvatar) GetAvatarURL(c *client) (string, error) {
-	if url, ok := c.userData["avatar_url"]; ok {
-		if urlStr, ok := url.(string); ok {
-			return urlStr, nil
-		}
+func (AuthAvatar) GetAvatarURL(u ChatUser) (string, error) {
+	url := u.AvatarURL()
+	if len(url) == 0 {
+		return "", ErrNoAvatar
 	}
-	return "", ErrNoAvatar
+
+	return url, nil
 }
 
 type GravatarAvatar struct{}
@@ -33,13 +44,8 @@ type GravatarAvatar struct{}
 var UseGravatarAvatar GravatarAvatar
 
 // GetAvatarURL returns avatar url for given client
-func (GravatarAvatar) GetAvatarURL(c *client) (string, error) {
-	if userid, ok := c.userData["userid"]; ok {
-		if useridStr, ok := userid.(string); ok {
-			return "//gravatar.com/avatar/" + useridStr, nil
-		}
-	}
-	return "", ErrNoAvatar
+func (GravatarAvatar) GetAvatarURL(u ChatUser) (string, error) {
+	return "//www.gravatar.com/avatar/" + u.UniqueID(), nil
 }
 
 type FileSystemAvatar struct{}
@@ -47,23 +53,17 @@ type FileSystemAvatar struct{}
 var UseFileSystemAvatar FileSystemAvatar
 
 // GetAvatarURL returns avatar url for given client
-func (FileSystemAvatar) GetAvatarURL(c *client) (string, error) {
-	if userid, ok := c.userData["userid"]; ok {
-		if useridStr, ok := userid.(string); ok {
-			files, err := ioutil.ReadDir("avatars")
-			if err != nil {
-				return "", ErrNoAvatar
+func (FileSystemAvatar) GetAvatarURL(u ChatUser) (string, error) {
+
+	if files, err := ioutil.ReadDir("avatars"); err == nil {
+		for _, file := range files {
+			if file.IsDir() {
+				continue
+			}
+			if match, _ := path.Match(u.UniqueID()+"*", file.Name()); match {
+				return "/avatars/" + file.Name(), nil
 			}
 
-			for _, file := range files {
-				if file.IsDir() {
-					continue
-				}
-				if match, _ := path.Match(useridStr+"*", file.Name()); match {
-					return "/avatars/" + file.Name(), nil
-				}
-
-			}
 		}
 	}
 	return "", ErrNoAvatar

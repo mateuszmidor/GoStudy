@@ -5,46 +5,57 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	gomniauthtest "github.com/stretchr/gomniauth/test"
 )
 
 func TestAuthAvatar(t *testing.T) {
 	var authAvatar AuthAvatar
-	client := new(client)
-	url, err := authAvatar.GetAvatarURL(client)
+	testUser := &gomniauthtest.TestUser{}
+	testUser.On("AvatarURL").Return("", ErrNoAvatar)
+	testChatUser := &chatUser{User: testUser}
+	url, err := authAvatar.GetAvatarURL(testChatUser)
 	if err != ErrNoAvatar {
-		t.Error("AuthAvatar.GetAvatarURL should return ErrNoAvatar when no avatar url is available")
+		t.Error("AuthAvatar.GetAvatarURL should return ErrNoAvatarURL when no url is available")
 	}
 
 	testURL := "http://gravatar_url_addrs/"
-	client.userData = map[string]interface{}{"avatar_url": testURL}
-	url, err = authAvatar.GetAvatarURL(client)
+	testUser = &gomniauthtest.TestUser{}
+	testChatUser.User = testUser
+	testUser.On("AvatarURL").Return(testURL, nil)
+	url, err = authAvatar.GetAvatarURL(testChatUser)
 	if err != nil {
 		t.Error("AuthAvatar.GetAvatarURL should not return error when avatar url is available")
 	}
 	if url != testURL {
 		t.Error("AuthAvatar.GetAvatarURL should return correct avatar url")
 	}
-
 }
 
 func TestGravatarAvatar(t *testing.T) {
 	var gravatarAvatar GravatarAvatar
-	client := new(client)
-	client.userData = map[string]interface{}{"userid": "0bc83cb571cd1c50ba6f3e8a78ef1346"} // generated md5 from lowercase MyEmailAddress@example.com
-	url, err := gravatarAvatar.GetAvatarURL(client)
+	user := &chatUser{uniqueID: "abc"}
+	url, err := gravatarAvatar.GetAvatarURL(user)
 	if err != nil {
+		t.Error("GravatarAvatar.GetAvatarURL returned error while it shouldnt")
+	}
+	if url != "//www.gravatar.com/avatar/abc" {
 		t.Errorf("GravatarAvatar.GetAvatarURL returned wrong: %s", url)
 	}
 }
 
 func TestFileSystemAvatar(t *testing.T) {
 	filename := filepath.Join("avatars", "abc.jpg")
-	ioutil.WriteFile(filename, []byte{}, 0777)
+	if err := os.MkdirAll("avatars", 0777); err != nil {
+		t.Errorf("Could not create 'avatars' directory: %s", err)
+	}
+	if err := ioutil.WriteFile(filename, []byte{}, 0777); err != nil {
+		t.Errorf("Could not create avatar file: %s", err)
+	}
 	defer os.Remove(filename)
 	var fileSystemAvatar FileSystemAvatar
-	client := new(client)
-	client.userData = map[string]interface{}{"userid": "abc"}
-	url, err := fileSystemAvatar.GetAvatarURL(client)
+	user := &chatUser{uniqueID: "abc"}
+	url, err := fileSystemAvatar.GetAvatarURL(user)
 	if err != nil {
 		t.Error("FileSystemAvatar.GetAvatarURL should not return error when avatar url is available")
 	}
