@@ -94,6 +94,8 @@ func main() {
 	http.HandleFunc("/auth/", loginHandler)
 	http.Handle("/room", r)
 	http.HandleFunc("/logout", logoutHandler)
+	http.Handle("/upload", &templateHandler{filename: "upload.html"})
+	http.HandleFunc("/uploader", uploaderHandler)
 	go r.run()
 	log.Println("Running the server at", *addr)
 	if err := http.ListenAndServe(*addr, nil); err != nil {
