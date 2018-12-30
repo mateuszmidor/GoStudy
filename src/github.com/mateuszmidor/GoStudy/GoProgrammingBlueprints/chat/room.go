@@ -20,6 +20,8 @@ type room struct {
 	clients map[*client]bool
 
 	tracer trace.Tracer
+
+	avatar Avatar
 }
 
 func (r *room) run() {
