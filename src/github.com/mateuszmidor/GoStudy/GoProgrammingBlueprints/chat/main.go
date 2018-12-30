@@ -87,7 +87,7 @@ func main() {
 	var addr = flag.String("addr", ":8080", "Server http address")
 	flag.Parse()
 	initOAuth2()
-	r := newRoom(UseGravatarAvatar)
+	r := newRoom(UseFileSystemAvatar)
 	r.tracer = trace.New(os.Stdout)
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/login", &templateHandler{filename: "login.html"})
@@ -96,6 +96,7 @@ func main() {
 	http.HandleFunc("/logout", logoutHandler)
 	http.Handle("/upload", &templateHandler{filename: "upload.html"})
 	http.HandleFunc("/uploader", uploaderHandler)
+	http.Handle("/avatars/", http.StripPrefix("/avatars/", http.FileServer(http.Dir("./avatars"))))
 	go r.run()
 	log.Println("Running the server at", *addr)
 	if err := http.ListenAndServe(*addr, nil); err != nil {
