@@ -15,8 +15,6 @@ import (
 	"github.com/stretchr/gomniauth/providers/facebook"
 	"github.com/stretchr/gomniauth/providers/github"
 	"github.com/stretchr/gomniauth/providers/google"
-
-	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/trace"
 )
 
 var avatars Avatar = TryAvatars{
@@ -50,7 +48,7 @@ func newRoom() *room {
 		join:    make(chan *client),
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
-		tracer:  trace.Off(),
+		tracer:  Off(),
 	}
 }
 
@@ -63,7 +61,7 @@ func newRoom() *room {
 
 func initOAuth2() {
 	gomniauth.SetSecurityKey("AUTH_KEY")
-	callbackPrefix := "http://localhost:8080/auth/callback/"
+	callbackPrefix := GetAPIEndpoint() + "/auth/callback/"
 	gomniauth.WithProviders(google.New("44918022082-b07tui5r5ud2snbe8ur7ag41qta643ng.apps.googleusercontent.com", "H3vEKMxxJu-tQjwcE4axM62q", callbackPrefix+"google"),
 		facebook.New("id", "pass", callbackPrefix+"facebook"),
 		github.New("id", "pass", callbackPrefix+"github"),
@@ -91,11 +89,11 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 // setup google OAuth client ID under https://console.developers.google.com/apis/credentials?project=api-project-44918022082
 // and put the id and pass in "initOAuth2" function
 func main() {
-	var addr = flag.String("addr", ":8080", "Server http address")
+	var addr = flag.String("addr", ":"+GetPort(), "Server http address")
 	flag.Parse()
 	initOAuth2()
 	r := newRoom()
-	r.tracer = trace.New(os.Stdout)
+	r.tracer = New(os.Stdout)
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/login", &templateHandler{filename: "login.html"})
 	http.HandleFunc("/auth/", loginHandler)

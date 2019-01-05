@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/objx"
 
 	"github.com/gorilla/websocket"
-	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/trace"
 )
 
 type room struct {
@@ -19,7 +18,7 @@ type room struct {
 
 	clients map[*client]bool
 
-	tracer trace.Tracer
+	tracer Tracer
 }
 
 func (r *room) run() {
