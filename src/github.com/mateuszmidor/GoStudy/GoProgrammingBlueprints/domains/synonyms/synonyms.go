@@ -17,10 +17,10 @@ func main() {
 		word := s.Text()
 		syns, err := thesaurus.Synonyms(word)
 		if err != nil {
-			log.Fatalln("Could not fetch synonyms for '"+word+"':", err)
+			log.Fatalln("Error fetching synonyms for '"+word+"':", err)
 		}
 		if len(syns) == 0 {
-			log.Fatalln("Could not fetch synonyms for '"+word+"':", err)
+			log.Fatalln("Fetched 0 synonyms for '"+word+"':", err)
 		}
 		for _, syn := range syns {
 			fmt.Println(syn)
