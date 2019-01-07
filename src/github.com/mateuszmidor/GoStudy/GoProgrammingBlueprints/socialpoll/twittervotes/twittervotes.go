@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
+	"sync"
+	"syscall"
+	"time"
 
 	nsq "github.com/bitly/go-nsq"
 
@@ -17,6 +21,11 @@ func dialdb() error {
 	log.Println("dialing mongodb: localhost")
 	db, err = mgo.Dial("localhost")
 	return err
+}
+
+func closedb() {
+	db.Close()
+	log.Println("MongoDB connection closed")
 }
 
 type poll struct {
@@ -57,6 +66,44 @@ func publishVotes(votes <-chan string) <-chan struct{} {
 	}()
 	return stopchan
 }
-func main() {
 
+func main() {
+	var stoplock sync.Mutex
+	stop := false
+	stopChan := make(chan struct{}, 1)
+	signalChan := make(chan os.Signal, 1)
+	go func() {
+		<-signalChan
+		stoplock.Lock()
+		stop = true
+		stoplock.Unlock()
+		log.Println("Stopping...")
+		stopChan <- struct{}{}
+		closeConn()
+	}()
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+
+	if err := dialdb(); err != nil {
+		log.Fatalln("Couldnt connect to MongoDB: ", err)
+	}
+	defer closedb()
+
+	votes := make(chan string)
+	publisherStoppedChan := publishVotes(votes)
+	twitterStoppedChan := startTwitterStream(stopChan, votes)
+	go func() {
+		for {
+			time.Sleep(1 * time.Minute)
+			closeConn()
+			stoplock.Lock()
+			if stop {
+				stoplock.Unlock()
+				return
+			}
+			stoplock.Unlock()
+		}
+	}()
+	<-twitterStoppedChan
+	close(votes)
+	<-publisherStoppedChan
 }
