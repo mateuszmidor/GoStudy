@@ -62,8 +62,8 @@ func main() {
 	}()
 
 	log.Println("Conection to database...")
-	//db, err := mgo.Dial("localhost")
-	db,err:= mgo.Dial("admin:adminadmin@ec2-18-208-186-55.compute-1.amazonaws.com:27017")
+	db, err := mgo.Dial("localhost")
+	// db,err:= mgo.Dial("admin:adminadmin@ec2-18-208-186-55.compute-1.amazonaws.com:27017")
 	if err != nil {
 		fatal(err)
 		return

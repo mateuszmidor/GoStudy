@@ -19,8 +19,8 @@ var db *mgo.Session
 func dialdb() error {
 	var err error
 	log.Println("dialing mongodb: localhost")
-	//db, err = mgo.Dial("localhost")
-	db, err = mgo.Dial("admin:adminadmin@ec2-18-208-186-55.compute-1.amazonaws.com:27017")
+	db, err = mgo.Dial("localhost")
+	// db, err = mgo.Dial("admin:adminadmin@ec2-18-208-186-55.compute-1.amazonaws.com:27017")
 	return err
 }
 

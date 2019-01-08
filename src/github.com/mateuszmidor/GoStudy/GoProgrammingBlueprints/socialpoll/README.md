@@ -33,3 +33,11 @@ SP_TWITTER_KEY=
 SP_TWITTER_SECRET=
 SP_TWITTER_ACCESSTOKEN=
 SP_TWITTER_ACCESSSECRET=
+
+# Setup MongoDB initial data
+> mongo
+> use ballots
+> db.polls.insert({"title":"Test poll", "options":["love", "kiss", "hate", "fight"]})
+
+# Track NSQ
+> nsq_tail --topic="votes" --lookupd-http-address=localhost:4161
