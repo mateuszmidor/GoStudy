@@ -9,6 +9,8 @@ import (
 	"syscall"
 	"time"
 
+	"spconfig"
+
 	nsq "github.com/bitly/go-nsq"
 
 	mgo "gopkg.in/mgo.v2"
@@ -18,9 +20,9 @@ var db *mgo.Session
 
 func dialdb() error {
 	var err error
-	log.Println("dialing mongodb: localhost")
-	db, err = mgo.Dial("localhost")
-	// db, err = mgo.Dial("admin:adminadmin@ec2-18-208-186-55.compute-1.amazonaws.com:27017")
+	config := spconfig.GetConfig()
+	log.Println("dialing mongodb: ", config.MongoDbAddress)
+	db, err = mgo.Dial(config.MongoDbAddress)
 	return err
 }
 

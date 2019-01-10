@@ -10,9 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"gopkg.in/mgo.v2/bson"
+	"spconfig"
 
 	nsq "github.com/bitly/go-nsq"
+	"gopkg.in/mgo.v2/bson"
 
 	mgo "gopkg.in/mgo.v2"
 )
@@ -61,9 +62,10 @@ func main() {
 		}
 	}()
 
-	log.Println("Conection to database...")
-	db, err := mgo.Dial("localhost")
-	// db,err:= mgo.Dial("admin:adminadmin@ec2-18-208-186-55.compute-1.amazonaws.com:27017")
+	config := spconfig.GetConfig()
+	log.Println("Conection to database: ", config.MongoDbAddress)
+
+	db, err := mgo.Dial(config.MongoDbAddress)
 	if err != nil {
 		fatal(err)
 		return
