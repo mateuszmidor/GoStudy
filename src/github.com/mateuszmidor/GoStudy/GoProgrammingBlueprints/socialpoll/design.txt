@@ -1,0 +1,13 @@
++----------+        +----------------+          +--------------+            +-------------+
+|          |        |    Twitter     |  read    | twittervotes |  publish   |     NSQ     |
+| Twitter  +-------->   Streaming    +---------->     (go)     +------------> Distributed |
+|          |        |      API       |  http    |              |  messages  |  Messaging  |
++----------+        +----------------+          +-------^------+            +------+------+
+                                                        |                          |
+                                          read keywords |                          | consume messages
+                                                        |                          |
+                                                +-------+------+            +------v------+
+                                                |              |   store    |   counter   |
+                                                |   MongoDB    <------------+    (go)     |
+                                                |              |   hits     |             |
+                                                +--------------+            +-------------+

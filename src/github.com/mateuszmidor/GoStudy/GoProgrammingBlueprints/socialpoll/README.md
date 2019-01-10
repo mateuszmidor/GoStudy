@@ -1,19 +1,7 @@
 # twitter votes
 
 # Design
-+----------+        +----------------+          +--------------+            +-------------+
-|          |        |    Twitter     |  read    | twittervotes |  publish   |     NSQ     |
-| Twitter  +-------->   Streaming    +---------->     (go)     +------------> Distributed |
-|          |        |      API       |  http    |              |  messages  |  Messaging  |
-+----------+        +----------------+          +-------^------+            +------+------+
-                                                        |                          |
-                                          read keywords |                          | consume messages
-                                                        |                          |
-                                                +-------+------+            +------v------+
-                                                |              |   store    |   counter   |
-                                                |   MongoDB    <------------+    (go)     |
-                                                |              |   hits     |             |
-                                                +--------------+            +-------------+
+[design.txt](design.txt)  
 
 # Install NSQ distributed messaging system and NSQ GO drivers
 sudo pacman -S yaourt
