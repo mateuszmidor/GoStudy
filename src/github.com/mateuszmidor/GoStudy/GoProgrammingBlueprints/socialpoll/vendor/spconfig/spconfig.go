@@ -13,6 +13,7 @@ type SpConfig struct {
 	AccessToken    string `env:"SP_TWITTER_ACCESSTOKEN,required"`
 	AccessSecret   string `env:"SP_TWITTER_ACCESSSECRET,required"`
 	MongoDbAddress string `env:"SP_MONGODB_ADDR,required"`
+	NsqAddress     string `env:"SP_NSQ_ADDR,required"`
 }
 
 // GetConfig returns SocialPoll configuration or terminates app if no config found

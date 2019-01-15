@@ -55,7 +55,8 @@ func exitOnError(err error) {
 
 func publishVotes(votes <-chan string) <-chan struct{} {
 	stopchan := make(chan struct{}, 1)
-	pub, err := nsq.NewProducer("localhost:4150", nsq.NewConfig())
+	connstr := spconfig.GetConfig().NsqAddress
+	pub, err := nsq.NewProducer(connstr, nsq.NewConfig())
 	exitOnError(err)
 	go func() {
 		for vote := range votes {
