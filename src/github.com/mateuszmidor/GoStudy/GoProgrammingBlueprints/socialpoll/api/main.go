@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"log"
 	"net/http"
 
 	mgo "gopkg.in/mgo.v2"
@@ -20,7 +22,27 @@ func APIKey(ctx context.Context) (string, bool) {
 	key, ok := ctx.Value(contextKeyAPIKey).(string)
 	return key, ok
 }
-func main() {}
+
+func main() {
+	var (
+		addr  = flag.String("addr", ":8080", "endpoint address")
+		mongo = flag.String("mongo", "localhost", "mongodb address")
+	)
+	log.Println("Dialing mongo", *mongo)
+	db, err := mgo.Dial(*mongo)
+	if err != nil {
+		log.Fatalln("Couldnt connect to MongoDB: ", err)
+	}
+	defer db.Close()
+	s := &Server{
+		db: db,
+	}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/polls/", withCORS(withAPIKey(s.handlePolls)))
+	log.Println("Starting WWW server at", *addr)
+	http.ListenAndServe(":8080", mux)
+	log.Println("Stopping WWW server...")
+}
 
 func withAPIKey(fn http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
