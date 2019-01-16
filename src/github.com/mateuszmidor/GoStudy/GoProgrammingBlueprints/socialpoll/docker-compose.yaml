@@ -15,7 +15,7 @@ services:
       - "34161:4161"
   nsqd:
     image: nsqio/nsq
-    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 --broadcast-address=ec2-18-195-115-135.eu-central-1.compute.amazonaws.com
+    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 --broadcast-address=${HOST_IP}
     depends_on:
       - nsqlookupd
     ports:
