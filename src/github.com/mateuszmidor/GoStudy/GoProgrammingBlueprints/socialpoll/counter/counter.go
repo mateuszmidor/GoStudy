@@ -91,10 +91,12 @@ func main() {
 		counts[vote]++
 		return nil
 	}))
-	if err := q.ConnectToNSQLookupd("localhost:4161"); err != nil {
+
+	if err := q.ConnectToNSQLookupd(config.NsqLookupAddress); err != nil {
 		fatal(err)
 		return
 	}
+	log.Println("Connected NSQ Lookup!!!")
 	ticker := time.NewTicker(updateDuration)
 	termChan := make(chan os.Signal, 1)
 	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)

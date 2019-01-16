@@ -1,0 +1,31 @@
+version: '3'
+services:
+  mongodb:
+    image: mongo
+    command: mongod --port 34500 --dbpath ./db
+    ports:
+      - "34500:34500"
+    volumes:
+      - ./db:/db 
+  nsqlookupd:
+    image: nsqio/nsq
+    command: /nsqlookupd
+    ports:
+      - "34160:4160"
+      - "34161:4161"
+  nsqd:
+    image: nsqio/nsq
+    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 --broadcast-address=ec2-18-195-115-135.eu-central-1.compute.amazonaws.com
+    depends_on:
+      - nsqlookupd
+    ports:
+      - "4150:4150"
+      - "34150:4150"
+      - "34151:4151"
+  nsqadmin:
+    image: nsqio/nsq
+    command: /nsqadmin --lookupd-http-address=nsqlookupd:4161
+    depends_on:
+      - nsqlookupd  
+    ports:
+      - "34171:4171"

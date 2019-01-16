@@ -55,7 +55,7 @@ func exitOnError(err error) {
 
 func publishVotes(votes <-chan string) <-chan struct{} {
 	stopchan := make(chan struct{}, 1)
-	connstr := spconfig.GetConfig().NsqAddress
+	connstr := spconfig.GetConfig().NsqdAddress
 	pub, err := nsq.NewProducer(connstr, nsq.NewConfig())
 	exitOnError(err)
 	go func() {

@@ -3,27 +3,27 @@
 # Design
 [design.txt](design.txt)  
 
-# Install NSQ distributed messaging system and NSQ GO drivers locally
+# Install GO packages
+go get github.com/joeshaw/envdecode
+go get github.com/garyburd/go-oauth/oauth
+go get github.com/bitly/go-nsq
+go get gopkg.in/mgo.v2
+
+# Install NSQ distributed messaging system on localhost
 sudo pacman -S yaourt
 yaourt nsq
-go get github.com/bitly/go-nsq
 
 NSQ lookup default ports - important for running nsqd (it connects to nsq lookup):
     TCP: listening on 4160
     HTTP: listening on 4161
 Note that our program actually connects to nsq (4150), and nsq connects to nsqlookup for topology info
 
-# Install MongoDB software and MongoDB GO drivers
+# Install MongoDB on localhost
 sudo pacman -S mongodb
 sudo mkdir -p /data/db
 sudo chown $USER /data/db
-go get gopkg.in/mgo.v2
 
-# Install GO packages
-go get github.com/joeshaw/envdecode
-go get github.com/garyburd/go-oauth/oauth
-
-# Run the env on localhost
+# Run NSQ and MongoDB on localhost
 terminal1:
     nsqlookupd
 terminal2:
@@ -31,21 +31,26 @@ terminal2:
 terminal3:
     mongod --dbpath ./db
 
-# Configuration (for localhost mongodb & nsq)
+# Install & run NSQ and MongoDB on remote host using docker in a single step :)
+in the folder containing docker-compose.yaml:
+    docker-compose up
+
+# Configuration (for localhost, for remote host see: docker-compose.yaml)
 The following strings are required as env variables (see "setupenv.sh"):
 SP_TWITTER_KEY=
 SP_TWITTER_SECRET=
 SP_TWITTER_ACCESSTOKEN=
 SP_TWITTER_ACCESSSECRET=
 SP_MONGODB_ADDR=localhost
-SP_NSQ_ADDR=localhost:4150
+SP_NSQD_ADDR=localhost:4150
+SP_NSQLOOKUP_ADDR=localhost:4161
 
-# Setup MongoDB initial data - strings the twittervotes will be looking for
+# Setup MongoDB initial data on localhost - strings the twittervotes will be looking for
 > mongo
 > use ballots
 > db.polls.insert({"title":"Test poll", "options":["love", "kiss", "hate", "fight"]})
 
-# Track NSQ messages (localhost)
+# Track NSQ messages on localhost
 > nsq_tail --topic="votes" --lookupd-http-address=localhost:4161
 
 # Run the app
