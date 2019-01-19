@@ -54,7 +54,29 @@ SP_NSQLOOKUP_ADDR=localhost:4161
 > nsq_tail --topic="votes" --lookupd-http-address=localhost:4161
 
 # Run the app
-terminal4
-    twittervotes
-terminal5
-    counter
+terminal4  
+- wittervotes  
+
+terminal5  
+- counter
+
+# Remote on AWS instance
+0. Create network security key-pair, save the key-pair as ~/.ssh/mm_keypair.pem  
+1. Create Amazon Linux instance with docker package, set security key-pair  
+2. Setup instance->security groups->inbound:  
+    allow SSH 22 
+    allow TCP 27017 - default mongodb
+    allow TCP 4100-4200 - default nsqd and nsqlookup
+3. SSH to the instance:  
+    ssh -v -i ~/.ssh/mm_keypair.pem ec2-user@ec2-54-93-96-97.eu-central-1.compute.amazonaws.com  
+4. Install docker, add yourself to docker group so you dont need be root:  
+    sudo yum install docker  
+    sudo usermod -aG docker $(whoami)  
+5. Enable docker service autostart and run the service:  
+    sudo systemctl enable docker.service  
+    sudo systemctl start docker.service  
+6. Install docker-compose:  
+    sudo yum install -y python-pip  
+    sudo pip install docker-compose  
+7. Copy docker-compose.yaml and run_docker-compose.sh to AWS instance  
+8. Run ./run_docker-compose.sh  
