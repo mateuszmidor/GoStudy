@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+        <!-- Popper JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+
+        <!-- Latest compiled JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+        <title>Polls</title>
+      
+    </head>
+    <body>
+        <div class="container">
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <h1>Polls</h1>
+                <ul id="polls"></ul>
+                <a href="new.html" class="btn btn-primary">Create new poll</a>
+            </div>
+            <div class="col-md-4"></div>
+        </div>
+
+        <script>
+            $(function() {
+                var update = function() {
+                    $.get("http://localhost:8080/polls/?key=abc123", null, null, "json")
+                    .done(function(polls){
+                        $("#polls").empty();
+                        for (var p in polls) {
+                            var poll = polls[p];
+                            $("#polls").append(
+                                $("<li>").append(
+                                    $("<a>")
+                                        .attr("href", "view.html?poll=polls/" + poll.id)
+                                        .text(poll.title)
+                                )
+                            )
+                        }
+                    });
+                    window.setTimeout(update, 10000)
+                }
+                update();
+            });
+        </script>
+    </body>
+    </html>
