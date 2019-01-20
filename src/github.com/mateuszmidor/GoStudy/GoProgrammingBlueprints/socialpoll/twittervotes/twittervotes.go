@@ -11,8 +11,7 @@ import (
 
 	"spconfig"
 
-	nsq "github.com/bitly/go-nsq"
-
+	nsq "github.com/nsqio/go-nsq"
 	mgo "gopkg.in/mgo.v2"
 )
 
