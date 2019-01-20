@@ -1,13 +1,29 @@
-+----------+        +----------------+          +--------------+            +-------------+
-|          |        |    Twitter     |  read    | twittervotes |  publish   |     NSQ     |
-| Twitter  +-------->   Streaming    +---------->     (go)     +------------> Distributed |
-|          |        |      API       |  http    |              |  messages  |  Messaging  |
-+----------+        +----------------+          +-------^------+            +------+------+
-                                                        |                          |
-                                          read keywords |                          | consume messages
-                                                        |                          |
-                                                +-------+------+            +------v------+
-                                                |              |   store    |   counter   |
-                                                |   MongoDB    <------------+    (go)     |
-                                                |              |   hits     |             |
-                                                +--------------+            +-------------+
+                                                  +-----------------+
+                                                  |  web server     |
+                                                  |  (provides html |
+                                                  |  interface; go) |
+                                                  +--------^--------+
+                                                           |
+                                           expose http api |
+                                                           |
+                                                  +--------+--------+
+                                                  |       api       |
+                                                  |  (provides http |
+                                                  |  endpoints; go) |
+                                                  +--------^--------+
+                                                           |
+                                              expose polls |
+                                                           |
+                                                  +--------+--------+          +---------------+
+                                                  |     MongoDB     |  store   |    counter    |
+                                                  |   (store polls  <----------+ (read & count |
+                                                  | keywords&^otes) |  votes   |  ^otes; go)   |
+                                                  +--------+--------+          +-------^-------+
+                                                           |                           |
+ START HERE                           expose poll keywords |                           | expose messages
+                                                           |                           |
++----------+          +----------------+          +--------v--------+          +-------+-------+
+|          | publish  |    Twitter     |  expose  |  twittervotes   | publish  |      NSQ      |
+| Twitter  +---------->   Streaming    +---------->  (read & filter +---------->  Distributed  |
+|          | tweets   |      API       | http api |   tweets; go)   | messages |   Messaging   |
++----------+          +----------------+          +-----------------+          +---------------+
