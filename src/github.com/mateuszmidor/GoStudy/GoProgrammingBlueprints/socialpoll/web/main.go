@@ -11,6 +11,7 @@ func main() {
 	flag.Parse()
 	mux := http.NewServeMux()
 	mux.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("public"))))
-	log.Println("Running web server at:", *addr)
+	log.Println("Starting web server at:", *addr)
 	http.ListenAndServe(*addr, mux)
+	log.Println("Stopping web server...")
 }

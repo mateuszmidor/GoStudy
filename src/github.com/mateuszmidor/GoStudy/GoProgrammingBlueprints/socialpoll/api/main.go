@@ -39,9 +39,9 @@ func main() {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/polls/", withCORS(withAPIKey(s.handlePolls)))
-	log.Println("Starting WWW server at", *addr)
+	log.Println("Starting http api at", *addr)
 	http.ListenAndServe(":8080", mux)
-	log.Println("Stopping WWW server...")
+	log.Println("Stopping http api server...")
 }
 
 func withAPIKey(fn http.HandlerFunc) http.HandlerFunc {
