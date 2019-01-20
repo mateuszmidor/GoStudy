@@ -1,4 +1,5 @@
 # twitter votes
+Filter twitter tweets against keywords and show results in form of a web poll.
 
 # Design
 [design.txt](design.txt)  

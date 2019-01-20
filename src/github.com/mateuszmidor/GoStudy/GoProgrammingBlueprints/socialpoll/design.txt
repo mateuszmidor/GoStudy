@@ -17,7 +17,7 @@
                                                   +--------+--------+          +---------------+
                                                   |     MongoDB     |  store   |    counter    |
                                                   |   (store polls  <----------+ (read & count |
-                                                  | keywords&^otes) |  votes   |  ^otes; go)   |
+                                                  | keywords&votes) |  votes   |  votes; go)   |
                                                   +--------+--------+          +-------^-------+
                                                            |                           |
  START HERE                           expose poll keywords |                           | expose messages
