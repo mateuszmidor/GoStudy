@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"flag"
 	"log"
 	"net/http"
+	"spconfig"
 
 	mgo "gopkg.in/mgo.v2"
 )
@@ -24,12 +24,13 @@ func APIKey(ctx context.Context) (string, bool) {
 }
 
 func main() {
+	config := spconfig.GetConfig()
 	var (
-		addr  = flag.String("addr", ":8080", "endpoint address")
-		mongo = flag.String("mongo", "localhost", "mongodb address")
+		addr  = ":8080"
+		mongo = config.MongoDbAddress
 	)
-	log.Println("Dialing mongo", *mongo)
-	db, err := mgo.Dial(*mongo)
+	log.Println("Dialing mongo", mongo)
+	db, err := mgo.Dial(mongo)
 	if err != nil {
 		log.Fatalln("Couldnt connect to MongoDB: ", err)
 	}
@@ -39,8 +40,8 @@ func main() {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/polls/", withCORS(withAPIKey(s.handlePolls)))
-	log.Println("Starting http api at", *addr)
-	http.ListenAndServe(":8080", mux)
+	log.Println("Starting http api at", addr)
+	http.ListenAndServe(addr, mux)
 	log.Println("Stopping http api server...")
 }
 
