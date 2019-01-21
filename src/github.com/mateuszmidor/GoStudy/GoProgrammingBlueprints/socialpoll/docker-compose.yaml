@@ -2,30 +2,35 @@ version: '3'
 services:
   mongodb:
     image: mongo
-    command: mongod --port 34500 --dbpath ./db
+    command: mongod --port 27017 --dbpath /data
     ports:
-      - "34500:34500"
+      - "27017:27017"
     volumes:
-      - ./db:/db 
+      - ./data:/data
   nsqlookupd:
     image: nsqio/nsq
     command: /nsqlookupd
     ports:
-      - "34160:4160"
-      - "34161:4161"
+      - "4160:4160"
+      - "4161:4161"
   nsqd:
     image: nsqio/nsq
-    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 --broadcast-address=${HOST_IP}
+    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 --data-path=/data  #--broadcast-address=${HOST_IP}
     depends_on:
       - nsqlookupd
     ports:
       - "4150:4150"
-      - "34150:4150"
-      - "34151:4151"
-  nsqadmin:
-    image: nsqio/nsq
-    command: /nsqadmin --lookupd-http-address=nsqlookupd:4161
+      - "4151:4151"
+    volumes:
+      - ./data:/data
+  socialpoll:
+    image: golang
+    command: /home/runall.sh
     depends_on:
-      - nsqlookupd  
+      - mongodb
+      - nsqd
     ports:
-      - "34171:4171"
+      - "8080:8080" # api (http endpoints)
+      - "8081:8081" # web (http server
+    volumes:
+      - .:/home
