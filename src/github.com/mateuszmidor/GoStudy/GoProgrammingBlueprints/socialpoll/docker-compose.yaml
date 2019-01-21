@@ -2,11 +2,11 @@ version: '3'
 services:
   mongodb:
     image: mongo
-    command: mongod --port 27017 --dbpath /data
+    command: mongod --port 27017 --dbpath /tmp
     ports:
       - "27017:27017"
-    volumes:
-      - ./data:/data
+#    volumes:
+#      - ./data:/tmp
   nsqlookupd:
     image: nsqio/nsq
     command: /nsqlookupd
@@ -15,14 +15,14 @@ services:
       - "4161:4161"
   nsqd:
     image: nsqio/nsq
-    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 --data-path=/data  #--broadcast-address=${HOST_IP}
+    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 --data-path=/tmp
     depends_on:
       - nsqlookupd
     ports:
       - "4150:4150"
       - "4151:4151"
-    volumes:
-      - ./data:/data
+#    volumes:
+#      - ./data:/tmp
   socialpoll:
     image: golang
     command: /home/runall.sh
