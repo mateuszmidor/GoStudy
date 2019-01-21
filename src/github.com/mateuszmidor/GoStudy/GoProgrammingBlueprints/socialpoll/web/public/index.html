@@ -32,7 +32,8 @@
         <script>
             $(function() {
                 var update = function() {
-                    $.get("http://localhost:8080/polls/?key=abc123", null, null, "json")
+
+                    $.get("http://" + window.location.hostname + ":8080/polls/?key=abc123", null, null, "json")
                     .done(function(polls){
                         $("#polls").empty();
                         for (var p in polls) {
