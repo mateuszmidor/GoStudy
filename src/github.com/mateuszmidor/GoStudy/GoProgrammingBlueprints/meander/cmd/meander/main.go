@@ -8,9 +8,6 @@ import (
 )
 
 func main() {
-	// APIKey =
-	//AIzaSyDqiK9gdlhH0gerUhfKxnaFTRt1VTb8iyg
-	//AIzaSyCZzNDxQDkfRW_oOMBeCNLoqMWAVLw5nF8
 	http.HandleFunc("/journeys", func(w http.ResponseWriter, r *http.Request) {
 		respond(w, r, meander.Journeys)
 	})
