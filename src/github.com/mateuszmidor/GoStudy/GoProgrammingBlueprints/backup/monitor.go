@@ -34,6 +34,6 @@ func (m *Monitor) Now() (int, error) {
 			counter++
 
 		}
-		return counter, nil
 	}
+	return counter, nil
 }
