@@ -7,6 +7,9 @@ import (
 
 func init() {
 	http.HandleFunc("/", handleHello)
+	http.HandleFunc("/api/questions/", handleQuestions)
+	http.HandleFunc("/api/answers/", handleAnswers)
+	http.HandleFunc("/api/votes/", handleVotes)
 }
 
 func handleHello(w http.ResponseWriter, r *http.Request) {

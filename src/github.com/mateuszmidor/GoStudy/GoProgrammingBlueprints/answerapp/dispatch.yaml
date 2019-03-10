@@ -1,0 +1,5 @@
+dispach:
+- url: "*/api/*"
+  service: api
+- url: "*/*"
+  service: web
