@@ -14,7 +14,7 @@ type Answer struct {
 	Answer string         `json:"answer" datastore:",noindex"`
 	CTime  time.Time      `json:"created"`
 	User   UserCard       `json:"user" datastore:",noindex"`
-	Score  int            `json:"score:`
+	Score  int            `json:"score"`
 }
 
 func (a Answer) OK() error {
@@ -52,7 +52,6 @@ func (a *Answer) Create(ctx context.Context, questionKey *datastore.Key) error {
 		return err
 	}
 	return nil
-
 }
 
 func GetAnswer(ctx context.Context, answerKey *datastore.Key) (*Answer, error) {

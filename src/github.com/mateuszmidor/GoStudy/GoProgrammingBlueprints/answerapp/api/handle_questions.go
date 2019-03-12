@@ -23,6 +23,7 @@ func handleQuestions(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 	}
 }
+
 func handleQuestionCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	var q Question
@@ -50,7 +51,6 @@ func handleQuestionGet(w http.ResponseWriter, r *http.Request, questionID string
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
 			respondErr(ctx, w, r, datastore.ErrNoSuchEntity, http.StatusNotFound)
-
 			return
 		}
 		respondErr(ctx, w, r, err, http.StatusInternalServerError)

@@ -45,7 +45,6 @@ func (q *Question) Create(ctx context.Context) error {
 func (q *Question) Update(ctx context.Context) error {
 	if q.Key == nil {
 		q.Key = datastore.NewIncompleteKey(ctx, "Question", nil)
-
 	}
 	var err error
 	q.Key, err = datastore.Put(ctx, q.Key, q)
@@ -54,6 +53,7 @@ func (q *Question) Update(ctx context.Context) error {
 	}
 	return nil
 }
+
 func GetQuestion(ctx context.Context, key *datastore.Key) (*Question, error) {
 	var q Question
 	err := datastore.Get(ctx, key, &q)
@@ -66,14 +66,14 @@ func GetQuestion(ctx context.Context, key *datastore.Key) (*Question, error) {
 
 func TopQuestions(ctx context.Context) ([]*Question, error) {
 	var questions []*Question
-	questionKeys, err := datastore.NewQuery("Question").Order("-AnswersCount").Order("-CTime").Limit(25).GetAll(ctx, &questions)
+	questionKeys, err := datastore.NewQuery("Question").Order("-AnswersCount").Limit(25).GetAll(ctx, &questions)
 	if err != nil {
 		return nil, err
 	}
 	for i := range questions {
 		questions[i].Key = questionKeys[i]
 	}
-	log.Debugf(ctx, "questions: %v", questions)
+	log.Debugf(ctx, "top questions: %v", questions)
 	return questions, nil
 }
 

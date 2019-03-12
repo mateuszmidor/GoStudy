@@ -56,7 +56,7 @@ func castVoteInTransaction(ctx context.Context, answerKey *datastore.Key, questi
 		return vote, err
 	}
 	if err == datastore.ErrNoSuchEntity {
-		vote = Vote{
+		vote = Vote{ 
 			Key:      voteKey,
 			User:     user.Card(),
 			Answer:   answer.Card(),
