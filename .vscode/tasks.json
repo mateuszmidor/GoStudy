@@ -37,6 +37,16 @@
                 "isDefault": true
             }
         }
+        ,
+        {
+            "label": "run sdars",
+            "type": "shell",
+            "command": "go run github.com/mateuszmidor/GoStudy/sdars/demo",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
     ]
 }
 
