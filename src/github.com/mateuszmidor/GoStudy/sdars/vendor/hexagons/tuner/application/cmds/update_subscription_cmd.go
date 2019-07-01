@@ -1,18 +1,17 @@
 package cmds
 
-import "hexagons/tuner"
 import "hexagons/tuner/domain"
+import "hexagons/tuner/infrastructure"
 
 type UpdateSubscriptionCmd struct {
-	root *tuner.TunerRoot
 	subscription domain.Subscription
 }
 
-func NewUpdateSubscriptionCmd(root *tuner.TunerRoot, subscription domain.Subscription) *UpdateSubscriptionCmd {
-	return &UpdateSubscriptionCmd{root, subscription}
+func NewUpdateSubscriptionCmd(subscription domain.Subscription) *UpdateSubscriptionCmd {
+	return &UpdateSubscriptionCmd{subscription}
 }
 
-func (cmd UpdateSubscriptionCmd) Execute() {
-	cmd.root.Tuner.Subscription = cmd.subscription
-	cmd.root.GuiPortOut.UpdateSubscription(cmd.subscription)
+func (cmd UpdateSubscriptionCmd) Execute(tuner *domain.Tuner, ports *infrastructure.Ports) {
+	tuner.Subscription = cmd.subscription
+	ports.GuiPortOut.UpdateSubscription(cmd.subscription)
 }
