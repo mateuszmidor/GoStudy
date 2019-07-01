@@ -1,4 +1,4 @@
-package sdars
+package application
 
 type CommandQueue chan Cmd
 

@@ -1,4 +1,4 @@
-package hardware
+package application
 
 import "math/rand"
 

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 	"math/rand"
-	"sdars"
-	"adapters"
+	"actors/ui"
 	"actors/hardware"
-	"actors/cluster"
-)
+	"adapters"
+	"hexagons/tuner"
+) 
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
@@ -16,31 +16,29 @@ func main() {
 	// hardware side of the communication; sends station list updates, receives station tune requests
 	hardware:= hardware.NewHwActor()
 
-	// cluster side of the communication; sends tune requests, receives station list updates
-	cluster := cluster.NewClusterActor()
+	// ui side of the communication; sends tune requests, receives station list updates
+	ui := ui.NewUiActor()
 
-	// command processor
-	tuner := sdars.NewTunerCommandProcessor()
+	// aggregate root
+	tuner := tuner.NewTunerRoot()
 
-	// adapts tuner hardware port for our specific HwActor
-	hwAdapter := adapters.NewHardwareAdapter(&tuner.CommandQueue, &hardware)
+	// hardware talks to tuner
+	hwAdapter := adapters.NewHardwareAdapter(&tuner, &hardware)
 
-	// adapts tuner cluster port for our specific ClusterActor
-	clusterAdapter := adapters.NewClusterAdapter(&tuner.CommandQueue, &cluster)
+	// ui talks to tuner
+	uiAdapter := adapters.NewUiAdapter(&tuner, &ui)
 
-	// tuner communicated with the outer world through its ports
-	tuner.SetupPorts(hwAdapter, clusterAdapter)
+	// tuner talks to hardware and ui
+	tuner.SetupPorts(hwAdapter, uiAdapter)
 
-	// run outer world actors in their own threads
+	// run all the parties
+	go ui.Run()
+	go tuner.Run()
 	go hardware.Run()
-	go cluster.Run()
 
-	// this is shutdown condition for the tuner command processing
-	// shutdownCondition := sdars.NewShutdownCondition()
-
-	// start processing commands and block until shutdownCondition is fulfilled
-	tuner.Run(sdars.NewShutdownCondition())
+	// wait for INT/TERM
+	NewShutdownCondition().Wait()
 
 	// demo done
-	fmt.Printf("TunerDemo done")
+	fmt.Printf("TunerDemo done\n")
 }
