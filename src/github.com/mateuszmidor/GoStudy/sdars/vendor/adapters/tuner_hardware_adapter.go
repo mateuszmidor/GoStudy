@@ -21,12 +21,12 @@ func NewHardwareAdapter(r *tuner.TunerRoot, a *hardware.HwActor) HardwareAdapter
 
 // Transform HW command into Tuner command
 func (ha *HardwareAdapter) UpdateStationList(newStationList domain.StationList) {
-	ha.root.CommandQueue <- cmds.NewUpdateStationListCmd(newStationList)
+	ha.root.PutCommand(cmds.NewUpdateStationListCmd(newStationList))
 }
 
 // Transform HW command into Tuner command
 func (ha *HardwareAdapter) UpdateSubscription(subscription domain.Subscription) {
-	ha.root.CommandQueue <- cmds.NewUpdateSubscriptionCmd(subscription)
+	ha.root.PutCommand(cmds.NewUpdateSubscriptionCmd(subscription))
 }
 
 // Transform Tuner command into HW command

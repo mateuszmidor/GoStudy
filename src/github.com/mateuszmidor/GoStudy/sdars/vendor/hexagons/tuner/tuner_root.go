@@ -6,9 +6,9 @@ import "hexagons/tuner/infrastructure"
 
 // Tuner aggregate root; visible to the outer world
 type TunerRoot struct {
-	Tuner domain.Tuner
-	Ports infrastructure.Ports
-	CommandQueue application.CommandQueue
+	tuner domain.Tuner
+	ports infrastructure.Ports
+	commandQueue application.CommandQueue
 }
 
 func NewTunerRoot() TunerRoot {
@@ -16,8 +16,12 @@ func NewTunerRoot() TunerRoot {
 }
 
 func (t *TunerRoot) SetupPorts(hardwarePortOut infrastructure.HardwarePortOut, guiPortOut infrastructure.GuiPortOut) {
-	t.Ports.HardwarePortOut = hardwarePortOut
-	t.Ports.GuiPortOut = guiPortOut
+	t.ports.HardwarePortOut = hardwarePortOut
+	t.ports.GuiPortOut = guiPortOut
+}
+
+func (t *TunerRoot) PutCommand(cmd application.Cmd) {
+	t.commandQueue <- cmd
 }
 
 // To be run from non-main gorutine
@@ -25,8 +29,8 @@ func (t *TunerRoot) Run() {
 	// loop forever
 	for {
 		select {
-		case cmd:= <- t.CommandQueue:
-			cmd.Execute(&t.Tuner, &t.Ports)
+		case cmd:= <- t.commandQueue:
+			cmd.Execute(&t.tuner, &t.ports)
 		}
 	}
 }

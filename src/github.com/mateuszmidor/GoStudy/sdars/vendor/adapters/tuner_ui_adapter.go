@@ -20,7 +20,7 @@ func NewUiAdapter(r *tuner.TunerRoot, a *ui.UiActor) UiAdapter {
 
 // Transform Cluster command into Tuner command
 func (ua *UiAdapter) TuneToStation(stationId domain.StationId) {
-	ua.root.CommandQueue <- *cmds.NewTuneToStationCmd(stationId)
+	ua.root.PutCommand(cmds.NewTuneToStationCmd(stationId))
 }
 
 // Transform Tuner command into Cluster command
