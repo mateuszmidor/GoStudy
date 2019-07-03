@@ -1,9 +1,11 @@
 package application
 
 import "hexagons/ui/domain"
+import "hexagons/ui/infrastructure"
 import "fmt"
+import "time"
 
-// Implements TunerPortIn
+// implements TunerPortIn
 type UiService struct {
 	ui *domain.Ui
 }
@@ -12,12 +14,21 @@ func NewUiService (ui *domain.Ui) UiService {
 	return UiService{ui}
 }
 
-func (service UiService) UpdateSubscription(active bool) {
+func (service *UiService) UpdateSubscription(active bool) {
 	fmt.Printf("UiService.UpdateSubscription: %v\n", active)
 	service.ui.SubscriptionActive = active
 }
 
-func (service UiService) UpdateStationList(stations []string) {
+func (service *UiService) UpdateStationList(stations []string) {
 	fmt.Printf("UiService.UpdateStationList: %v\n", stations)
 	service.ui.StationList = stations
+}
+
+func (service *UiService) Run(ports infrastructure.Ports) {
+	for {
+		select {
+		case <-time.After(5 * time.Second):
+			ports.TunerPortOut.TuneToStation(RandomStation(service.ui.StationList))
+		}
+	}
 }

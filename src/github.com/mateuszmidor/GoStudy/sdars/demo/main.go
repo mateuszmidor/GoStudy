@@ -14,7 +14,7 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	// hardware side of the communication; sends station list updates, receives station tune requests
-	hardware:= hardware.NewHwActor()
+	hardware := hardware.NewHwActor()
 
 	// ui side of the communication; sends tune requests, receives station list updates
 	ui := ui.NewUiRoot()
@@ -27,11 +27,11 @@ func main() {
 
 	// communicate hexagons tuner <-> ui
 	adapterTunerUi := adapters.NewUiAdapter(&tuner, &ui)
-	ui.SetupTunerPortOut(adapterTunerUi)
-	tuner.SetupUiPortOut(adapterTunerUi)
+	ui.SetupTunerPortOut(&adapterTunerUi)
+	tuner.SetupUiPortOut(&adapterTunerUi)
 
 	// tuner talks to hardware and ui
-	tuner.SetupHwPortOut(hwAdapter)
+	tuner.SetupHwPortOut(&hwAdapter)
 
 	// ui.SetupPorts(uiAdapter)
 	// hardware.SetupPorts(hwAdapter)

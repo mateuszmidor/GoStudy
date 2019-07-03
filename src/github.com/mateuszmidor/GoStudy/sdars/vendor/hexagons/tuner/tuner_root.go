@@ -28,11 +28,11 @@ func (t *TunerRoot) SetupUiPortOut(uiPortOut infrastructure.UiPortOut) {
 }
 
 func (t *TunerRoot) GetUiPortIn() infrastructure.UiPortIn {
-	return t.service // TunerService implements all the input ports
+	return &t.service // TunerService implements all the input ports
 }
 
 func (t *TunerRoot) GetHwPortIn() infrastructure.HwPortIn {
-	return t.service // TunerService implements all the input ports
+	return &t.service // TunerService implements all the input ports
 }
 
 // To be run from non-main gorutine

@@ -17,15 +17,15 @@ func (service *TunerService) PutCommand(cmd Cmd) {
 	service.commandQueue <- cmd
 }
 
-func (service TunerService) TuneToStation(stationId domain.StationId) {
+func (service *TunerService) TuneToStation(stationId domain.StationId) {
 	service.PutCommand(cmds.NewTuneToStationCmd(stationId))
 }
 
-func (service TunerService) SubscriptionUpdated(subscription domain.Subscription) {
+func (service *TunerService) SubscriptionUpdated(subscription domain.Subscription) {
 	service.PutCommand(cmds.NewUpdateSubscriptionCmd(subscription))
 }
 
-func (service TunerService) StationListUpdated(stationList domain.StationList) {
+func (service *TunerService) StationListUpdated(stationList domain.StationList) {
 	service.PutCommand(cmds.NewUpdateStationListCmd(stationList))
 }
 

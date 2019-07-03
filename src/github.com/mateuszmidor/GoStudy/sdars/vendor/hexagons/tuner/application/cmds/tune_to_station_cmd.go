@@ -15,7 +15,7 @@ func NewTuneToStationCmd(stationId domain.StationId) *TuneToStationCmd {
 func (cmd TuneToStationCmd) Execute(tuner *domain.Tuner, ports *infrastructure.Ports) {
 	// check business rule
 	if tuner.Subscription == false {
-		fmt.Printf("TuneToStationCmd.Execute: cant tune, subscription inactive\n")
+		fmt.Printf("TuneToStationCmd.Execute: cant tune to station %v, subscription inactive\n", cmd.stationId)
 		return
 	}
 

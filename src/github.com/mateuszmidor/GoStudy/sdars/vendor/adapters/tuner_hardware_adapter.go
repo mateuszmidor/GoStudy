@@ -7,6 +7,7 @@ import (
 	tunerports "hexagons/tuner/infrastructure"
 )
 
+// Implements tuner: HwPortOut
 type HardwareAdapter struct {
 	tunerPortIn tunerports.HwPortIn
 	a *hardware.HwActor
@@ -30,7 +31,7 @@ func (ha *HardwareAdapter) UpdateSubscription(subscription domain.Subscription) 
 }
 
 // Transform Tuner command into HW command
-func (ha HardwareAdapter) TuneToStation(stationId uint32) {
+func (ha *HardwareAdapter) TuneToStation(stationId uint32) {
 	// forward to HW actor
 	ha.a.TuneToStation(stationId)
 }

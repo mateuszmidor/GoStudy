@@ -1,6 +1,5 @@
 package ui
 
-import "time"
 import "hexagons/ui/domain"
 import "hexagons/ui/application"
 import "hexagons/ui/infrastructure"
@@ -15,23 +14,18 @@ func NewUiRoot() UiRoot {
 	root := UiRoot{}
 	root.ui = domain.NewUi()
 	root.service = application.NewUiService(&root.ui)
-	root.ports = infrastructure.Ports{root.service, nil}
+	root.ports = infrastructure.Ports{}
 	return root
 }
 
-func (ui *UiRoot) SetupTunerPortOut(tuner infrastructure.TunerPortOut) {
-	ui.ports.TunerPortOut = tuner
+func (root *UiRoot) SetupTunerPortOut(tuner infrastructure.TunerPortOut) {
+	root.ports.TunerPortOut = tuner
 }
 
-func (ui *UiRoot) GetTunerPortIn() infrastructure.TunerPortIn {
-	return ui.ports.TunerPortIn 
+func (root *UiRoot) GetTunerPortIn() infrastructure.TunerPortIn {
+	return &root.service // UiService implements all the input ports 
 }
 
 func (root *UiRoot) Run() {
-	for {
-		select {
-		case <-time.After(5 * time.Second):
-			root.ports.TunerPortOut.TuneToStation(application.RandomStation(root.ui.StationList))
-		}
-	}
+	root.service.Run(root.ports)
 }
