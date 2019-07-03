@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 	"math/rand"
-	"actors/ui"
 	"actors/hardware"
 	"adapters"
+	"hexagons/ui"
 	"hexagons/tuner"
 ) 
 
@@ -17,7 +17,7 @@ func main() {
 	hardware:= hardware.NewHwActor()
 
 	// ui side of the communication; sends tune requests, receives station list updates
-	ui := ui.NewUiActor()
+	ui := ui.NewUiRoot()
 
 	// aggregate root
 	tuner := tuner.NewTunerRoot()
@@ -25,13 +25,18 @@ func main() {
 	// hardware talks to tuner
 	hwAdapter := adapters.NewHardwareAdapter(&tuner, &hardware)
 
-	// ui talks to tuner
-	uiAdapter := adapters.NewUiAdapter(&tuner, &ui)
+	// communicate hexagons tuner <-> ui
+	adapterTunerUi := adapters.NewUiAdapter(&tuner, &ui)
+	ui.SetupTunerPortOut(adapterTunerUi)
+	tuner.SetupUiPortOut(adapterTunerUi)
 
 	// tuner talks to hardware and ui
-	tuner.SetupPorts(hwAdapter, uiAdapter)
+	tuner.SetupHwPortOut(hwAdapter)
 
+	// ui.SetupPorts(uiAdapter)
+	// hardware.SetupPorts(hwAdapter)
 	// run all the parties
+
 	go ui.Run()
 	go tuner.Run()
 	go hardware.Run()

@@ -8,29 +8,34 @@ import "hexagons/tuner/infrastructure"
 type TunerRoot struct {
 	tuner domain.Tuner
 	ports infrastructure.Ports
-	commandQueue application.CommandQueue
+	service application.TunerService
 }
 
 func NewTunerRoot() TunerRoot {
-	return TunerRoot{domain.NewTuner(), infrastructure.Ports{}, application.NewCommandQueue()}
+	root := TunerRoot{}
+	root.tuner = domain.NewTuner()
+	root.ports = infrastructure.Ports{}
+	root.service = application.NewTunerService()
+	return root
 }
 
-func (t *TunerRoot) SetupPorts(hardwarePortOut infrastructure.HardwarePortOut, guiPortOut infrastructure.GuiPortOut) {
-	t.ports.HardwarePortOut = hardwarePortOut
-	t.ports.GuiPortOut = guiPortOut
+func (t *TunerRoot) SetupHwPortOut(hwPortOut infrastructure.HwPortOut) {
+	t.ports.HwPortOut = hwPortOut
 }
 
-func (t *TunerRoot) PutCommand(cmd application.Cmd) {
-	t.commandQueue <- cmd
+func (t *TunerRoot) SetupUiPortOut(uiPortOut infrastructure.UiPortOut) {
+	t.ports.UiPortOut = uiPortOut
+}
+
+func (t *TunerRoot) GetUiPortIn() infrastructure.UiPortIn {
+	return t.service // TunerService implements all the input ports
+}
+
+func (t *TunerRoot) GetHwPortIn() infrastructure.HwPortIn {
+	return t.service // TunerService implements all the input ports
 }
 
 // To be run from non-main gorutine
 func (t *TunerRoot) Run() {
-	// loop forever
-	for {
-		select {
-		case cmd:= <- t.commandQueue:
-			cmd.Execute(&t.tuner, &t.ports)
-		}
-	}
+	t.service.Run(&t.tuner, &t.ports)
 }

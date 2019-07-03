@@ -4,16 +4,16 @@ import (
 	"actors/hardware"
 	"hexagons/tuner"
 	"hexagons/tuner/domain"
-	"hexagons/tuner/application/cmds"
+	tunerports "hexagons/tuner/infrastructure"
 )
 
 type HardwareAdapter struct {
-	root *tuner.TunerRoot
+	tunerPortIn tunerports.HwPortIn
 	a *hardware.HwActor
 }
 
 func NewHardwareAdapter(r *tuner.TunerRoot, a *hardware.HwActor) HardwareAdapter {
-	ha := HardwareAdapter{r, a}
+	ha := HardwareAdapter{r.GetHwPortIn(), a}
 	a.OnUpdatStationList = ha.UpdateStationList
 	a.OnUpdateSubscription = ha.UpdateSubscription
 	return ha
@@ -21,12 +21,12 @@ func NewHardwareAdapter(r *tuner.TunerRoot, a *hardware.HwActor) HardwareAdapter
 
 // Transform HW command into Tuner command
 func (ha *HardwareAdapter) UpdateStationList(newStationList domain.StationList) {
-	ha.root.PutCommand(cmds.NewUpdateStationListCmd(newStationList))
+	ha.tunerPortIn.StationListUpdated(newStationList)
 }
 
 // Transform HW command into Tuner command
 func (ha *HardwareAdapter) UpdateSubscription(subscription domain.Subscription) {
-	ha.root.PutCommand(cmds.NewUpdateSubscriptionCmd(subscription))
+	ha.tunerPortIn.SubscriptionUpdated(subscription)
 }
 
 // Transform Tuner command into HW command

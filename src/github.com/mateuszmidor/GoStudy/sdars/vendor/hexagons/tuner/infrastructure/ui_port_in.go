@@ -2,7 +2,7 @@ package infrastructure
 
 import "hexagons/tuner/domain"
 
-// what GUI can tell to tuner
-type GuiPortIn interface {
+// what UI can tell to tuner
+type UiPortIn interface {
 	TuneToStation(stationId domain.StationId)
 }

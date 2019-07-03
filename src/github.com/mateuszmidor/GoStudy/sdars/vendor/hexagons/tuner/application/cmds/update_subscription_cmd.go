@@ -13,5 +13,5 @@ func NewUpdateSubscriptionCmd(subscription domain.Subscription) *UpdateSubscript
 
 func (cmd UpdateSubscriptionCmd) Execute(tuner *domain.Tuner, ports *infrastructure.Ports) {
 	tuner.Subscription = cmd.subscription
-	ports.GuiPortOut.UpdateSubscription(cmd.subscription)
+	ports.UiPortOut.UpdateSubscription(cmd.subscription)
 }

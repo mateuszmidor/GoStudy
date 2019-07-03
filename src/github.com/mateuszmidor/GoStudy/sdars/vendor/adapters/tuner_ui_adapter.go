@@ -1,36 +1,35 @@
 package adapters
 
 import (
-	"actors/ui"
+	"hexagons/ui"
+	uiports "hexagons/ui/infrastructure"
 	"hexagons/tuner"
-	"hexagons/tuner/domain"
-	"hexagons/tuner/application/cmds"
+	tunerports "hexagons/tuner/infrastructure"
 )
 
 type UiAdapter struct {
-	root *tuner.TunerRoot
-	a *ui.UiActor
+	tunerPortIn tunerports.UiPortIn
+	uiPortIn uiports.TunerPortIn
 }
 
-func NewUiAdapter(r *tuner.TunerRoot, a *ui.UiActor) UiAdapter {
-	ua := UiAdapter{r, a}
-	a.OnTuneToStation = ua.TuneToStation
+func NewUiAdapter(tuner *tuner.TunerRoot, ui *ui.UiRoot) UiAdapter {
+	ua := UiAdapter{tuner.GetUiPortIn(), ui.GetTunerPortIn()}
 	return ua
 }
 
-// Transform Cluster command into Tuner command
-func (ua *UiAdapter) TuneToStation(stationId domain.StationId) {
-	ua.root.PutCommand(cmds.NewTuneToStationCmd(stationId))
+// UI -> Tuner
+func (adapter UiAdapter) TuneToStation(stationId uint32) {
+	adapter.tunerPortIn.TuneToStation(stationId)
 }
 
-// Transform Tuner command into Cluster command
-func (ua UiAdapter) UpdateStationList(stationList []string) {
+// Tuner -> UI
+func (adapter UiAdapter) UpdateStationList(stationList []string) {
 	// forward to cluster actor
-	ua.a.UpdateStationList(stationList)
+	adapter.uiPortIn.UpdateStationList(stationList)
 }
 
-// Transform Tuner command into Cluster command
-func (ua UiAdapter) UpdateSubscription(active bool) {
+// Tuner -> UI
+func (adapter UiAdapter) UpdateSubscription(active bool) {
 	// forward to cluster actor
-	ua.a.UpdateSubscription(active)	
+	adapter.uiPortIn.UpdateSubscription(active)	
 }

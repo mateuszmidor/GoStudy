@@ -24,5 +24,5 @@ func (cmd TuneToStationCmd) Execute(tuner *domain.Tuner, ports *infrastructure.P
 		return	
 	}
 	
-	ports.HardwarePortOut.TuneToStation(cmd.stationId)
+	ports.HwPortOut.TuneToStation(cmd.stationId)
 }
