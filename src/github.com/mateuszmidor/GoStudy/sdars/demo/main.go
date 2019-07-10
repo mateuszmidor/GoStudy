@@ -4,42 +4,37 @@ import (
 	"fmt"
 	"time"
 	"math/rand"
-	"actors/hardware"
 	"adapters"
-	"hexagons/ui"
+	"hexagons/hw"
 	"hexagons/tuner"
+	"hexagons/ui"
 ) 
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	// hardware side of the communication; sends station list updates, receives station tune requests
-	hardware := hardware.NewHwActor()
+	// hw side of the communication; sends subscription/station list updates, receives tune requests
+	hw := hw.NewHwRoot()
 
-	// ui side of the communication; sends tune requests, receives station list updates
+	// ui side of the communication; sends tune requests, receives subscription/station list updates
 	ui := ui.NewUiRoot()
 
-	// aggregate root
+	// tuner; the middle side. Does business logic and communicates with hw and ui
 	tuner := tuner.NewTunerRoot()
 
-	// hardware talks to tuner
-	hwAdapter := adapters.NewHardwareAdapter(&tuner, &hardware)
-
-	// communicate hexagons tuner <-> ui
+	// communicate hexagons tuner <-> ui, tuner <-> hw
+	adapterTunerHw := adapters.NewHwAdapter(&tuner, &hw)
 	adapterTunerUi := adapters.NewUiAdapter(&tuner, &ui)
-	ui.SetupTunerPortOut(&adapterTunerUi)
+
+	hw.SetTunerOutPort(&adapterTunerHw)
 	tuner.SetupUiPortOut(&adapterTunerUi)
+	tuner.SetupHwPortOut(&adapterTunerHw)
+	ui.SetupTunerPortOut(&adapterTunerUi)
 
-	// tuner talks to hardware and ui
-	tuner.SetupHwPortOut(&hwAdapter)
-
-	// ui.SetupPorts(uiAdapter)
-	// hardware.SetupPorts(hwAdapter)
 	// run all the parties
-
-	go ui.Run()
+	go hw.Run()
 	go tuner.Run()
-	go hardware.Run()
+	go ui.Run()
 
 	// wait for INT/TERM
 	NewShutdownCondition().Wait()

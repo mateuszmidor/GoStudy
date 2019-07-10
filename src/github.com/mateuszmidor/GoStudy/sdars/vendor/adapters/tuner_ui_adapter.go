@@ -2,8 +2,8 @@ package adapters
 
 import (
 	"hexagons/ui"
-	uiports "hexagons/ui/infrastructure"
 	"hexagons/tuner"
+	uiports "hexagons/ui/infrastructure"
 	tunerports "hexagons/tuner/infrastructure"
 )
 

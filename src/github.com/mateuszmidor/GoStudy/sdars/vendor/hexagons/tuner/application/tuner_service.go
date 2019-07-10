@@ -4,7 +4,7 @@ import "hexagons/tuner/domain"
 import "hexagons/tuner/infrastructure"
 import "hexagons/tuner/application/cmds"
 
-// Implements UiPortIn, HwPortIn
+// Implements Tuner input ports: UiPortIn, HwPortIn
 type TunerService struct {
 	commandQueue CommandQueue
 }
@@ -13,20 +13,23 @@ func NewTunerService() TunerService {
 	return TunerService{NewCommandQueue()}
 }
 
-func (service *TunerService) PutCommand(cmd Cmd) {
+func (service *TunerService) putCommand(cmd Cmd) {
 	service.commandQueue <- cmd
 }
 
+// UiPortIn
 func (service *TunerService) TuneToStation(stationId domain.StationId) {
-	service.PutCommand(cmds.NewTuneToStationCmd(stationId))
+	service.putCommand(cmds.NewTuneToStationCmd(stationId))
 }
 
+// HwPortIn
 func (service *TunerService) SubscriptionUpdated(subscription domain.Subscription) {
-	service.PutCommand(cmds.NewUpdateSubscriptionCmd(subscription))
+	service.putCommand(cmds.NewUpdateSubscriptionCmd(subscription))
 }
 
+// HwPortIn
 func (service *TunerService) StationListUpdated(stationList domain.StationList) {
-	service.PutCommand(cmds.NewUpdateStationListCmd(stationList))
+	service.putCommand(cmds.NewUpdateStationListCmd(stationList))
 }
 
 // To be run from non-main gorutine
