@@ -1,4 +1,4 @@
-package main
+package rest
 
 type HttpResource = string
 

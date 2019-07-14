@@ -1,4 +1,4 @@
-package main
+package rest
 
 import (
 	"encoding/json"
@@ -9,37 +9,37 @@ import (
 	"strings"
 )
 
-func decodeBody(r *http.Request, v interface{}) error {
+func DecodeBody(r *http.Request, v interface{}) error {
 	defer r.Body.Close()
 	return json.NewDecoder(r.Body).Decode(v)
 }
 
-func encodeBody(w io.Writer, v interface{}) error {
+func EncodeBody(w io.Writer, v interface{}) error {
 	return json.NewEncoder(w).Encode(v)
 }
 
-func respond(w http.ResponseWriter, status int, data interface{}) {
+func Respond(w http.ResponseWriter, status int, data interface{}) {
 	w.WriteHeader(status)
 	if data != nil {
-		encodeBody(w, data)
+		EncodeBody(w, data)
 	}
 }
 
-func respondErr(w http.ResponseWriter, status int, args ...interface{}) {
-	respond(w, status, map[string]interface{}{
+func RespondErr(w http.ResponseWriter, status int, args ...interface{}) {
+	Respond(w, status, map[string]interface{}{
 		"error": map[string]interface{}{
 			"message": fmt.Sprint(args...),
 		},
 	})
 }
 
-func respondHTTPErr(w http.ResponseWriter, status int) {
-	respondErr(w, status, http.StatusText(status))
+func RespondHTTPErr(w http.ResponseWriter, status int) {
+	RespondErr(w, status, http.StatusText(status))
 }
 
-func httpPut(url string, v interface{}) {
+func HttpPut(url string, v interface{}) {
 	var builder strings.Builder
-	err := encodeBody(&builder, v)
+	err := EncodeBody(&builder, v)
 	payload := builder.String()
 	client := &http.Client{}
 	request, err := http.NewRequest("PUT", url, strings.NewReader(payload))

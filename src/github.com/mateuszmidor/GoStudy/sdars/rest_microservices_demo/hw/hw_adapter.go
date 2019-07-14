@@ -5,6 +5,7 @@ import (
 	"hexagons/hw/infrastructure"
 	"log"
 	"net/http"
+	"rest"
 )
 
 type HwAdapter struct {
@@ -18,34 +19,34 @@ func NewHwAdapter(hw *hw.HwRoot) HwAdapter {
 
 // Hw -> Tuner
 func (adapter *HwAdapter) UpdateStationList(stationList []string) {
-	httpPut(MakeTunerEndpoint(TunerStationList), stationList)
+	rest.HttpPut(rest.MakeTunerEndpoint(rest.TunerStationList), stationList)
 }
 
 // Hw -> Tuner
 func (adapter *HwAdapter) UpdateSubscription(subscription bool) {
-	httpPut(MakeTunerEndpoint(TunerSubscription), subscription)
+	rest.HttpPut(rest.MakeTunerEndpoint(rest.TunerSubscription), subscription)
 }
 
 func (adapter *HwAdapter) handleCurrentStation(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "PUT":
 		var currentStationID uint32
-		if err := decodeBody(r, &currentStationID); err != nil {
-			respondErr(w, http.StatusBadRequest, "Couldnt read current station id from request", err)
+		if err := rest.DecodeBody(r, &currentStationID); err != nil {
+			rest.RespondErr(w, http.StatusBadRequest, "Couldnt read current station id from request", err)
 			return
 		}
 		adapter.hwServicePort.TuneToStation(currentStationID)
-		respond(w, http.StatusOK, nil)
+		rest.Respond(w, http.StatusOK, nil)
 		return
 	}
-	respondHTTPErr(w, http.StatusNotFound)
+	rest.RespondHTTPErr(w, http.StatusNotFound)
 }
 
 // RunHttpServer starts a server that handles commands for Hw
 func (adapter *HwAdapter) RunHTTPServer() {
-	addr := HwAddr
+	addr := rest.HwAddr
 	mux := http.NewServeMux()
-	mux.HandleFunc(HwCurrentStation, adapter.handleCurrentStation)
+	mux.HandleFunc(rest.HwCurrentStation, adapter.handleCurrentStation)
 	log.Println("Starting HwAdapter at", addr)
 	http.ListenAndServe(addr, mux)
 	log.Println("Stopping HwAdapterr...")
