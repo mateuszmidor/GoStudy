@@ -1,4 +1,4 @@
-package main
+package utils
 
 import "os"
 import "os/signal"
@@ -9,7 +9,7 @@ type ShutdownCondition struct {
 }
 
 func NewShutdownCondition() *ShutdownCondition {
-	c := make (chan os.Signal)
+	c := make(chan os.Signal)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 	return &ShutdownCondition{c}
 }

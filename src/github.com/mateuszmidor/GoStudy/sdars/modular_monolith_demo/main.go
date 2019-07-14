@@ -7,6 +7,7 @@ import (
 	"hexagons/ui"
 	"math/rand"
 	"time"
+	"utils"
 )
 
 func main() {
@@ -36,7 +37,7 @@ func main() {
 	go ui.Run()
 
 	// wait for INT/TERM
-	NewShutdownCondition().Wait()
+	utils.NewShutdownCondition().Wait()
 
 	// demo done
 	fmt.Printf("TunerDemo done\n")
