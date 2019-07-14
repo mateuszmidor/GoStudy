@@ -1,5 +1,5 @@
 package infrastructure
 
 type Ports struct {
-	TunerOutPort TunerOutPort
+	EventsPort EventsPort
 }

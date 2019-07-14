@@ -7,8 +7,8 @@ type UpdateSubscriptionCmd struct {
 	subscription domain.Subscription
 }
 
-func NewUpdateSubscriptionCmd(subscription domain.Subscription) *UpdateSubscriptionCmd {
-	return &UpdateSubscriptionCmd{subscription}
+func NewUpdateSubscriptionCmd(subscription domain.Subscription) UpdateSubscriptionCmd {
+	return UpdateSubscriptionCmd{subscription}
 }
 
 func (cmd UpdateSubscriptionCmd) Execute(tuner *domain.Tuner, ports *infrastructure.Ports) {

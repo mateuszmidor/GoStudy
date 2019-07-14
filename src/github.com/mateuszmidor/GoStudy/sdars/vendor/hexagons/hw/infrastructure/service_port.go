@@ -1,5 +1,5 @@
 package infrastructure
 
-type TunerInPort interface {
+type ServicePort interface {
 	TuneToStation(stationId uint32)
 }

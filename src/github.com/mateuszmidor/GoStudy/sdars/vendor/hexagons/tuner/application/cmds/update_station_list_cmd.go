@@ -7,8 +7,8 @@ type UpdateStationListCmd struct {
 	stations domain.StationList
 }
 
-func NewUpdateStationListCmd(stations domain.StationList) *UpdateStationListCmd {
-	return &UpdateStationListCmd{stations}
+func NewUpdateStationListCmd(stations domain.StationList) UpdateStationListCmd {
+	return UpdateStationListCmd{stations}
 }
 
 func (cmd UpdateStationListCmd) Execute(tuner *domain.Tuner, ports *infrastructure.Ports) {

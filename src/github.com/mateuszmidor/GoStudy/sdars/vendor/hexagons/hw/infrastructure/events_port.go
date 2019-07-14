@@ -1,6 +1,6 @@
 package infrastructure
 
-type TunerOutPort interface {
+type EventsPort interface {
 	UpdateStationList(stations []string)
 	UpdateSubscription(active bool)
 }

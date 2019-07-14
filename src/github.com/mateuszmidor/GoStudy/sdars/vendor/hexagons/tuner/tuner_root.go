@@ -6,8 +6,8 @@ import "hexagons/tuner/infrastructure"
 
 // Tuner aggregate root; visible to the outer world
 type TunerRoot struct {
-	tuner domain.Tuner
-	ports infrastructure.Ports
+	tuner   domain.Tuner
+	ports   infrastructure.Ports
 	service application.TunerService
 }
 
@@ -19,20 +19,16 @@ func NewTunerRoot() TunerRoot {
 	return root
 }
 
-func (t *TunerRoot) SetupHwPortOut(hwPortOut infrastructure.HwPortOut) {
+func (t *TunerRoot) SetHwPort(hwPortOut infrastructure.HwPortOut) {
 	t.ports.HwPortOut = hwPortOut
 }
 
-func (t *TunerRoot) SetupUiPortOut(uiPortOut infrastructure.UiPortOut) {
+func (t *TunerRoot) SetUiPort(uiPortOut infrastructure.UiPortOut) {
 	t.ports.UiPortOut = uiPortOut
 }
 
-func (t *TunerRoot) GetUiPortIn() infrastructure.UiPortIn {
-	return &t.service // TunerService implements all the input ports
-}
-
-func (t *TunerRoot) GetHwPortIn() infrastructure.HwPortIn {
-	return &t.service // TunerService implements all the input ports
+func (t *TunerRoot) GetServicePort() infrastructure.ServicePort {
+	return &t.service
 }
 
 // To be run from non-main gorutine

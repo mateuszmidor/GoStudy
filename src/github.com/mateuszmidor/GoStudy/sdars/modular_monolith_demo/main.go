@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
-	"time"
-	"math/rand"
-	"adapters"
 	"hexagons/hw"
 	"hexagons/tuner"
 	"hexagons/ui"
-) 
+	"math/rand"
+	"time"
+)
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
@@ -22,14 +21,14 @@ func main() {
 	// tuner; the middle side. Does business logic and communicates with hw and ui
 	tuner := tuner.NewTunerRoot()
 
-	// communicate hexagons tuner <-> ui, tuner <-> hw
-	adapterTunerHw := adapters.NewHwAdapter(&tuner, &hw)
-	adapterTunerUi := adapters.NewUiAdapter(&tuner, &ui)
+	// communicate hexagons hw <-> tuner <-> ui
+	adapterTunerHW := NewTunerHwAdapter(&tuner, &hw)
+	hw.SetTunerPort(&adapterTunerHW)
+	tuner.SetHwPort(&adapterTunerHW)
 
-	hw.SetTunerOutPort(&adapterTunerHw)
-	tuner.SetupUiPortOut(&adapterTunerUi)
-	tuner.SetupHwPortOut(&adapterTunerHw)
-	ui.SetupTunerPortOut(&adapterTunerUi)
+	adapterTunerUI := NewTunerUIAdapter(&tuner, &ui)
+	tuner.SetUiPort(&adapterTunerUI)
+	ui.SetTunerPort(&adapterTunerUI)
 
 	// run all the parties
 	go hw.Run()

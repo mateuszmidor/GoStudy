@@ -8,8 +8,8 @@ type TuneToStationCmd struct {
 	stationId domain.StationId
 }
 
-func NewTuneToStationCmd(stationId domain.StationId) *TuneToStationCmd {
-	return &TuneToStationCmd{stationId}
+func NewTuneToStationCmd(stationId domain.StationId) TuneToStationCmd {
+	return TuneToStationCmd{stationId}
 }
 
 func (cmd TuneToStationCmd) Execute(tuner *domain.Tuner, ports *infrastructure.Ports) {
@@ -21,8 +21,8 @@ func (cmd TuneToStationCmd) Execute(tuner *domain.Tuner, ports *infrastructure.P
 
 	if int(cmd.stationId) >= len(tuner.Stations) {
 		fmt.Printf("TuneToStationCmd.Execute: cant tune to station %v, no such station\n", cmd.stationId)
-		return	
+		return
 	}
-	
+
 	ports.HwPortOut.TuneToStation(cmd.stationId)
 }

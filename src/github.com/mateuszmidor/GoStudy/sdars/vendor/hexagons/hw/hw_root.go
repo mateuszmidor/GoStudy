@@ -18,14 +18,14 @@ func NewHwRoot() HwRoot {
 	return root
 }
 
-func (root *HwRoot) SetTunerOutPort(port infrastructure.TunerOutPort) {
-	root.ports.TunerOutPort = port
+func (root *HwRoot) SetTunerPort(port infrastructure.EventsPort) {
+	root.ports.EventsPort = port
 }
 
-func (root *HwRoot) GetTunerInPort() infrastructure.TunerInPort {
-	return &root.service // HwService implements all the input ports
+func (root *HwRoot) GetServicePort() infrastructure.ServicePort {
+	return &root.service
 }
 
 func (root *HwRoot) Run() {
-	root.service.Run(root.ports)
+	root.service.Run(&root.ports)
 }
