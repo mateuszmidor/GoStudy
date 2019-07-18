@@ -12,4 +12,4 @@ Remote Procedure Call example using google protobuf
     , then make protoc-gen-go from your $GOPATH/bin available as terminal command
     
 ## Run app:
-
+    ./run_all.sh
