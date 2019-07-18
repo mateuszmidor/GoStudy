@@ -1,0 +1,20 @@
+syntax = "proto3";
+package rpc;
+
+import "common.proto";
+
+// RPC UI server
+// Methods prefixed with Rpc so they are easily recognized as grpc server methods implemented by UIAdapter
+service UI {
+    rpc RpcUpdateStationList(UIUpdateStationListRequest) returns (Empty) {}
+    rpc RpcUpdateSubscription(UIUpdateSubscriptionRequest) returns (Empty) {}
+}
+
+// Messages prefixed with UI so they dont collide with other same named but maybe different content messages in package rpc
+message UIUpdateStationListRequest {
+    repeated string stations = 1;
+}
+
+message UIUpdateSubscriptionRequest {
+    bool active = 1;
+}

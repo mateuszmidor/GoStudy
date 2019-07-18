@@ -1,0 +1,25 @@
+syntax = "proto3";
+package rpc;
+
+import "common.proto";
+
+// RPC Tuner server
+// Methods prefixed with Rpc so they are easily recognized as grpc server methods implemented by TunerAdapter
+service Tuner {
+    rpc RpcUpdateStationList(TunerUpdateStationListRequest) returns (Empty) {}
+    rpc RpcUpdateSubscription(TunerUpdateSubscriptionRequest) returns (Empty) {}
+    rpc RpcTuneToStation(TunerTuneToStationRequest) returns (Empty) {}
+}
+
+// Messages prefixed with Tuner so they dont collide with other same named but maybe different content messages in package rpc
+message TunerUpdateStationListRequest {
+    repeated string stations = 1;
+}
+
+message TunerUpdateSubscriptionRequest {
+    bool active = 1;
+}
+
+message TunerTuneToStationRequest {
+    uint32 stationID = 1;
+}

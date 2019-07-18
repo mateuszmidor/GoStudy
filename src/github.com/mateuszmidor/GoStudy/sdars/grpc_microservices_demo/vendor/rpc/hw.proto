@@ -1,0 +1,15 @@
+syntax = "proto3";
+package rpc;
+
+import "common.proto";
+
+// RPC Hw server
+// Methods prefixed with Rpc so they are easily recognized as grpc server methods implemented by HwAdapter
+service Hw {
+    rpc RpcTuneToStation(HwTuneToStationRequest) returns (Empty) {}
+}
+
+// Messages prefixed with Hw so they dont collide with other same named but maybe different content messages in package rpc
+message HwTuneToStationRequest {
+    uint32 stationID = 1;
+}
