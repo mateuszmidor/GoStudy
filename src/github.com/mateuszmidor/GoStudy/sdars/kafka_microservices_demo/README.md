@@ -1,6 +1,11 @@
 # kafka_microservices_demo
 Microservices integration over Kafka
 
+Concept:
+* HW topic, Tuner topic, UI topic
+* MessageID encoded in kafka.Message.Key
+* MessageJSON encoded in kafka.Message.Value
+
 ## Install golang packages
     go get github.com/segmentio/kafka-go
     go get github.com/segmentio/kafka-go/snappy
