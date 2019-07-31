@@ -2,10 +2,8 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"hexagons/hw"
 	"hexagons/hw/infrastructure"
-	"log"
 	"mykafka"
 
 	"github.com/segmentio/kafka-go"
@@ -24,45 +22,43 @@ func NewHwAdapter(hw *hw.HwRoot) HwAdapter {
 // Hw -> Tuner
 func (adapter *HwAdapter) UpdateStationList(stationList []string) {
 	buf := bytes.NewBuffer([]byte{})
-	mykafka.EncodeBody(buf, stationList)
-	mykafka.Write(adapter.tunerWriter, mykafka.MsgUpdateStationList, buf.Bytes())
+	mykafka.EncodeMessageOrLog(buf, stationList)
+	mykafka.WriteMessageOrLog(adapter.tunerWriter, mykafka.MsgUpdateStationList, buf.Bytes())
 }
 
 // Hw -> Tuner
 func (adapter *HwAdapter) UpdateSubscription(subscription bool) {
 	buf := bytes.NewBuffer([]byte{})
-	mykafka.EncodeBody(buf, subscription)
-	mykafka.Write(adapter.tunerWriter, mykafka.MsgUpdateSubscription, buf.Bytes())
+	mykafka.EncodeMessageOrLog(buf, subscription)
+	mykafka.WriteMessageOrLog(adapter.tunerWriter, mykafka.MsgUpdateSubscription, buf.Bytes())
 }
 
 // Tuner -> Hw
 func (adapter *HwAdapter) kafkaTuneToStation(data []byte) {
 	var stationID uint32
-	mykafka.DecodeBody(bytes.NewReader(data), &stationID)
+	mykafka.DecodeMessageOrLog(bytes.NewReader(data), &stationID)
 	adapter.hwServicePort.TuneToStation(stationID)
 }
 
 func (adapter *HwAdapter) readLoop() {
 	reader := mykafka.NewReader(mykafka.HwClient, mykafka.HwTopic)
 	defer reader.Close()
+	var msg kafka.Message
+	var err error
 
 	for {
-		m, err := mykafka.Read(reader)
-		if err != nil {
-			log.Printf("error while receiving message: %s\n", err.Error())
+		if msg, err = mykafka.ReadMessageOrLog(reader); err != nil {
 			continue
 		}
-
-		fmt.Printf("message at topic/partition/offset %v/%v/%v: %s: %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
-		switch string(m.Key) {
+		switch string(msg.Key) {
 		case mykafka.MsgTuneToStation:
-			adapter.kafkaTuneToStation(m.Value)
+			adapter.kafkaTuneToStation(msg.Value)
 		}
 	}
 }
 
 // RunKafkaConsumer starts a consumer that fetches commands for Hw
 func (adapter *HwAdapter) RunKafkaConsumer() {
-	mykafka.NewTopic(mykafka.HwTopic, 4, 2)
+	mykafka.NewTopic(mykafka.HwTopic, 4, 3)
 	adapter.readLoop()
 }

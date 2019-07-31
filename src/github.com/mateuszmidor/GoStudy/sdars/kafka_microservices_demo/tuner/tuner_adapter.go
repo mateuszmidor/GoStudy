@@ -2,11 +2,9 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"hexagons/tuner"
 	"hexagons/tuner/domain"
 	"hexagons/tuner/infrastructure"
-	"log"
 	"mykafka"
 
 	"github.com/segmentio/kafka-go"
@@ -27,70 +25,69 @@ func NewTunerAdapter(tuner *tuner.TunerRoot) TunerAdapter {
 // UpdateStationList makes a call Tuner -> Ui
 func (adapter *TunerAdapter) UpdateStationList(stations domain.StationList) {
 	buf := bytes.NewBuffer([]byte{})
-	mykafka.EncodeBody(buf, stations)
-	mykafka.Write(adapter.uiWriter, mykafka.MsgUpdateStationList, buf.Bytes())
+	mykafka.EncodeMessageOrLog(buf, stations)
+	mykafka.WriteMessageOrLog(adapter.uiWriter, mykafka.MsgUpdateStationList, buf.Bytes())
 }
 
 // UpdateSubscription makes a call Tuner -> Ui
 func (adapter *TunerAdapter) UpdateSubscription(subscription domain.Subscription) {
 	buf := bytes.NewBuffer([]byte{})
-	mykafka.EncodeBody(buf, subscription)
-	mykafka.Write(adapter.uiWriter, mykafka.MsgUpdateSubscription, buf.Bytes())
+	mykafka.EncodeMessageOrLog(buf, subscription)
+	mykafka.WriteMessageOrLog(adapter.uiWriter, mykafka.MsgUpdateSubscription, buf.Bytes())
 }
 
 // TuneToStation makes a call Tuner -> Hw
 func (adapter *TunerAdapter) TuneToStation(stationID domain.StationId) {
 	buf := bytes.NewBuffer([]byte{})
-	mykafka.EncodeBody(buf, stationID)
-	mykafka.Write(adapter.hwWriter, mykafka.MsgTuneToStation, buf.Bytes())
+	mykafka.EncodeMessageOrLog(buf, stationID)
+	mykafka.WriteMessageOrLog(adapter.hwWriter, mykafka.MsgTuneToStation, buf.Bytes())
 }
 
 // kafkaUpdateStationList receives a call Hw -> Tuner
 func (adapter *TunerAdapter) kafkaUpdateStationList(data []byte) {
 	var stations []string
-	mykafka.DecodeBody(bytes.NewReader(data), &stations)
+	mykafka.DecodeMessageOrLog(bytes.NewReader(data), &stations)
 	adapter.tunerServicePort.StationListUpdated(stations)
 }
 
 // kafkaUpdateSubscription kafkaUpdateSubscription a call Hw -> Tuner
 func (adapter *TunerAdapter) kafkaUpdateSubscription(data []byte) {
 	var subscription bool
-	mykafka.DecodeBody(bytes.NewReader(data), &subscription)
+	mykafka.DecodeMessageOrLog(bytes.NewReader(data), &subscription)
 	adapter.tunerServicePort.SubscriptionUpdated(subscription)
 }
 
 // kafkaTuneToStation receives a call Ui -> Tuner
 func (adapter *TunerAdapter) kafkaTuneToStation(data []byte) {
 	var stationId uint32
-	mykafka.DecodeBody(bytes.NewReader(data), &stationId)
+	mykafka.DecodeMessageOrLog(bytes.NewReader(data), &stationId)
 	adapter.tunerServicePort.TuneToStation(stationId)
 }
 
 func (adapter *TunerAdapter) readLoop() {
 	reader := mykafka.NewReader(mykafka.TunerClient, mykafka.TunerTopic)
 	defer reader.Close()
+	var msg kafka.Message
+	var err error
 
 	for {
-		m, err := mykafka.Read(reader)
-		if err != nil {
-			log.Printf("error while receiving message: %s\n", err.Error())
+		if msg, err = mykafka.ReadMessageOrLog(reader); err != nil {
 			continue
 		}
 
-		fmt.Printf("message at topic/partition/offset %v/%v/%v: %s: %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
-		switch string(m.Key) {
+		switch string(msg.Key) {
 		case mykafka.MsgUpdateStationList:
-			adapter.kafkaUpdateStationList(m.Value)
+			adapter.kafkaUpdateStationList(msg.Value)
 		case mykafka.MsgUpdateSubscription:
-			adapter.kafkaUpdateSubscription(m.Value)
+			adapter.kafkaUpdateSubscription(msg.Value)
 		case mykafka.MsgTuneToStation:
-			adapter.kafkaTuneToStation(m.Value)
+			adapter.kafkaTuneToStation(msg.Value)
 		}
 	}
 }
 
 // RunKafkaConsumer starts a consumer that fetches commands for Tuner
 func (adapter *TunerAdapter) RunKafkaConsumer() {
-	mykafka.NewTopic(mykafka.TunerTopic, 4, 2)
+	mykafka.NewTopic(mykafka.TunerTopic, 4, 3)
 	adapter.readLoop()
 }

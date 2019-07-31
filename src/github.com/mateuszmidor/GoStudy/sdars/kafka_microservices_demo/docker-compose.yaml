@@ -40,7 +40,7 @@ services:
   kafka-1:
     image: confluentinc/cp-kafka:5.3.0
     ports:
-      - "19092:19092"
+      - "19092:19092" # also used in config.go
     depends_on:
       - zk1
       - zk2
@@ -53,7 +53,7 @@ services:
   kafka-2:
     image: confluentinc/cp-kafka:5.3.0
     ports:
-      - "29092:29092"
+      - "29092:29092" # also used in config.go
     depends_on:
       - zk1
       - zk2
@@ -66,7 +66,7 @@ services:
   kafka-3:
     image: confluentinc/cp-kafka:5.3.0
     ports: 
-      - "39092:39092"
+      - "39092:39092" # also used in config.go
     depends_on:
       - zk1
       - zk2
@@ -75,3 +75,14 @@ services:
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: ${MY_IP}:22181,${MY_IP}:32181,${MY_IP}:42181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${MY_IP}:39092
+
+  sdars:
+    image: golang
+    command: /home/kafka_microservices_demo/deploy_and_run.sh
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    volumes:
+      - ../:/home # map sdars/ as /home
+      

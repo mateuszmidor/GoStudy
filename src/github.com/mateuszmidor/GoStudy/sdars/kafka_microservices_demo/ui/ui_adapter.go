@@ -2,10 +2,8 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"hexagons/ui"
 	"hexagons/ui/infrastructure"
-	"log"
 	"mykafka"
 
 	"github.com/segmentio/kafka-go"
@@ -25,47 +23,46 @@ func NewUIAdapter(ui *ui.UiRoot) UIAdapter {
 // TuneToStation forwards command UI -> Tuner
 func (adapter *UIAdapter) TuneToStation(stationID uint32) {
 	buf := bytes.NewBuffer([]byte{})
-	mykafka.EncodeBody(buf, stationID)
-	mykafka.Write(adapter.tunerWriter, mykafka.MsgTuneToStation, buf.Bytes())
+	mykafka.EncodeMessageOrLog(buf, stationID)
+	mykafka.WriteMessageOrLog(adapter.tunerWriter, mykafka.MsgTuneToStation, buf.Bytes())
 }
 
 // kafkaUpdateStationList forwards a call Tuner -> Ui
 func (adapter *UIAdapter) kafkaUpdateStationList(data []byte) {
 	var stations []string
-	mykafka.DecodeBody(bytes.NewReader(data), &stations)
+	mykafka.DecodeMessageOrLog(bytes.NewReader(data), &stations)
 	adapter.uiServicePort.UpdateStationList(stations)
 }
 
 // kafkaUpdateSubscription forwards a call Tuner -> Ui
 func (adapter *UIAdapter) kafkaUpdateSubscription(data []byte) {
 	var subscription bool
-	mykafka.DecodeBody(bytes.NewReader(data), &subscription)
+	mykafka.DecodeMessageOrLog(bytes.NewReader(data), &subscription)
 	adapter.uiServicePort.UpdateSubscription(subscription)
 }
 
 func (adapter *UIAdapter) readLoop() {
 	reader := mykafka.NewReader(mykafka.UiClient, mykafka.UiTopic)
 	defer reader.Close()
+	var msg kafka.Message
+	var err error
 
 	for {
-		m, err := mykafka.Read(reader)
-		if err != nil {
-			log.Printf("error while receiving message: %s\n", err.Error())
+		if msg, err = mykafka.ReadMessageOrLog(reader); err != nil {
 			continue
 		}
 
-		fmt.Printf("message at topic/partition/offset %v/%v/%v: %s: %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
-		switch string(m.Key) {
+		switch string(msg.Key) {
 		case mykafka.MsgUpdateStationList:
-			adapter.kafkaUpdateStationList(m.Value)
+			adapter.kafkaUpdateStationList(msg.Value)
 		case mykafka.MsgUpdateSubscription:
-			adapter.kafkaUpdateSubscription(m.Value)
+			adapter.kafkaUpdateSubscription(msg.Value)
 		}
 	}
 }
 
 // RunKafkaConsumer starts a consumer that fetches commands for UI
 func (adapter *UIAdapter) RunKafkaConsumer() {
-	mykafka.NewTopic(mykafka.UiTopic, 4, 2)
+	mykafka.NewTopic(mykafka.UiTopic, 4, 3)
 	adapter.readLoop()
 }

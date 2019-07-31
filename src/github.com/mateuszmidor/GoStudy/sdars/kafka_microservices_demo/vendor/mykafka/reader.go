@@ -3,6 +3,7 @@ package mykafka
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"time"
 
@@ -23,10 +24,18 @@ func NewReader(clientId string, topic string) (w *kafka.Reader) {
 	return kafka.NewReader(config)
 }
 
-func Read(reader *kafka.Reader) (kafka.Message, error) {
-	return reader.ReadMessage(context.Background())
+func ReadMessageOrLog(reader *kafka.Reader) (kafka.Message, error) {
+	msg, err := reader.ReadMessage(context.Background())
+	if err != nil {
+		fmt.Printf("error while receiving message: %s\n", err.Error())
+	}
+	return msg, err
 }
 
-func DecodeBody(r io.Reader, v interface{}) error {
-	return json.NewDecoder(r).Decode(v)
+func DecodeMessageOrLog(r io.Reader, v interface{}) error {
+	err := json.NewDecoder(r).Decode(v)
+	if err != nil {
+		fmt.Printf("error while decoding json %s\n", err.Error())
+	}
+	return err
 }

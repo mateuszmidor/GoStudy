@@ -1,6 +1,8 @@
 package mykafka
 
 import (
+	"fmt"
+
 	"github.com/segmentio/kafka-go"
 )
 
@@ -18,6 +20,7 @@ func NewTopic(topic string, numPartitions int, numReplicas int) (string, error) 
 			continue
 		}
 
+		// fmt.Printf("NewTopic: dialed to %s\n", possibleControllerAddr)
 		t := kafka.TopicConfig{
 			Topic:              topic,
 			NumPartitions:      numPartitions,
@@ -28,9 +31,11 @@ func NewTopic(topic string, numPartitions int, numReplicas int) (string, error) 
 
 		lasterror = conn.CreateTopics(t)
 		if lasterror == nil {
+			// fmt.Printf("NewTopic: created with %s\n", possibleControllerAddr)
 			return possibleControllerAddr, nil
 		}
 	}
 
+	fmt.Printf("NewTopic: %s\n", lasterror.Error())
 	return "", lasterror
 }

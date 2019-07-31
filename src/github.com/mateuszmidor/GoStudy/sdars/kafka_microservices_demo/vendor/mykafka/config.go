@@ -1,3 +1,4 @@
 package mykafka
 
-var KafkaAdvertisedListeners = []string{"localhost:19092", "localhost:29092", "localhost:39092"}
+// KafkaAdvertisedListeners holds addresses used in docker-compose_up.yaml for kafka brokers
+var KafkaAdvertisedListeners = []string{"172.17.0.1:19092", "172.17.0.1:29092", "172.17.0.1:39092"} // docker static ip

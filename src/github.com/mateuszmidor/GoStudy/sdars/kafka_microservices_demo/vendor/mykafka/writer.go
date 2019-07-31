@@ -3,6 +3,7 @@ package mykafka
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"time"
 
@@ -29,15 +30,23 @@ func NewWriter(clientId string, topic string) (w *kafka.Writer) {
 	return kafka.NewWriter(config)
 }
 
-func Write(writer *kafka.Writer, key string, value []byte) (err error) {
+func WriteMessageOrLog(writer *kafka.Writer, key string, value []byte) error {
 	message := kafka.Message{
 		Key:   []byte(key),
 		Value: value,
 		Time:  time.Now(),
 	}
-	return writer.WriteMessages(context.Background(), message)
+	err := writer.WriteMessages(context.Background(), message)
+	if err != nil {
+		fmt.Printf("error while sending message: %s\n", err.Error())
+	}
+	return err
 }
 
-func EncodeBody(w io.Writer, v interface{}) error {
-	return json.NewEncoder(w).Encode(v)
+func EncodeMessageOrLog(w io.Writer, v interface{}) error {
+	err := json.NewEncoder(w).Encode(v)
+	if err != nil {
+		fmt.Printf("error while encoding json: %s\n", err.Error())
+	}
+	return err
 }

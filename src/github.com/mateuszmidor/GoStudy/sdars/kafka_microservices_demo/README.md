@@ -17,10 +17,10 @@ Concept:
 
 ## Test config ready
     ./docker-compos_up.sh       # 3x zookeeper and 3x kafka instances
-    ./kafka_make_topic.sh       # create topic "foo" for testing purposesf
+    ./kafka_make_topic.sh       # create topic "foo" for testing purposes
     ./test_kafka_consumer.sh    # this will read message
     ./test_kafka_producer.sh    # this will send message to consumer
 
 ## Run app
-    
+    ./run_all.sh    # repeat in case of failure :)
 
