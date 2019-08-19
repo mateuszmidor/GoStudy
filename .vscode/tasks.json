@@ -41,7 +41,7 @@
         {
             "label": "run sdars",
             "type": "shell",
-            "command": "go run github.com/mateuszmidor/GoStudy/sdars/demo",
+            "command": "go run github.com/mateuszmidor/GoStudy/sdars/modular_monolith_demo",
             "group": {
                 "kind": "build",
                 "isDefault": true
