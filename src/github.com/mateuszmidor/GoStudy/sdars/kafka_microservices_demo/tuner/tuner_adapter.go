@@ -25,53 +25,59 @@ func NewTunerAdapter(tuner *tuner.TunerRoot) TunerAdapter {
 // UpdateStationList makes a call Tuner -> Ui
 func (adapter *TunerAdapter) UpdateStationList(stations domain.StationList) {
 	buf := bytes.NewBuffer([]byte{})
-	mykafka.EncodeMessageOrLog(buf, stations)
-	mykafka.WriteMessageOrLog(adapter.uiWriter, mykafka.MsgUpdateStationList, buf.Bytes())
+	if mykafka.EncodeMessageOrLog(buf, stations) {
+		mykafka.WriteMessageWithRetry5(adapter.uiWriter, mykafka.MsgUpdateStationList, buf.Bytes())
+	}
 }
 
 // UpdateSubscription makes a call Tuner -> Ui
 func (adapter *TunerAdapter) UpdateSubscription(subscription domain.Subscription) {
 	buf := bytes.NewBuffer([]byte{})
-	mykafka.EncodeMessageOrLog(buf, subscription)
-	mykafka.WriteMessageOrLog(adapter.uiWriter, mykafka.MsgUpdateSubscription, buf.Bytes())
+	if mykafka.EncodeMessageOrLog(buf, subscription) {
+		mykafka.WriteMessageWithRetry5(adapter.uiWriter, mykafka.MsgUpdateSubscription, buf.Bytes())
+	}
 }
 
 // TuneToStation makes a call Tuner -> Hw
 func (adapter *TunerAdapter) TuneToStation(stationID domain.StationId) {
 	buf := bytes.NewBuffer([]byte{})
-	mykafka.EncodeMessageOrLog(buf, stationID)
-	mykafka.WriteMessageOrLog(adapter.hwWriter, mykafka.MsgTuneToStation, buf.Bytes())
+	if mykafka.EncodeMessageOrLog(buf, stationID) {
+		mykafka.WriteMessageWithRetry5(adapter.hwWriter, mykafka.MsgTuneToStation, buf.Bytes())
+	}
 }
 
 // kafkaUpdateStationList receives a call Hw -> Tuner
 func (adapter *TunerAdapter) kafkaUpdateStationList(data []byte) {
 	var stations []string
-	mykafka.DecodeMessageOrLog(bytes.NewReader(data), &stations)
-	adapter.tunerServicePort.StationListUpdated(stations)
+	if mykafka.DecodeMessageOrLog(bytes.NewReader(data), &stations) {
+		adapter.tunerServicePort.StationListUpdated(stations)
+	}
 }
 
 // kafkaUpdateSubscription kafkaUpdateSubscription a call Hw -> Tuner
 func (adapter *TunerAdapter) kafkaUpdateSubscription(data []byte) {
 	var subscription bool
-	mykafka.DecodeMessageOrLog(bytes.NewReader(data), &subscription)
-	adapter.tunerServicePort.SubscriptionUpdated(subscription)
+	if mykafka.DecodeMessageOrLog(bytes.NewReader(data), &subscription) {
+		adapter.tunerServicePort.SubscriptionUpdated(subscription)
+	}
 }
 
 // kafkaTuneToStation receives a call Ui -> Tuner
 func (adapter *TunerAdapter) kafkaTuneToStation(data []byte) {
-	var stationId uint32
-	mykafka.DecodeMessageOrLog(bytes.NewReader(data), &stationId)
-	adapter.tunerServicePort.TuneToStation(stationId)
+	var stationID uint32
+	if mykafka.DecodeMessageOrLog(bytes.NewReader(data), &stationID) {
+		adapter.tunerServicePort.TuneToStation(stationID)
+	}
 }
 
 func (adapter *TunerAdapter) readLoop() {
 	reader := mykafka.NewReader(mykafka.TunerClient, mykafka.TunerTopic)
 	defer reader.Close()
 	var msg kafka.Message
-	var err error
+	var success bool
 
 	for {
-		if msg, err = mykafka.ReadMessageOrLog(reader); err != nil {
+		if msg, success = mykafka.ReadMessageWithRetry5(reader); success == false {
 			continue
 		}
 
@@ -88,6 +94,8 @@ func (adapter *TunerAdapter) readLoop() {
 
 // RunKafkaConsumer starts a consumer that fetches commands for Tuner
 func (adapter *TunerAdapter) RunKafkaConsumer() {
-	mykafka.NewTopic(mykafka.TunerTopic, 4, 3)
+	if !mykafka.NewTopicWithRetry5(mykafka.TunerTopic, 4, 3) {
+		panic("Could not register kafka topic")
+	}
 	adapter.readLoop()
 }

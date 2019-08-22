@@ -23,32 +23,35 @@ func NewUIAdapter(ui *ui.UiRoot) UIAdapter {
 // TuneToStation forwards command UI -> Tuner
 func (adapter *UIAdapter) TuneToStation(stationID uint32) {
 	buf := bytes.NewBuffer([]byte{})
-	mykafka.EncodeMessageOrLog(buf, stationID)
-	mykafka.WriteMessageOrLog(adapter.tunerWriter, mykafka.MsgTuneToStation, buf.Bytes())
+	if mykafka.EncodeMessageOrLog(buf, stationID) {
+		mykafka.WriteMessageWithRetry5(adapter.tunerWriter, mykafka.MsgTuneToStation, buf.Bytes())
+	}
 }
 
 // kafkaUpdateStationList forwards a call Tuner -> Ui
 func (adapter *UIAdapter) kafkaUpdateStationList(data []byte) {
 	var stations []string
-	mykafka.DecodeMessageOrLog(bytes.NewReader(data), &stations)
-	adapter.uiServicePort.UpdateStationList(stations)
+	if mykafka.DecodeMessageOrLog(bytes.NewReader(data), &stations) {
+		adapter.uiServicePort.UpdateStationList(stations)
+	}
 }
 
 // kafkaUpdateSubscription forwards a call Tuner -> Ui
 func (adapter *UIAdapter) kafkaUpdateSubscription(data []byte) {
 	var subscription bool
-	mykafka.DecodeMessageOrLog(bytes.NewReader(data), &subscription)
-	adapter.uiServicePort.UpdateSubscription(subscription)
+	if mykafka.DecodeMessageOrLog(bytes.NewReader(data), &subscription) {
+		adapter.uiServicePort.UpdateSubscription(subscription)
+	}
 }
 
 func (adapter *UIAdapter) readLoop() {
 	reader := mykafka.NewReader(mykafka.UiClient, mykafka.UiTopic)
 	defer reader.Close()
 	var msg kafka.Message
-	var err error
+	var success bool
 
 	for {
-		if msg, err = mykafka.ReadMessageOrLog(reader); err != nil {
+		if msg, success = mykafka.ReadMessageWithRetry5(reader); success == false {
 			continue
 		}
 
@@ -63,6 +66,8 @@ func (adapter *UIAdapter) readLoop() {
 
 // RunKafkaConsumer starts a consumer that fetches commands for UI
 func (adapter *UIAdapter) RunKafkaConsumer() {
-	mykafka.NewTopic(mykafka.UiTopic, 4, 3)
+	if !mykafka.NewTopicWithRetry5(mykafka.UiTopic, 4, 3) {
+		panic("Could not register kafka topic")
+	}
 	adapter.readLoop()
 }

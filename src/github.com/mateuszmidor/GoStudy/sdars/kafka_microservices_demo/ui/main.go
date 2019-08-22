@@ -15,12 +15,12 @@ func main() {
 	ui := ui.NewUiRoot()
 
 	// expose Ui kafka interface
-	adapterUi := NewUIAdapter(&ui)
-	ui.SetTunerPort(&adapterUi)
+	adapterUI := NewUIAdapter(&ui)
+	ui.SetTunerPort(&adapterUI)
 
 	// run ui
 	go ui.Run()
-	go adapterUi.RunKafkaConsumer()
+	go adapterUI.RunKafkaConsumer()
 
 	// wait for INT/TERM
 	utils.NewShutdownCondition().Wait()

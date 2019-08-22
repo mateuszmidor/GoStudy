@@ -1,13 +1,12 @@
 package mykafka
 
 import (
-	"fmt"
+	"retry"
 
 	"github.com/segmentio/kafka-go"
 )
 
-// NewTopic creates a topic and returns kafka cluster controller address on success
-func NewTopic(topic string, numPartitions int, numReplicas int) (string, error) {
+func newTopic(topic string, numPartitions int, numReplicas int) (string, error) {
 	brokers := KafkaAdvertisedListeners
 
 	var lasterror error
@@ -36,6 +35,11 @@ func NewTopic(topic string, numPartitions int, numReplicas int) (string, error) 
 		}
 	}
 
-	fmt.Printf("NewTopic: %s\n", lasterror.Error())
 	return "", lasterror
+}
+
+// NewTopicWithRetry5 creates a topic and returns kafka cluster controller address on success
+func NewTopicWithRetry5(topic string, numPartitions int, numReplicas int) bool {
+	result := retry.UntilSuccessOr5Failures("creating topic", newTopic, topic, numPartitions, numReplicas)
+	return result[1].IsNil()
 }

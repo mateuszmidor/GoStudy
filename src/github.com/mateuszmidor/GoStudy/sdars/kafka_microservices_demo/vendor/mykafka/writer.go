@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"retry"
 	"time"
 
 	"github.com/segmentio/kafka-go"
@@ -30,23 +31,22 @@ func NewWriter(clientId string, topic string) (w *kafka.Writer) {
 	return kafka.NewWriter(config)
 }
 
-func WriteMessageOrLog(writer *kafka.Writer, key string, value []byte) error {
+func WriteMessageWithRetry5(writer *kafka.Writer, key string, value []byte) bool {
 	message := kafka.Message{
 		Key:   []byte(key),
 		Value: value,
 		Time:  time.Now(),
 	}
-	err := writer.WriteMessages(context.Background(), message)
-	if err != nil {
-		fmt.Printf("error while sending message: %s\n", err.Error())
-	}
-	return err
+
+	result := retry.UntilSuccessOr5Failures("writing message", writer.WriteMessages, context.Background(), message)
+	return result[0].IsNil()
 }
 
-func EncodeMessageOrLog(w io.Writer, v interface{}) error {
+func EncodeMessageOrLog(w io.Writer, v interface{}) bool {
 	err := json.NewEncoder(w).Encode(v)
 	if err != nil {
 		fmt.Printf("error while encoding json: %s\n", err.Error())
+		return false
 	}
-	return err
+	return true
 }
