@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"rest"
+	"retry"
 )
 
 type TunerAdapter struct {
@@ -20,17 +21,20 @@ func NewTunerAdapter(tuner *tuner.TunerRoot) TunerAdapter {
 
 // Tuner -> Ui
 func (adapter *TunerAdapter) UpdateStationList(stationList domain.StationList) {
-	rest.HttpPut(rest.MakeUIEndpoint(rest.UIStations), stationList)
+	endpoint := rest.MakeUIEndpoint(rest.UIStations)
+	retry.UntilSuccessOr5Failures("updating station list", rest.HttpPut, endpoint, stationList)
 }
 
 // Tuner -> Ui
 func (adapter *TunerAdapter) UpdateSubscription(subscription domain.Subscription) {
-	rest.HttpPut(rest.MakeUIEndpoint(rest.UISubscription), subscription)
+	endpoint := rest.MakeUIEndpoint(rest.UISubscription)
+	retry.UntilSuccessOr5Failures("updating subscription", rest.HttpPut, endpoint, subscription)
 }
 
 // Tuner -> Hw
 func (adapter *TunerAdapter) TuneToStation(stationID domain.StationId) {
-	rest.HttpPut(rest.MakeHwEndpoint(rest.HwCurrentStation), stationID)
+	endpoint := rest.MakeHwEndpoint(rest.HwCurrentStation)
+	retry.UntilSuccessOr5Failures("tuning to station", rest.HttpPut, endpoint, stationID)
 }
 
 func (adapter *TunerAdapter) handleSubscription(w http.ResponseWriter, r *http.Request) {

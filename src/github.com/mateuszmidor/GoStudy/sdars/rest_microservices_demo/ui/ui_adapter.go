@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"rest"
+	"retry"
 )
 
 // UIAdapter implements tuner output ports towards ui, and ui output ports towards tuner
@@ -20,7 +21,8 @@ func NewUIAdapter(ui *ui.UiRoot) UIAdapter {
 
 // TuneToStation forwards command UI -> Tuner
 func (adapter *UIAdapter) TuneToStation(stationID uint32) {
-	rest.HttpPut(rest.MakeTunerEndpoint(rest.TunerCurrentStations), stationID)
+	endpoint := rest.MakeTunerEndpoint(rest.TunerCurrentStations)
+	retry.UntilSuccessOr5Failures("tuning to station", rest.HttpPut, endpoint, stationID)
 }
 
 func (adapter *UIAdapter) handleStations(w http.ResponseWriter, r *http.Request) {

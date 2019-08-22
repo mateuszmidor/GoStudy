@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"rest"
+	"retry"
 )
 
 type HwAdapter struct {
@@ -19,12 +20,14 @@ func NewHwAdapter(hw *hw.HwRoot) HwAdapter {
 
 // Hw -> Tuner
 func (adapter *HwAdapter) UpdateStationList(stationList []string) {
-	rest.HttpPut(rest.MakeTunerEndpoint(rest.TunerStationList), stationList)
+	endpoint := rest.MakeTunerEndpoint(rest.TunerStationList)
+	retry.UntilSuccessOr5Failures("updating station list", rest.HttpPut, endpoint, stationList)
 }
 
 // Hw -> Tuner
 func (adapter *HwAdapter) UpdateSubscription(subscription bool) {
-	rest.HttpPut(rest.MakeTunerEndpoint(rest.TunerSubscription), subscription)
+	endpoint := rest.MakeTunerEndpoint(rest.TunerSubscription)
+	retry.UntilSuccessOr5Failures("updating subscription", rest.HttpPut, endpoint, subscription)
 }
 
 func (adapter *HwAdapter) handleCurrentStation(w http.ResponseWriter, r *http.Request) {

@@ -27,5 +27,5 @@ func main() {
 	utils.NewShutdownCondition().Wait()
 
 	// demo done
-	fmt.Printf("TunerDemo done\n")
+	fmt.Printf("Tuner done\n")
 }
