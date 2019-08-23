@@ -15,7 +15,14 @@ func UntilSuccessOr5Failures(failMessage string, fn interface{}, params ...inter
 
 	// prepare reflection
 	f := reflect.ValueOf(fn)
-	if f.Type().NumIn() != len(params) {
+	fType := f.Type()
+
+	// check preconditions
+	requiredParamCount := fType.NumIn()
+	if fType.IsVariadic() {
+		requiredParamCount-- // variadic func last param is optional
+	}
+	if len(params) < requiredParamCount {
 		panic(fmt.Sprintf("RetryUntilSuccessOr5Failures: %s: incorrect number of parameters provided vs required!", failMessage))
 	}
 
