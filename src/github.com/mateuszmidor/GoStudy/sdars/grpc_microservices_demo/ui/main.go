@@ -19,8 +19,8 @@ func main() {
 	ui.SetTunerPort(&adapterUI)
 
 	// run ui
-	go adapterUI.RunGrpcServer()
 	go ui.Run()
+	go adapterUI.RunGrpcServer()
 
 	// wait for INT/TERM
 	utils.NewShutdownCondition().Wait()

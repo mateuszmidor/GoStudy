@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"hexagons/tuner"
 	"hexagons/tuner/domain"
 	"hexagons/tuner/infrastructure"
 	"log"
+	"retry"
 	"rpc"
 )
 
@@ -24,47 +25,47 @@ func NewTunerAdapter(tuner *tuner.TunerRoot) TunerAdapter {
 
 // UpdateStationList makes a call Tuner -> Ui
 func (adapter *TunerAdapter) UpdateStationList(stations domain.StationList) {
-	fmt.Println("TunerAdapter.UpdateStationList -> Ui")
-	if adapter.uiClient == nil {
-		fmt.Println("ui not available")
-		return
+	f := func() error {
+		if adapter.uiClient == nil {
+			return errors.New("ui not available")
+		}
+
+		rq := &rpc.UIUpdateStationListRequest{}
+		rq.Stations = stations
+		_, err := adapter.uiClient.RpcUpdateStationList(context.Background(), rq)
+		return err
 	}
-
-	rq := &rpc.UIUpdateStationListRequest{}
-	rq.Stations = stations
-	_, err := adapter.uiClient.RpcUpdateStationList(context.Background(), rq)
-
-	rpc.LogCallResult(err)
+	retry.UntilSuccessOr5Failures("updating station list", f)
 }
 
 // UpdateSubscription makes a call Tuner -> Ui
 func (adapter *TunerAdapter) UpdateSubscription(subscription domain.Subscription) {
-	fmt.Println("TunerAdapter.UpdateSubscription -> Ui")
-	if adapter.uiClient == nil {
-		fmt.Println("ui not available")
-		return
+	f := func() error {
+		if adapter.uiClient == nil {
+			return errors.New("ui not available")
+		}
+
+		rq := &rpc.UIUpdateSubscriptionRequest{}
+		rq.Active = subscription
+		_, err := adapter.uiClient.RpcUpdateSubscription(context.Background(), rq)
+		return err
 	}
-
-	rq := &rpc.UIUpdateSubscriptionRequest{}
-	rq.Active = subscription
-	_, err := adapter.uiClient.RpcUpdateSubscription(context.Background(), rq)
-
-	rpc.LogCallResult(err)
+	retry.UntilSuccessOr5Failures("updating subscription", f)
 }
 
 // TuneToStation makes a call Tuner -> Hw
 func (adapter *TunerAdapter) TuneToStation(stationID domain.StationId) {
-	fmt.Println("TunerAdapter.TuneToStation -> Hw")
-	if adapter.hwClient == nil {
-		fmt.Println("hw not available")
-		return
+	f := func() error {
+		if adapter.hwClient == nil {
+			return errors.New("hw not available")
+		}
+
+		rq := &rpc.HwTuneToStationRequest{}
+		rq.StationID = stationID
+		_, err := adapter.hwClient.RpcTuneToStation(context.Background(), rq)
+		return err
 	}
-
-	rq := &rpc.HwTuneToStationRequest{}
-	rq.StationID = stationID
-	_, err := adapter.hwClient.RpcTuneToStation(context.Background(), rq)
-
-	rpc.LogCallResult(err)
+	retry.UntilSuccessOr5Failures("tuning to station", f)
 }
 
 // RpcUpdateStationList receives a call Hw -> Tuner

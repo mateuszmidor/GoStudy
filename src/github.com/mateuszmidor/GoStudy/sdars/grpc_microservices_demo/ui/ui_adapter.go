@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"hexagons/ui"
 	"hexagons/ui/infrastructure"
 	"log"
+	"retry"
 	"rpc"
 )
 
@@ -22,17 +23,17 @@ func NewUIAdapter(ui *ui.UiRoot) UIAdapter {
 
 // TuneToStation makes a call Ui -> Tuner
 func (adapter *UIAdapter) TuneToStation(stationID uint32) {
-	fmt.Println("UIAdapter.TuneToStation -> Tuner")
-	if adapter.tunerClient == nil {
-		fmt.Println("tuner not available")
-		return
+	f := func() error {
+		if adapter.tunerClient == nil {
+			return errors.New("tuner not available")
+		}
+
+		rq := &rpc.TunerTuneToStationRequest{}
+		rq.StationID = stationID
+		_, err := adapter.tunerClient.RpcTuneToStation(context.Background(), rq)
+		return err
 	}
-
-	rq := &rpc.TunerTuneToStationRequest{}
-	rq.StationID = stationID
-	_, err := adapter.tunerClient.RpcTuneToStation(context.Background(), rq)
-
-	rpc.LogCallResult(err)
+	retry.UntilSuccessOr5Failures("tuning to station", f)
 }
 
 // RpcUpdateStationList receives a call Tuner -> Ui

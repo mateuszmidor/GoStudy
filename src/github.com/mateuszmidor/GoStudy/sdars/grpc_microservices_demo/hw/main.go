@@ -19,8 +19,8 @@ func main() {
 	hw.SetTunerPort(&adapterHw)
 
 	// run hw
-	go adapterHw.RunGrpcServer()
 	go hw.Run()
+	go adapterHw.RunGrpcServer()
 
 	// wait for INT/TERM
 	utils.NewShutdownCondition().Wait()

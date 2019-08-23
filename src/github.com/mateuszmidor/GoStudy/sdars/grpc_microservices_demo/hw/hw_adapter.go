@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"hexagons/hw"
 	"hexagons/hw/infrastructure"
 	"log"
+	"retry"
 	"rpc"
 )
 
@@ -22,32 +23,32 @@ func NewHwAdapter(hw *hw.HwRoot) HwAdapter {
 
 // UpdateStationList makes a call Hw -> Tuner
 func (adapter *HwAdapter) UpdateStationList(stationList []string) {
-	fmt.Println("HwAdapter.UpdateStationList -> Tuner")
-	if adapter.tunerClient == nil {
-		fmt.Println("tuner not available")
-		return
+	f := func() error {
+		if adapter.tunerClient == nil {
+			return errors.New("tuner not available")
+		}
+
+		rq := &rpc.TunerUpdateStationListRequest{}
+		rq.Stations = stationList
+		_, err := adapter.tunerClient.RpcUpdateStationList(context.Background(), rq)
+		return err
 	}
-
-	rq := &rpc.TunerUpdateStationListRequest{}
-	rq.Stations = stationList
-	_, err := adapter.tunerClient.RpcUpdateStationList(context.Background(), rq)
-
-	rpc.LogCallResult(err)
+	retry.UntilSuccessOr5Failures("updating station list", f)
 }
 
 // UpdateSubscription makes a call Hw -> Tuner
 func (adapter *HwAdapter) UpdateSubscription(subscription bool) {
-	fmt.Println("HwAdapter.UpdateSubscription -> Tuner")
-	if adapter.tunerClient == nil {
-		fmt.Println("tuner not available")
-		return
+	f := func() error {
+		if adapter.tunerClient == nil {
+			return errors.New("tuner not available")
+		}
+
+		rq := &rpc.TunerUpdateSubscriptionRequest{}
+		rq.Active = subscription
+		_, err := adapter.tunerClient.RpcUpdateSubscription(context.Background(), rq)
+		return err
 	}
-
-	rq := &rpc.TunerUpdateSubscriptionRequest{}
-	rq.Active = subscription
-	_, err := adapter.tunerClient.RpcUpdateSubscription(context.Background(), rq)
-
-	rpc.LogCallResult(err)
+	retry.UntilSuccessOr5Failures("updating subscription", f)
 }
 
 // RpcTuneToStation receives a call Tuner -> Hw
