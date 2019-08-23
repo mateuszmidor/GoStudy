@@ -13,9 +13,9 @@ import (
 
 // TunerAdapter implements TunerServer generated from tuner.proto into tuner.pb.go
 type TunerAdapter struct {
-	tunerServicePort infrastructure.ServicePort // communication towards Tuner
-	hwClient         rpc.HwClient               // communication towards Hw
-	uiClient         rpc.UIClient               // communication towards Ui
+	tunerServicePort infrastructure.TunerServicePort // communication towards Tuner
+	hwClient         rpc.HwClient                    // communication towards Hw
+	uiClient         rpc.UIClient                    // communication towards Ui
 }
 
 // NewTunerAdapter creates a grpc adapter for Tuner
@@ -54,7 +54,7 @@ func (adapter *TunerAdapter) UpdateSubscription(subscription domain.Subscription
 }
 
 // TuneToStation makes a call Tuner -> Hw
-func (adapter *TunerAdapter) TuneToStation(stationID domain.StationId) {
+func (adapter *TunerAdapter) TuneToStation(stationID domain.StationID) {
 	f := func() error {
 		if adapter.hwClient == nil {
 			return errors.New("hw not available")
@@ -70,13 +70,13 @@ func (adapter *TunerAdapter) TuneToStation(stationID domain.StationId) {
 
 // RpcUpdateStationList receives a call Hw -> Tuner
 func (adapter *TunerAdapter) RpcUpdateStationList(_ context.Context, rq *rpc.TunerUpdateStationListRequest) (*rpc.Empty, error) {
-	adapter.tunerServicePort.StationListUpdated(rq.GetStations())
+	adapter.tunerServicePort.UpdateStationList(rq.GetStations())
 	return &rpc.Empty{}, nil
 }
 
 // RpcUpdateSubscription receives a call Hw -> Tuner
 func (adapter *TunerAdapter) RpcUpdateSubscription(_ context.Context, rq *rpc.TunerUpdateSubscriptionRequest) (*rpc.Empty, error) {
-	adapter.tunerServicePort.SubscriptionUpdated(rq.GetActive())
+	adapter.tunerServicePort.UpdateSubscription(rq.GetActive())
 	return &rpc.Empty{}, nil
 }
 

@@ -11,7 +11,7 @@ func NewUpdateSubscriptionCmd(subscription domain.Subscription) UpdateSubscripti
 	return UpdateSubscriptionCmd{subscription}
 }
 
-func (cmd UpdateSubscriptionCmd) Execute(tuner *domain.Tuner, ports *infrastructure.Ports) {
-	tuner.Subscription = cmd.subscription
-	ports.UiPortOut.UpdateSubscription(cmd.subscription)
+func (cmd UpdateSubscriptionCmd) Execute(state *domain.TunerState, ports *infrastructure.OuterWorldPorts) {
+	state.Subscription = cmd.subscription
+	ports.UIPort.UpdateSubscription(cmd.subscription)
 }

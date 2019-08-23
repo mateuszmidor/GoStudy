@@ -1,3 +1,3 @@
 package domain
 
-type StationId = uint32
+type StationID = uint32

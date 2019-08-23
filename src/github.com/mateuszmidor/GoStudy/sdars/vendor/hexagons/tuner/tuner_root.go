@@ -4,34 +4,30 @@ import "hexagons/tuner/domain"
 import "hexagons/tuner/application"
 import "hexagons/tuner/infrastructure"
 
-// Tuner aggregate root; visible to the outer world
+// TunerRoot; aggregate visible to the outer world
 type TunerRoot struct {
-	tuner   domain.Tuner
-	ports   infrastructure.Ports
-	service application.TunerService
+	state   domain.TunerState              // keeps internal state
+	ports   infrastructure.OuterWorldPorts // allows tuner talking to outer world
+	service application.TunerService       // allows outer world talking to tuner
 }
 
 func NewTunerRoot() TunerRoot {
-	root := TunerRoot{}
-	root.tuner = domain.NewTuner()
-	root.ports = infrastructure.Ports{}
-	root.service = application.NewTunerService()
-	return root
+	return TunerRoot{domain.NewTunerState(), infrastructure.OuterWorldPorts{}, application.NewTunerService()}
 }
 
-func (t *TunerRoot) SetHwPort(hwPortOut infrastructure.HwPortOut) {
-	t.ports.HwPortOut = hwPortOut
+func (t *TunerRoot) SetHwPort(hwPortOut infrastructure.HwPort) {
+	t.ports.HwPort = hwPortOut
 }
 
-func (t *TunerRoot) SetUiPort(uiPortOut infrastructure.UiPortOut) {
-	t.ports.UiPortOut = uiPortOut
+func (t *TunerRoot) SetUiPort(uiPortOut infrastructure.UIPort) {
+	t.ports.UIPort = uiPortOut
 }
 
-func (t *TunerRoot) GetServicePort() infrastructure.ServicePort {
+func (t *TunerRoot) GetServicePort() infrastructure.TunerServicePort {
 	return &t.service
 }
 
 // To be run from non-main gorutine
 func (t *TunerRoot) Run() {
-	t.service.Run(&t.tuner, &t.ports)
+	t.service.Run(&t.state, &t.ports)
 }

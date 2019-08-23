@@ -11,7 +11,7 @@ func NewUpdateStationListCmd(stations domain.StationList) UpdateStationListCmd {
 	return UpdateStationListCmd{stations}
 }
 
-func (cmd UpdateStationListCmd) Execute(tuner *domain.Tuner, ports *infrastructure.Ports) {
-	tuner.Stations = cmd.stations
-	ports.UiPortOut.UpdateStationList(cmd.stations)
+func (cmd UpdateStationListCmd) Execute(state *domain.TunerState, ports *infrastructure.OuterWorldPorts) {
+	state.Stations = cmd.stations
+	ports.UIPort.UpdateStationList(cmd.stations)
 }

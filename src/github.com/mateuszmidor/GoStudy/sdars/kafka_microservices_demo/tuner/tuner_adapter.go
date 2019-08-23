@@ -12,7 +12,7 @@ import (
 
 // TunerAdapter implements TunerServer generated from tuner.proto into tuner.pb.go
 type TunerAdapter struct {
-	tunerServicePort infrastructure.ServicePort // communication towards Tuner
+	tunerServicePort infrastructure.TunerServicePort // communication towards Tuner
 	hwWriter         *kafka.Writer
 	uiWriter         *kafka.Writer
 }
@@ -39,7 +39,7 @@ func (adapter *TunerAdapter) UpdateSubscription(subscription domain.Subscription
 }
 
 // TuneToStation makes a call Tuner -> Hw
-func (adapter *TunerAdapter) TuneToStation(stationID domain.StationId) {
+func (adapter *TunerAdapter) TuneToStation(stationID domain.StationID) {
 	buf := bytes.NewBuffer([]byte{})
 	if mykafka.EncodeMessageOrLog(buf, stationID) {
 		mykafka.WriteMessageWithRetry5(adapter.hwWriter, mykafka.MsgTuneToStation, buf.Bytes())
@@ -50,7 +50,7 @@ func (adapter *TunerAdapter) TuneToStation(stationID domain.StationId) {
 func (adapter *TunerAdapter) kafkaUpdateStationList(data []byte) {
 	var stations []string
 	if mykafka.DecodeMessageOrLog(bytes.NewReader(data), &stations) {
-		adapter.tunerServicePort.StationListUpdated(stations)
+		adapter.tunerServicePort.UpdateStationList(stations)
 	}
 }
 
@@ -58,7 +58,7 @@ func (adapter *TunerAdapter) kafkaUpdateStationList(data []byte) {
 func (adapter *TunerAdapter) kafkaUpdateSubscription(data []byte) {
 	var subscription bool
 	if mykafka.DecodeMessageOrLog(bytes.NewReader(data), &subscription) {
-		adapter.tunerServicePort.SubscriptionUpdated(subscription)
+		adapter.tunerServicePort.UpdateSubscription(subscription)
 	}
 }
 

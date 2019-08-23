@@ -5,24 +5,26 @@ import "hexagons/tuner/domain"
 import "hexagons/tuner/infrastructure"
 
 type TuneToStationCmd struct {
-	stationId domain.StationId
+	stationID domain.StationID
 }
 
-func NewTuneToStationCmd(stationId domain.StationId) TuneToStationCmd {
-	return TuneToStationCmd{stationId}
+func NewTuneToStationCmd(stationID domain.StationID) TuneToStationCmd {
+	return TuneToStationCmd{stationID}
 }
 
-func (cmd TuneToStationCmd) Execute(tuner *domain.Tuner, ports *infrastructure.Ports) {
+func (cmd TuneToStationCmd) Execute(state *domain.TunerState, ports *infrastructure.OuterWorldPorts) {
 	// check business rule
-	if tuner.Subscription == false {
-		fmt.Printf("TuneToStationCmd.Execute: cant tune to station %v, subscription inactive\n", cmd.stationId)
+	if state.Subscription == false {
+		fmt.Printf("TuneToStationCmd.Execute: cant tune to station %v, subscription inactive\n", cmd.stationID)
 		return
 	}
 
-	if int(cmd.stationId) >= len(tuner.Stations) {
-		fmt.Printf("TuneToStationCmd.Execute: cant tune to station %v, no such station\n", cmd.stationId)
+	// check business rule
+	if int(cmd.stationID) >= len(state.Stations) {
+		fmt.Printf("TuneToStationCmd.Execute: cant tune to station %v, no such station\n", cmd.stationID)
 		return
 	}
 
-	ports.HwPortOut.TuneToStation(cmd.stationId)
+	// do!
+	ports.HwPort.TuneToStation(cmd.stationID)
 }

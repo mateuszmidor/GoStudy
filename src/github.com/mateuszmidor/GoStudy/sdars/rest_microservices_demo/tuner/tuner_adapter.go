@@ -11,7 +11,7 @@ import (
 )
 
 type TunerAdapter struct {
-	tunerServicePort infrastructure.ServicePort
+	tunerServicePort infrastructure.TunerServicePort
 }
 
 // NewTunerAdapter creates a HTTP adapter for Tuner hexagon
@@ -32,7 +32,7 @@ func (adapter *TunerAdapter) UpdateSubscription(subscription domain.Subscription
 }
 
 // Tuner -> Hw
-func (adapter *TunerAdapter) TuneToStation(stationID domain.StationId) {
+func (adapter *TunerAdapter) TuneToStation(stationID domain.StationID) {
 	endpoint := rest.MakeHwEndpoint(rest.HwCurrentStation)
 	retry.UntilSuccessOr5Failures("tuning to station", rest.HttpPut, endpoint, stationID)
 }
@@ -45,7 +45,7 @@ func (adapter *TunerAdapter) handleSubscription(w http.ResponseWriter, r *http.R
 			rest.RespondErr(w, http.StatusBadRequest, "Couldnt read current station id from request", err)
 			return
 		}
-		adapter.tunerServicePort.SubscriptionUpdated(subscription)
+		adapter.tunerServicePort.UpdateSubscription(subscription)
 		rest.Respond(w, http.StatusOK, nil)
 		return
 	}
@@ -60,7 +60,7 @@ func (adapter *TunerAdapter) handleStationList(w http.ResponseWriter, r *http.Re
 			rest.RespondErr(w, http.StatusBadRequest, "Couldnt read current station id from request", err)
 			return
 		}
-		adapter.tunerServicePort.StationListUpdated(stations)
+		adapter.tunerServicePort.UpdateStationList(stations)
 		rest.Respond(w, http.StatusOK, nil)
 		return
 	}
