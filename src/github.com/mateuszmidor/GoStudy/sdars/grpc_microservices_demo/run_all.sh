@@ -1,6 +1,6 @@
 #!/bin/bash
 
-trap "killall main; killall hw_adapter; killall ui_adapter; killall tuner_adapter" SIGINT SIGTERM
+trap "killall main; killall hw_adapter; killall ui_adapter; killall tuner_adapter; exit 0" SIGINT SIGTERM
 
 # generate go files from proto files
 command protoc > /dev/null 2>&1
@@ -20,4 +20,5 @@ go run . &
 cd ../tuner
 go run . &
 cd ../hw
-go run .
+go run . &
+while true; do sleep 1; done
