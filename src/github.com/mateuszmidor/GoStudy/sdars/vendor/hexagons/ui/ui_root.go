@@ -5,24 +5,24 @@ import "hexagons/ui/application"
 import "hexagons/ui/infrastructure"
 
 type UiRoot struct {
-	ui      domain.Ui
+	state   domain.UiState
 	service application.UiService
-	ports   infrastructure.Ports
+	ports   infrastructure.OuterWorldPorts
 }
 
 func NewUiRoot() UiRoot {
 	root := UiRoot{}
-	root.ui = domain.NewUi()
-	root.service = application.NewUiService(&root.ui)
-	root.ports = infrastructure.Ports{}
+	root.state = domain.NewUiState()
+	root.service = application.NewUiService(&root.state)
+	root.ports = infrastructure.OuterWorldPorts{}
 	return root
 }
 
-func (root *UiRoot) SetTunerPort(tuner infrastructure.TunerCommandsPort) {
-	root.ports.CommandsPort = tuner
+func (root *UiRoot) SetTunerPort(tuner infrastructure.TunerPort) {
+	root.ports.TunerPort = tuner
 }
 
-func (root *UiRoot) GetServicePort() infrastructure.ServicePort {
+func (root *UiRoot) GetServicePort() infrastructure.UiServicePort {
 	return &root.service
 }
 

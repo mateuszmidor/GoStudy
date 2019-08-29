@@ -10,7 +10,7 @@ import (
 // TunerUIAdapter implements tuner output ports towards ui, and ui output ports towards tuner
 type TunerUIAdapter struct {
 	tunerServicePort tunerports.TunerServicePort
-	uiServicePort    uiports.ServicePort
+	uiServicePort    uiports.UiServicePort
 }
 
 // NewTunerUIAdapter creates a Tuner - Ui bridge

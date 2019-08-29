@@ -12,8 +12,8 @@ import (
 
 // UIAdapter implements UiServer generated from ui.proto into ui.pb.go
 type UIAdapter struct {
-	uiServicePort infrastructure.ServicePort // communication towards Ui
-	tunerClient   rpc.TunerClient            // communication towards Tuner
+	uiServicePort infrastructure.UiServicePort // communication towards Ui
+	tunerClient   rpc.TunerClient              // communication towards Tuner
 }
 
 // NewUIAdapter creates a grpc adapter for Ui

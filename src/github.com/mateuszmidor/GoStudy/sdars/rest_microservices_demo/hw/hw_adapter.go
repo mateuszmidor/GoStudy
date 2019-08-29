@@ -10,7 +10,7 @@ import (
 )
 
 type HwAdapter struct {
-	hwServicePort infrastructure.ServicePort
+	hwServicePort infrastructure.HwServicePort
 }
 
 // NewHwAdapter creates a HTTP adapter for Hw

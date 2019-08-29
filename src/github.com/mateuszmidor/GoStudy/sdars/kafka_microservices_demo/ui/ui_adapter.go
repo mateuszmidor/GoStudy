@@ -11,7 +11,7 @@ import (
 
 // UIAdapter implements tuner output ports towards ui, and ui output ports towards tuner
 type UIAdapter struct {
-	uiServicePort infrastructure.ServicePort
+	uiServicePort infrastructure.UiServicePort
 	tunerWriter   *kafka.Writer
 }
 

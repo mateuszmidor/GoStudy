@@ -10,7 +10,7 @@ import (
 // Implements tuner output ports towards hw, and hw output ports towards tuner
 type TunerHwAdapter struct {
 	tunerServicePort tunerports.TunerServicePort
-	hwServicePort    hwports.ServicePort
+	hwServicePort    hwports.HwServicePort
 }
 
 func NewTunerHwAdapter(tuner *tuner.TunerRoot, hw *hw.HwRoot) TunerHwAdapter {

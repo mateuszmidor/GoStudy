@@ -12,8 +12,8 @@ import (
 
 // HwAdapter implements HwServer generated from hw.proto into hw.pb.go
 type HwAdapter struct {
-	hwServicePort infrastructure.ServicePort // communication towards Hw
-	tunerClient   rpc.TunerClient            // communication towards Tuner
+	hwServicePort infrastructure.HwServicePort // communication towards Hw
+	tunerClient   rpc.TunerClient              // communication towards Tuner
 }
 
 // NewHwAdapter creates a grpc adapter for Hw

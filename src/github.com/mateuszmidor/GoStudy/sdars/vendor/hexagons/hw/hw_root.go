@@ -5,24 +5,24 @@ import "hexagons/hw/application"
 import "hexagons/hw/infrastructure"
 
 type HwRoot struct {
-	hw      domain.Hw
+	state   domain.HwState
 	service application.HwService
-	ports   infrastructure.Ports
+	ports   infrastructure.OuterWorldPorts
 }
 
 func NewHwRoot() HwRoot {
 	root := HwRoot{}
-	root.hw = domain.NewHw()
-	root.service = application.NewHwService(&root.hw)
-	root.ports = infrastructure.Ports{}
+	root.state = domain.NewHwState()
+	root.service = application.NewHwService(&root.state)
+	root.ports = infrastructure.OuterWorldPorts{}
 	return root
 }
 
-func (root *HwRoot) SetTunerPort(port infrastructure.EventsPort) {
-	root.ports.EventsPort = port
+func (root *HwRoot) SetTunerPort(port infrastructure.TunerPort) {
+	root.ports.TunerPort = port
 }
 
-func (root *HwRoot) GetServicePort() infrastructure.ServicePort {
+func (root *HwRoot) GetServicePort() infrastructure.HwServicePort {
 	return &root.service
 }
 

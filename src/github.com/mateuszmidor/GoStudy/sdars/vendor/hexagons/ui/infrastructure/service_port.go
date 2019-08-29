@@ -1,7 +1,7 @@
 package infrastructure
 
-// what services do we provide?
-type ServicePort interface {
+// what services UI provides?
+type UiServicePort interface {
 	UpdateSubscription(active bool)
 	UpdateStationList(stations []string)
 }

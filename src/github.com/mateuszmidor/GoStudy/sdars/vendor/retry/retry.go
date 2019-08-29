@@ -8,7 +8,7 @@ import (
 
 // UntilSuccessOr5Failures tries to call fn(params) until fn returns no error OR until limit of 5 tries is reached
 // The function returns same results as fn, but they need casting eg. err := result[0].Interface().(error)
-// Note: last result of fn should carry error value
+// Note: last result of fn must carry error value so we know if we need to retry the call or not!!!
 func UntilSuccessOr5Failures(failMessage string, fn interface{}, params ...interface{}) []reflect.Value {
 	const retryLimit = 5
 	const retryDelay = 1 * time.Second
@@ -20,7 +20,7 @@ func UntilSuccessOr5Failures(failMessage string, fn interface{}, params ...inter
 	// check preconditions
 	requiredParamCount := fType.NumIn()
 	if fType.IsVariadic() {
-		requiredParamCount-- // variadic func last param is optional
+		requiredParamCount-- // for variadic func, the last param is optional
 	}
 	if len(params) < requiredParamCount {
 		panic(fmt.Sprintf("RetryUntilSuccessOr5Failures: %s: incorrect number of parameters provided vs required!", failMessage))
@@ -38,7 +38,7 @@ func UntilSuccessOr5Failures(failMessage string, fn interface{}, params ...inter
 		if len(result) == 0 {
 			panic("RetryUntilSuccessOr5Failures: called function returned no error value")
 		}
-		errorValue := result[len(result)-1] // watch out for nil when casting// last result of fn call should carry error value
+		errorValue := result[len(result)-1] // last result of fn call should carry error value
 
 		if errorValue.IsNil() {
 			if nRetry > 1 {

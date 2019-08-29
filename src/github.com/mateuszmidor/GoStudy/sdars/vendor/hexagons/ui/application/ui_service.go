@@ -5,33 +5,33 @@ import "hexagons/ui/infrastructure"
 import "fmt"
 import "time"
 
-// Implements ServicePort
+// Implements UiServicePort
 type UiService struct {
-	ui *domain.Ui
+	state *domain.UiState
 }
 
-func NewUiService(ui *domain.Ui) UiService {
-	return UiService{ui}
+func NewUiService(state *domain.UiState) UiService {
+	return UiService{state}
 }
 
-// ServicePort
+// UiServicePort
 func (service *UiService) UpdateSubscription(active bool) {
 	fmt.Printf("UiService.UpdateSubscription: %v\n", active)
-	service.ui.SubscriptionActive = active
+	service.state.SubscriptionActive = active
 }
 
-// ServicePort
+// UiServicePort
 func (service *UiService) UpdateStationList(stations []string) {
 	fmt.Printf("UiService.UpdateStationList: %v\n", stations)
-	service.ui.StationList = stations
+	service.state.StationList = stations
 }
 
 // Generate random Ui commands and send them to Tuner
-func (service *UiService) Run(ports *infrastructure.Ports) {
+func (service *UiService) Run(ports *infrastructure.OuterWorldPorts) {
 	for {
 		select {
 		case <-time.After(5 * time.Second):
-			ports.CommandsPort.TuneToStation(RandomStation(service.ui.StationList))
+			ports.TunerPort.TuneToStation(RandomStation(service.state.StationList))
 		}
 	}
 }

@@ -6,34 +6,34 @@ import "fmt"
 import "time"
 import "math/rand"
 
-// Implements ServicePort
+// Implements HwServicePort
 type HwService struct {
-	hw *domain.Hw
+	state *domain.HwState
 }
 
-func NewHwService(hw *domain.Hw) HwService {
-	return HwService{hw}
+func NewHwService(state *domain.HwState) HwService {
+	return HwService{state}
 }
 
-// ServicePort
+// HwServicePort
 func (service *HwService) TuneToStation(stationId uint32) {
 	fmt.Printf("HwService.TuneToStation: %v\n", stationId)
-	service.hw.CurrentStationId = stationId
+	service.state.CurrentStationId = stationId
 }
 
 // Generate random Hw events and send them to Tuner port
-func (service *HwService) Run(ports *infrastructure.Ports) {
+func (service *HwService) Run(ports *infrastructure.OuterWorldPorts) {
 	// activate subscription
-	ports.EventsPort.UpdateSubscription(true)
+	ports.TunerPort.UpdateSubscription(true)
 
 	// send hw events...
 	for {
 		time.Sleep(3000 * time.Millisecond)
 		switch lucky := rand.Intn(10); lucky {
 		case 1, 2, 3:
-			ports.EventsPort.UpdateStationList(RandomStationList())
+			ports.TunerPort.UpdateStationList(RandomStationList())
 		case 8:
-			ports.EventsPort.UpdateSubscription(RandomSubscription())
+			ports.TunerPort.UpdateSubscription(RandomSubscription())
 		default:
 
 		}

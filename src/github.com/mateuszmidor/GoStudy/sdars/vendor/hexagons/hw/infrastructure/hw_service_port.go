@@ -1,5 +1,5 @@
 package infrastructure
 
-type ServicePort interface {
+type HwServicePort interface {
 	TuneToStation(stationId uint32)
 }
