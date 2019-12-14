@@ -6,8 +6,8 @@ function die() {
 }
 
 # 1. copy project under $GOPATH/src so it can be "go build" successfully
-mkdir -p $GOPATH/src/socialpoll
-cd $GOPATH/src/socialpoll
+mkdir -p $GOPATH/src/sdars
+cd $GOPATH/src/sdars
 cp -r /home/* . # sdars is mapped as /home (see: docker-compose.yaml)
 cd kafka_microservices_demo
 
@@ -19,33 +19,12 @@ for package in "${PACKAGES[@]}"; do
     echo "done."
 done
 
-# 3. build hw, ui, tuner
-COMPONENTS=(hw ui tuner)
-for component in "${COMPONENTS[@]}"; do
-    echo "Building: $component"
-    pushd  "$component" > /dev/null
-    go build || die "Failed to build $component"
-    popd > /dev/null
-    echo "Done."
-done
+# 3. build component provided as run param (either hw/tuner/ui)
+COMPONENT="$1"
+echo "Building: $COMPONENT"
+cd "$COMPONENT"
+go build || die "Failed to build $COMPONENT"
+echo "Done."
 
-# 4. setup env variables for aws run
-#. envconfig.sh || die "Couldnt source envconfig.sh"
-
-# 5. run the components
-for component in "${COMPONENTS[@]}"; do
-    pushd  "$component" > /dev/null
-    ./$component &
-    popd > /dev/null
-done
-
-# 6. wait then check components running
-sleep 3
-for component in "${COMPONENTS[@]}"; do
-    pushd  "$component" > /dev/null
-    pidof "$component" || die "Component $component not running"
-    popd > /dev/null
-done
-
-# 7. loop until killed
-while true; do sleep 1; done
+# 4. run the component
+./$COMPONENT

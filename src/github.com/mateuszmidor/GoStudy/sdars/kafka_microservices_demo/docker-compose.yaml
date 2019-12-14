@@ -76,9 +76,9 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: ${MY_IP}:22181,${MY_IP}:32181,${MY_IP}:42181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${MY_IP}:39092
 
-  sdars:
+  hw:
     image: golang
-    command: /home/kafka_microservices_demo/deploy_and_run.sh
+    command: /home/kafka_microservices_demo/deploy_and_run.sh hw
     depends_on:
       - kafka-1
       - kafka-2
@@ -86,3 +86,22 @@ services:
     volumes:
       - ../:/home # map sdars/ as /home
       
+  tuner:
+    image: golang
+    command: /home/kafka_microservices_demo/deploy_and_run.sh tuner
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    volumes:
+      - ../:/home # map sdars/ as /home
+
+  ui:
+    image: golang
+    command: /home/kafka_microservices_demo/deploy_and_run.sh ui
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    volumes:
+      - ../:/home # map sdars/ as /home
