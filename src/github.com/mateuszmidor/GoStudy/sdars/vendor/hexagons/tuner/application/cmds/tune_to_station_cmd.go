@@ -3,12 +3,13 @@ package cmds
 import "fmt"
 import "hexagons/tuner/domain"
 import "hexagons/tuner/infrastructure"
+import "sharedkernel"
 
 type TuneToStationCmd struct {
-	stationID domain.StationID
+	stationID sharedkernel.StationID
 }
 
-func NewTuneToStationCmd(stationID domain.StationID) TuneToStationCmd {
+func NewTuneToStationCmd(stationID sharedkernel.StationID) TuneToStationCmd {
 	return TuneToStationCmd{stationID}
 }
 

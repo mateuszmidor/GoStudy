@@ -1,8 +1,11 @@
 package application
 
-import "hexagons/tuner/domain"
-import "hexagons/tuner/infrastructure"
-import "hexagons/tuner/application/cmds"
+import (
+	"hexagons/tuner/application/cmds"
+	"hexagons/tuner/domain"
+	"hexagons/tuner/infrastructure"
+	"sharedkernel"
+)
 
 // Implements TunerServicePort
 type TunerService struct {
@@ -18,17 +21,17 @@ func (service *TunerService) putCommand(cmd Cmd) {
 }
 
 // TunerServicePort
-func (service *TunerService) TuneToStation(stationId domain.StationID) {
+func (service *TunerService) TuneToStation(stationId sharedkernel.StationID) {
 	service.putCommand(cmds.NewTuneToStationCmd(stationId))
 }
 
 // TunerServicePort
-func (service *TunerService) UpdateSubscription(subscription domain.Subscription) {
+func (service *TunerService) UpdateSubscription(subscription sharedkernel.Subscription) {
 	service.putCommand(cmds.NewUpdateSubscriptionCmd(subscription))
 }
 
 // TunerServicePort
-func (service *TunerService) UpdateStationList(stationList domain.StationList) {
+func (service *TunerService) UpdateStationList(stationList sharedkernel.StationList) {
 	service.putCommand(cmds.NewUpdateStationListCmd(stationList))
 }
 

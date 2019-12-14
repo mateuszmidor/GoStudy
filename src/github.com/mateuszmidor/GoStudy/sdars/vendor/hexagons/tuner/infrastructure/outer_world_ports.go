@@ -1,16 +1,16 @@
 package infrastructure
 
-import "hexagons/tuner/domain"
+import "sharedkernel"
 
 // HwPort allows Tuner talk to Hardware
 type HwPort interface {
-	TuneToStation(stationID domain.StationID)
+	TuneToStation(stationID sharedkernel.StationID)
 }
 
 // UIPort allows Tuner talk to UI
 type UIPort interface {
-	UpdateStationList(stationList domain.StationList)
-	UpdateSubscription(subscription domain.Subscription)
+	UpdateStationList(stationList sharedkernel.StationList)
+	UpdateSubscription(subscription sharedkernel.Subscription)
 }
 
 // OuterWorldPorts collects the ports that Tuner can talk to

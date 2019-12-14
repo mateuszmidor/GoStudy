@@ -1,13 +1,16 @@
 package cmds
 
-import "hexagons/tuner/domain"
-import "hexagons/tuner/infrastructure"
+import (
+	"hexagons/tuner/domain"
+	"hexagons/tuner/infrastructure"
+	"sharedkernel"
+)
 
 type UpdateStationListCmd struct {
-	stations domain.StationList
+	stations sharedkernel.StationList
 }
 
-func NewUpdateStationListCmd(stations domain.StationList) UpdateStationListCmd {
+func NewUpdateStationListCmd(stations sharedkernel.StationList) UpdateStationListCmd {
 	return UpdateStationListCmd{stations}
 }
 

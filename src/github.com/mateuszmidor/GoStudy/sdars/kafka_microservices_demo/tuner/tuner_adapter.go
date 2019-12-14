@@ -3,9 +3,9 @@ package main
 import (
 	"bytes"
 	"hexagons/tuner"
-	"hexagons/tuner/domain"
 	"hexagons/tuner/infrastructure"
 	"mykafka"
+	"sharedkernel"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -23,7 +23,7 @@ func NewTunerAdapter(tuner *tuner.TunerRoot) TunerAdapter {
 }
 
 // UpdateStationList makes a call Tuner -> Ui
-func (adapter *TunerAdapter) UpdateStationList(stations domain.StationList) {
+func (adapter *TunerAdapter) UpdateStationList(stations sharedkernel.StationList) {
 	buf := bytes.NewBuffer([]byte{})
 	if mykafka.EncodeMessageOrLog(buf, stations) {
 		mykafka.WriteMessageWithRetry5(adapter.uiWriter, mykafka.MsgUpdateStationList, buf.Bytes())
@@ -31,7 +31,7 @@ func (adapter *TunerAdapter) UpdateStationList(stations domain.StationList) {
 }
 
 // UpdateSubscription makes a call Tuner -> Ui
-func (adapter *TunerAdapter) UpdateSubscription(subscription domain.Subscription) {
+func (adapter *TunerAdapter) UpdateSubscription(subscription sharedkernel.Subscription) {
 	buf := bytes.NewBuffer([]byte{})
 	if mykafka.EncodeMessageOrLog(buf, subscription) {
 		mykafka.WriteMessageWithRetry5(adapter.uiWriter, mykafka.MsgUpdateSubscription, buf.Bytes())
@@ -39,7 +39,7 @@ func (adapter *TunerAdapter) UpdateSubscription(subscription domain.Subscription
 }
 
 // TuneToStation makes a call Tuner -> Hw
-func (adapter *TunerAdapter) TuneToStation(stationID domain.StationID) {
+func (adapter *TunerAdapter) TuneToStation(stationID sharedkernel.StationID) {
 	buf := bytes.NewBuffer([]byte{})
 	if mykafka.EncodeMessageOrLog(buf, stationID) {
 		mykafka.WriteMessageWithRetry5(adapter.hwWriter, mykafka.MsgTuneToStation, buf.Bytes())

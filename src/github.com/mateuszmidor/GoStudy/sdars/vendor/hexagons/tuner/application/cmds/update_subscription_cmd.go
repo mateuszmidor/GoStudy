@@ -1,13 +1,16 @@
 package cmds
 
-import "hexagons/tuner/domain"
-import "hexagons/tuner/infrastructure"
+import (
+	"hexagons/tuner/domain"
+	"hexagons/tuner/infrastructure"
+	"sharedkernel"
+)
 
 type UpdateSubscriptionCmd struct {
-	subscription domain.Subscription
+	subscription sharedkernel.Subscription
 }
 
-func NewUpdateSubscriptionCmd(subscription domain.Subscription) UpdateSubscriptionCmd {
+func NewUpdateSubscriptionCmd(subscription sharedkernel.Subscription) UpdateSubscriptionCmd {
 	return UpdateSubscriptionCmd{subscription}
 }
 

@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"hexagons/tuner"
-	"hexagons/tuner/domain"
 	"hexagons/tuner/infrastructure"
 	"log"
 	"retry"
 	"rpc"
+	"sharedkernel"
 )
 
 // TunerAdapter implements TunerServer generated from tuner.proto into tuner.pb.go
@@ -24,7 +24,7 @@ func NewTunerAdapter(tuner *tuner.TunerRoot) TunerAdapter {
 }
 
 // UpdateStationList makes a call Tuner -> Ui
-func (adapter *TunerAdapter) UpdateStationList(stations domain.StationList) {
+func (adapter *TunerAdapter) UpdateStationList(stations sharedkernel.StationList) {
 	f := func() error {
 		if adapter.uiClient == nil {
 			return errors.New("ui not available")
@@ -39,7 +39,7 @@ func (adapter *TunerAdapter) UpdateStationList(stations domain.StationList) {
 }
 
 // UpdateSubscription makes a call Tuner -> Ui
-func (adapter *TunerAdapter) UpdateSubscription(subscription domain.Subscription) {
+func (adapter *TunerAdapter) UpdateSubscription(subscription sharedkernel.Subscription) {
 	f := func() error {
 		if adapter.uiClient == nil {
 			return errors.New("ui not available")
@@ -54,7 +54,7 @@ func (adapter *TunerAdapter) UpdateSubscription(subscription domain.Subscription
 }
 
 // TuneToStation makes a call Tuner -> Hw
-func (adapter *TunerAdapter) TuneToStation(stationID domain.StationID) {
+func (adapter *TunerAdapter) TuneToStation(stationID sharedkernel.StationID) {
 	f := func() error {
 		if adapter.hwClient == nil {
 			return errors.New("hw not available")
