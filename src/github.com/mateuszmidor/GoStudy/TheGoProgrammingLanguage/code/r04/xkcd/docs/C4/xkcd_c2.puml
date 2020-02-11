@@ -1,0 +1,18 @@
+@startuml Basic Samaple
+!include C4PUML/C4-PlantUML/C4_Container.puml
+' !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+title Container-Level diagram for xkcd
+
+#Person(user, "comic book reader")
+System_Ext(xkcd_online_service, "xkcd service", "comic books online service")
+System_Boundary(sys, "Comic Book Browser") {
+    Container(comic_books_browser, "browser binary", "the binary")
+    ContainerDb(comic_book_storage, "storage", "comic book offline storage")
+}
+Rel(user, comic_books_browser, "browse a selection of comic books")
+Rel(comic_books_browser, xkcd_online_service, "fetch online comic books", "http/get+json")
+Rel(comic_books_browser, comic_book_storage, "load/store offline comic books", "json")
+
+'Lay_U(dss, hpa)
+@enduml

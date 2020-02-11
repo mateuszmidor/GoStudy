@@ -1,0 +1,17 @@
+@startuml "enterprise"
+'!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Context.puml
+' uncomment the following line and comment the first to use locally
+!include C4PUML/C4-PlantUML/C4_Context.puml
+
+title System-Level diagram for xkcd
+LAYOUT_TOP_DOWN
+
+#Person(user, "comic book reader", "")
+
+Enterprise_Boundary(c1, "Comic Books LTD.") {
+    System(comic_books_browser, "Comic Books Browser", "xkcd service offline client")
+}
+
+Rel(user, comic_books_browser, "browse a selection of comic books offline")
+
+@enduml
