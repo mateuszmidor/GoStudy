@@ -5,12 +5,15 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/protobuf/vault"
+	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/protobuf/vault/pb"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -28,7 +31,7 @@ func main() {
 		errChan <- fmt.Errorf("%s", <-c)
 	}()
 	hashEndpoint := vault.MakeHashEndpoint(srv)
-	validateEndpoint := vault.MakeValidateEndpoints(srv)
+	validateEndpoint := vault.MakeValidateEndpoint(srv)
 	endpoints := vault.Endpoints{
 		HashEndpoint:     hashEndpoint,
 		ValidateEndpoint: validateEndpoint,
@@ -36,17 +39,17 @@ func main() {
 	go func() {
 		log.Println("http:", *httpAddr)
 		handler := vault.NewHTTPServer(ctx, endpoints)
-		errCHan <- http.ListenAndServe(*httpAddr, handler)
+		errChan <- http.ListenAndServe(*httpAddr, handler)
 	}()
 	go func() {
-		listener, err:= net.Listen("tcp", *gRPCAddr)
+		listener, err := net.Listen("tcp", *gRPCAddr)
 		if err != nil {
-			errChan <- errChan
+			errChan <- err
 			return
 		}
 		log.Println("grpc:", *gRPCAddr)
-		handler:= vault.NewGRPCServer(ctx, endpoints)
-		gRPCServer:= grpc.NewServer()
+		handler := vault.NewGRPCServer(ctx, endpoints)
+		gRPCServer := grpc.NewServer()
 		pb.RegisterVaultServer(gRPCServer, handler)
 		errChan <- gRPCServer.Serve(listener)
 	}()

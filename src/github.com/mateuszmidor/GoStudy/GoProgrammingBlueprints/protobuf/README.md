@@ -1,5 +1,5 @@
 # protobuf
-Remote Procedure Call example using google protobuf
+Microservices integration using alternatively REST or gRPC through go-kit framework
 
 ## Install protobuf compiler (protoc)
     https://github.com/protocolbuffers/protobuf/releases (the protoc archive)
@@ -11,5 +11,9 @@ Remote Procedure Call example using google protobuf
     go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
     , then make protoc-gen-go from your $GOPATH/bin available as terminal command
     
+# Generate .go from .proto
+    cd <folder with .proto files>
+    protoc *.proto --go_out=plugins=grpc:.
+
 ## Run app:
     ./run_all.sh

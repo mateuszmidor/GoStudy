@@ -17,13 +17,13 @@ func TestHasherService(t *testing.T) {
 		t.Errorf("Valid: %s", err)
 	}
 	if !ok {
-		t.Error("Method Valid should have returned true!")
+		t.Error("Method Validate should have returned true!")
 	}
-	ok, err = src.Validate(ctx, "wrong_pass", h)
-	if err != nil {
-		t.Errorf("Valid: %s", err)
+	ok, err = srv.Validate(ctx, "wrong_pass", h)
+	if err == nil {
+		t.Errorf("Validation of hash agains different password should return error: %s", err)
 	}
 	if ok {
-		t.Error("Method Valid should have returned false!")
+		t.Error("Method Validate should have returned false!")
 	}
 }
