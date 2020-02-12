@@ -1,0 +1,32 @@
+@startuml Basic Samaple
+!include C4PUML/C4-PlantUML/C4_Container.puml
+' !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+title Container-Level diagram for SDARS
+
+#Person_Ext(user, "Car Driver")
+System_Boundary(sys, "SDARS") {
+    Container(ui, "UI", "User interface for the radio")
+    Container(tuner, "Tuner", "Domain logic & application logic")
+    Container(hw, "HW", "Communication with hw using SMS static lib")
+    Rel(hw, tuner, "Send updates")
+    Rel(tuner, hw, "Send commands")
+    Rel(tuner, ui, "Send updates")
+    Rel(ui, tuner, "Send commands")
+}
+Rel(user, ui, "Hit buttons")
+' Rel(dss, intellisell, "Uses")
+' Rel(dss, ase, "Uses")
+' Rel_L(dss, dsgui, "Uses", "?")
+' Rel(dss, atsedb, "Reads")
+
+' Rel(dsgui, dss, "Uses", "?")
+' Rel(hpa, atsedb, "Reads")
+' Rel_R(hpa, ssi, "Uses")
+' Rel(dsgui, atsedb, "Reads")
+' Rel(atsedb, dsgui, "Writes")
+' Rel(intellisell, dss, "Uses")
+' Rel(ase, dss, "Uses")
+' Rel_L(ssi, hpa, "Uses")
+'Lay_U(dss, hpa)
+@enduml

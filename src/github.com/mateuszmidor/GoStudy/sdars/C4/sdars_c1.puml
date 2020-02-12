@@ -1,0 +1,39 @@
+@startuml "enterprise"
+'!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Context.puml
+' uncomment the following line and comment the first to use locally
+!include C4PUML/C4-PlantUML/C4_Context.puml
+
+title System-Level diagram for SDARS
+LAYOUT_TOP_DOWN
+
+#Person_Ext(car_driver, "Car driver", "Has control override power")
+#Person_Ext(car_passenger, "Car passenger", "Regular radio user")
+
+Enterprise_Boundary(c0, "Infotainment") {
+    System(sdars, "SDARS", "Satellite Digital Audio Radio Services")
+    ' System(sabre_red, "Sabre Red Workspace", "GUI or GreenScreen")
+    ' System(usg, "Universal Services Gateway")
+    ' System(intellisell, "Intellisell", "and friends")
+    ' System(gds, "Sabre GDS")
+}
+' System_Ext(airline_webpage, "Airline Webpage", "")
+' System_Ext(online_travel_webpage, "Online Travel Agency Webpage", "")
+' System_Ext(metasearch_webpage, "Metasearch Webpage", "with itinerary cache")
+' System_Ext(innovdata, "Innovdata", "Schedule segments data")
+
+Rel(car_driver, sdars, "Tune to Station, override")
+Rel(car_passenger, sdars, "Tune to Station")
+' Rel(travel_agent, sabre_red, "Request schedules for given dates and destinations")
+' Rel(online_travel_agent, online_travel_webpage, "Request schedules for given dates and destinations")
+
+' Rel(airline_webpage, ssw, "Request schedules for given dates and destinations")
+
+' Rel(ssw, usg, "Request schedules for given dates and destinations")
+' Rel(metasearch_webpage, usg, "Request schedules for given dates and destinations")
+' Rel(sabre_red, usg, "Request schedules for given dates and destinations")
+' Rel(online_travel_webpage, usg, "Request schedules for given dates and destinations")
+
+' Rel(usg, intellisell, "Request schedules for given dates and destinations")
+' Rel(intellisell, innovdata, "Reads segments, fares, ..")
+
+@enduml

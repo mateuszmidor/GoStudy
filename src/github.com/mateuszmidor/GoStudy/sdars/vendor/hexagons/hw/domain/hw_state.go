@@ -1,7 +1,9 @@
 package domain
 
+import "sharedkernel"
+
 type HwState struct {
-	CurrentStationId uint32
+	CurrentStationId sharedkernel.StationID
 }
 
 func NewHwState() HwState {

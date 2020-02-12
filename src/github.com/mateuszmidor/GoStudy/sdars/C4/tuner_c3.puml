@@ -1,0 +1,23 @@
+@startuml
+'!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+' uncomment the following line and comment the first to use locally
+ !include SoftwareDevelopment/DNA/C4/C4PUML/C4-PlantUML/C4_Component.puml
+
+title Component-Level diagram for Tuner
+
+Container(ui, "UI", "separate process")
+Container(hw, "HW", "separate process")
+Container_Boundary(api, "Tuner") {
+    Component(ui_adapter, "UiAdapter", "Implement UiPort, Use TunerPort")
+    Component(hw_adapter, "HwAdapter", "Implement HwPort, Use TunerPort")
+    Component(application, "application.TunerService", "Implement use cases, implement TunerPort, use UiPort&HwPort")
+    Component(domain, "domain.TunerRoot", "implement business objects, rules & behavior")
+    Component(infrastructure, "infrastructure", "define outer world communication ports")
+    Rel(application, domain, "use")
+    Rel(application, infrastructure, "use")
+    Rel(ui_adapter, application, "interact", "UiPort, TunerPort")
+    Rel(hw_adapter, application, "interact", "HwPort, TunerPort")
+}
+Rel_U(ui_adapter, ui, "IPC", "eg. gRpc")
+Rel_U(hw_adapter, hw, "IPC", "eg. gRpc")
+@enduml
