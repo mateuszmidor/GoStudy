@@ -1,0 +1,26 @@
+<head></head>
+<body>
+    <h2>
+        Select formula:
+    </h2>
+    <ul>
+        <li>
+            <form action="/plot">
+                <input type="hidden" name="formula" value="sin(-x)*pow(1.5, -hypot(x,y))" />
+                <button type="submit"> sin(-x)*pow(1.5, -hypot(x,y)) </button>
+            </form>
+        </li>
+        <li>
+            <form action="/plot">
+                <input type="hidden" name="formula" value="pow(2, sin(y))*pow(2,sin(x))/12" />
+                <button type="submit"> pow(2, sin(y))*pow(2,sin(x))/12 </button>
+            </form>
+        </li>
+        <li>
+            <form action="/plot">
+                <input type="hidden" name="formula" value="sin(x*y/10)/10" />
+                <button type="submit"> sin(x*y/10)/10 </button>
+            </form>
+        </li>
+    </ul>
+</body>
