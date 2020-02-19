@@ -1,0 +1,13 @@
+In the following package structure:
+
+internalpackage
+	frontend/
+	backend/
+		repository/
+		internal/
+			db/
+
+"db" is under "internal".
+"internal" means packages internal to "backend"
+This means "db" can be imported from "repository" and from "backend" itself, but cannot from "frontend". 
+And this makes sense.
