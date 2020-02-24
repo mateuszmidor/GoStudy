@@ -1,0 +1,32 @@
+Unit testing - needs _test.go filename and func Test*(t *testing.T) signature:
+    Simple testing:
+        go test
+
+    Verbose testing:
+        go test -v
+
+    Selective testing (regex):
+        go test -run ="test1|test2"
+
+    Coverage testing:
+        Just summary %:
+            go test -cover
+        Coverage as interactive html per test file, showing call count:
+            go test -coverprofile=coverage.out -covermode=count ; go tool cover -html=coverage.out
+
+Benchmark testing - needs _test.go filename and func Benchmark*(b *testing.B) signature:
+    Benchmark just time (skip regular tests):
+        go test -run=NONE -bench=.
+    Benchmark time and allocatinos (skip regular tests):
+        go test -run=NONE -benchmem  -bench=.
+
+Profile testing
+    CPU profiling - time spent executing code. Display format: -text/-web(graphviz):
+        go test -run=NONE -bench=BenchmarkFibb -cpuprofile=cpu.out
+        go tool pprof -text ./testexamples.test cpu.out
+    Blocking profiling - time gorutines spend on synchronization. Display format: -text/-web(graphviz):
+        go test -run=NONE -bench=BenchmarkAfter -blockprofile=block.out
+        go tool pprof -text ./testexamples.test block.out
+    Memory profiling - what function allocates the most memory. Display format: -text/-web(graphviz):
+        go test -run=NONE -bench=BenchmarkAlloc -memprofile=mem.out
+        go tool pprof -text ./testexamples.test mem.out
