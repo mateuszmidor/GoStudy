@@ -1,0 +1,27 @@
+@startuml
+'!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+' uncomment the following line and comment the first to use locally
+ !include C4PUML/C4-PlantUML/C4_Component.puml
+
+title Component-Level diagram for xkcd
+#Person(user, "comic book reader")
+System_Ext(xkcd_online_service, "xkcd service", "comic book online service")
+ContainerDb(json_book_storage, "json file", "comic books as json document")
+Container_Boundary(browser_bin, "browser binary") {
+    Component(cli, "cli", "generic domain, 1-tier") 
+    Component(application, "application", "wire-up components together") 
+    Component(browser, "browser", "core domain, hexagon")
+    Component(repository, "comic book repo", "supportive domain, 1-tier") 
+    Component(fetcher, "xkcd fetcher", "fetch comic books from external service and convert to internal data model")
+    Component(storage, "json storage", "load/store comic books locally") 
+}
+Rel(user, cli, "enter cli commands, read text output")
+Rel_U(application, cli, "receive commands, send print updates")
+Rel_R(application, browser, "load comic books, go latest, go prev, go next, go given no. comic book")
+Rel(application, repository, "load from offline, async update from online")
+Rel(fetcher, xkcd_online_service, "fetch comic books", "http/get+json")
+Rel(repository, storage, "load/store comic books", "json")
+Rel(repository, fetcher, "fetch online comic books")
+Rel(storage, json_book_storage, "load/store comic books", "json")
+
+@enduml
