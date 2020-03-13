@@ -10,9 +10,12 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
-	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/protobuf/vault"
-	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/protobuf/vault/pb"
+	ratelimitkit "github.com/go-kit/kit/ratelimit"
+	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/r10-protobuf/vault"
+	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/r10-protobuf/vault/pb"
+	"golang.org/x/time/rate"
 	"google.golang.org/grpc"
 )
 
@@ -30,8 +33,12 @@ func main() {
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 		errChan <- fmt.Errorf("%s", <-c)
 	}()
+
+	limit := rate.NewLimiter(rate.Every(time.Second), 5) // allow 5 requests/sec
 	hashEndpoint := vault.MakeHashEndpoint(srv)
+	hashEndpoint = ratelimitkit.NewErroringLimiter(limit)(hashEndpoint)
 	validateEndpoint := vault.MakeValidateEndpoint(srv)
+	validateEndpoint = ratelimitkit.NewErroringLimiter(limit)(validateEndpoint)
 	endpoints := vault.Endpoints{
 		HashEndpoint:     hashEndpoint,
 		ValidateEndpoint: validateEndpoint,

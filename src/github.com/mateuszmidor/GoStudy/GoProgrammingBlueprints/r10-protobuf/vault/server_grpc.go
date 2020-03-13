@@ -4,7 +4,7 @@ import (
 	context "context"
 
 	grpctransport "github.com/go-kit/kit/transport/grpc"
-	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/protobuf/vault/pb"
+	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/r10-protobuf/vault/pb"
 )
 
 type grpcServer struct {

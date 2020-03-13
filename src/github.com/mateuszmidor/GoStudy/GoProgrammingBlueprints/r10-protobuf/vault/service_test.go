@@ -1,7 +1,7 @@
 package vault
 
 import (
-	context "context"
+	"context"
 	"testing"
 )
 
