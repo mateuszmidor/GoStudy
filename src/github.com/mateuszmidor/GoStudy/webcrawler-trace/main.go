@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"regexp"
+	"runtime/trace"
 	"sync"
 )
 
@@ -117,7 +119,18 @@ func extractTitle(html string) string {
 }
 
 func main() {
+	// setup program tracing
+	tracesFile, err := os.Create("trace.out")
+	if err != nil {
+		panic(err)
+	}
+	defer tracesFile.Close()
+
+	trace.Start(tracesFile)
+	defer trace.Stop()
+
+	// actual work
 	var myFetcher SerialFetcher
 	var visitedUrls VisitedUrls
-	Crawl("http://mateuszmidor.com", 2, myFetcher, &visitedUrls)
+	Crawl("http://mateuszmidor.com", 3, myFetcher, &visitedUrls)
 }
