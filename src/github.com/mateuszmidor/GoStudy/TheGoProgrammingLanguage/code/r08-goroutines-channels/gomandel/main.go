@@ -5,7 +5,6 @@ package main
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"image/png"
 	"math/cmplx"
 	"os"
@@ -52,12 +51,19 @@ func processSegment(beginy, endy int, img *image.RGBA) {
 		for px := 0; px < width; px++ {
 			x := float64(px)/width*(xmax-xmin) + xmin
 			z := complex(x, y)
-			img.Set(px, py, mandelbrot(z))
+
+			c := mandelbrot(z)
+			i := img.PixOffset(px, py)
+			s := img.Pix[i : i+4 : i+4]
+			s[0] = c
+			s[1] = c
+			s[2] = c
+			s[3] = 255
 		}
 	}
 }
 
-func mandelbrot(z complex128) color.Color {
+func mandelbrot(z complex128) uint8 {
 	const iterations = 200
 	const contrast = 15
 
@@ -65,8 +71,8 @@ func mandelbrot(z complex128) color.Color {
 	for n := uint8(0); n < iterations; n++ {
 		v = v*v + z
 		if cmplx.Abs(v) > 2.0 {
-			return color.Gray{255 - contrast*n}
+			return 255 - contrast*n
 		}
 	}
-	return color.Black
+	return 0
 }
