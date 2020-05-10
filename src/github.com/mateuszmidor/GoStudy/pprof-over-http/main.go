@@ -3,12 +3,22 @@ package main
 import (
 	"net/http"
 	_ "net/http/pprof"
+	"runtime"
 	"strings"
+	"time"
 )
 
 func main() {
-	createLoad()
-	runPprofServer()
+	runtime.SetBlockProfileRate(1)     // by default disabled
+	runtime.SetMutexProfileFraction(1) // by default disabled
+	go http.ListenAndServe("localhost:6060", http.DefaultServeMux)
+
+	// keep the system under load, so there are always some cpu profile samples available
+	start := time.Now()
+	for time.Since(start).Minutes() < 10 {
+		createLoad()
+		time.Sleep(time.Second)
+	}
 }
 
 func createLoad() int {
@@ -25,6 +35,7 @@ func calcPrefix() int {
 	}
 	return c
 }
+
 func calcPostfix() int {
 	const descr = "descrIption"
 	c := 0
@@ -34,8 +45,4 @@ func calcPostfix() int {
 		}
 	}
 	return c
-}
-
-func runPprofServer() {
-	http.ListenAndServe("localhost:5000", http.DefaultServeMux)
 }
