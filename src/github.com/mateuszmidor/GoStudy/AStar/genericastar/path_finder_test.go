@@ -51,7 +51,7 @@ func pathToString(path Path, cities Cities) string {
 		return "<empty path>"
 	}
 
-	result := cities[0].Name
+	result := cities[path[0]].Name
 	for i := 1; i < len(path); i++ {
 		result += "-" + cities[path[i]].Name
 	}
