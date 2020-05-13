@@ -36,12 +36,30 @@
                 "kind": "build",
                 "isDefault": true
             }
-        }
-        ,
+        },
         {
             "label": "run sdars",
             "type": "shell",
             "command": "go run github.com/mateuszmidor/GoStudy/sdars/modular_monolith_demo",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "run current golang app",
+            "type": "shell",
+            "command": "go run ${fileDirname}/",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "test current golang app",
+            "type": "shell",
+            "command": "go test -cover -v  ${fileDirname}/",
             "group": {
                 "kind": "build",
                 "isDefault": true
