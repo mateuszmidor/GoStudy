@@ -8,16 +8,19 @@ import (
 	"image/png"
 	"math/cmplx"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 )
 
 const (
 	xmin, ymin, xmax, ymax = -2, -2, +2, +2
-	width, height          = 1024, 1024
+	size                   = 1 * 1024
+	width, height          = size, size
 )
 
 func main() {
+	fmt.Printf("g times for parallel mandel %dx%d:\n", width, height)
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
 	numSegments := 1
@@ -25,7 +28,8 @@ func main() {
 		start := time.Now()
 		processParallelInSegments(numSegments, img)
 		duration := time.Now().Sub(start)
-		fmt.Fprintf(os.Stderr, "Mandelbrot %dx%d in %d goroutines generated in %v\n", width, height, numSegments, duration)
+
+		printTime(numSegments, duration)
 		numSegments *= 2
 	}
 
@@ -75,4 +79,8 @@ func mandelbrot(z complex128) uint8 {
 		}
 	}
 	return 0
+}
+
+func printTime(numWorkers int, time time.Duration) {
+	fmt.Fprintf(os.Stderr, "%4.4s - %0.2dms\n", strconv.Itoa(numWorkers), time.Milliseconds())
 }
