@@ -4,10 +4,17 @@ import (
 	"os"
 	"runtime"
 	"runtime/pprof"
+	"runtime/trace"
 	"strings"
 )
 
 func main() {
+	// trace
+	traces, _ := os.Create("traces.out")
+	defer traces.Close()
+	trace.Start(traces)
+	defer trace.Stop()
+
 	// collect CPU profile
 	cpu, _ := os.Create("cpu.out")
 	defer cpu.Close()

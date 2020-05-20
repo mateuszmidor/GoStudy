@@ -17,27 +17,28 @@ firefox http://localhost:6060/debug/pprof/
 ## CPU profile
 
 ```bash
-go tool pprof http://localhost:6060/debug/pprof/profile?seconds=30
+go tool pprof -http=:8080 http://localhost:6060/debug/pprof/profile?seconds=30 # beautiful web ui
+go tool pprof http://localhost:6060/debug/pprof/profile?seconds=30             # console ui
 ```
 
 ## Memory profile
 
 ```bash
 
-go tool pprof http://localhost:6060/debug/pprof/heap   # inuse_space
-go tool pprof http://localhost:6060/debug/pprof/allocs # alloc_space
+go tool pprof http://localhost:6060/debug/pprof/heap   # inuse_space, can use -http=:8080
+go tool pprof http://localhost:6060/debug/pprof/allocs # alloc_space, can use -http=:8080
 ```
 
 ## Contended mutex holders
 
 ```bash
-go tool pprof http://localhost:6060/debug/pprof/mutex
+go tool pprof http://localhost:6060/debug/pprof/mutex # can use -http=:8080
 ```
 
 ## Goroutine blocking profile
 
 ```bash
-go tool pprof http://localhost:6060/debug/pprof/block
+go tool pprof http://localhost:6060/debug/pprof/block # can use -http=:8080
 ```
 
 ## Example result of memory profile: alloc_space

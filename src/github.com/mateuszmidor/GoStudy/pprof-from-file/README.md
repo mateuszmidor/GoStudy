@@ -6,7 +6,8 @@
 
 ```bash
 go run .
-go tool pprof cpu.out # you can add --nodefraction=0.1 to only show functions taking >= 10% cum cpu time
+go tool pprof -http=:8080 cpu.out        # beautiful web ui
+go tool pprof --nodefraction=0.1 cpu.out # console ui
 (pprof) # you are in pprof cli now
 ```
 
@@ -64,7 +65,8 @@ Render in web browser a call graph of functions that have createLoad on the path
 
 ```bash
 go run .
-go tool pprof --alloc_space heap.out
+go tool pprof -http=:8080 heap.out   # beautiful web ui
+go tool pprof --alloc_space heap.out # console ui
 (pprof) # you are in pprof cli now
 ```
 
