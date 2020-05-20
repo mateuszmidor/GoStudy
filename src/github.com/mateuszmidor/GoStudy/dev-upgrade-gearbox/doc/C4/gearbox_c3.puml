@@ -1,0 +1,44 @@
+@startuml
+'!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+' uncomment the following line and comment the first to use locally
+ !include C4PUML/C4-PlantUML/C4_Component.puml
+
+'title Component-Level diagram for GearBoxDriver
+
+Component(Timer, "Timer", "1.HandleGas 2.HandleEvents 3.Sleep&Repeat")
+Component(ExternalSystems, "ExternalSystems", "")
+
+Container_Boundary(Shared, "Shared") {
+    Component(GearChange, "GearChange", "DoubleGearDown, GearDown, KeepCurent, GearUp")
+    Component(Events, "Events", "DoubleGearDown, GearDown")
+    Component(Gas, "Gas", "0.0-1.0")
+    Component(Sounds, "Sounds", "PipeBlast")
+}
+
+Container_Boundary(SoundModule_, "SoundModule") {
+    Component(SoundModule, "SoundModule", "")
+    Component(AggressivenessLevel_SoundModule, "AggressivenessLevel", "1/2/3")
+    Rel(SoundModule, AggressivenessLevel_SoundModule, "get sounds for events")
+}
+
+Container_Boundary(Driver, "Driver") {
+    Component(DDrive, "DDrive", "")
+    Component(MDynamic, "MDynamic", "enabled/disabled")
+    Component(Characteristics, "Characteristics", "")
+    Component(ExternalSystemsFacade, "ExternalSystemsFacade", "")
+    Component(GearAdjuster, "GearAdjuster", "current RPM, gas, trailor")
+    Component(DrivingMode, "DrivingMode", "Eco/Comfort/Sport")
+    Component(AggressivenessLevel, "AggressivenessLevel", "1/2/3")
+    
+    Rel(DDrive, ExternalSystemsFacade, "get data like: has trailor, is driving down the slope, curr RPM, angular")
+    Rel(ExternalSystemsFacade, ExternalSystems, "get external data X")
+    Rel(DDrive, Characteristics, "get engine/gearbox params")
+    Rel(DDrive, GearAdjuster, "get gear change")
+    Rel(GearAdjuster, DrivingMode, "get optimal RPM range")
+    Rel(DrivingMode, AggressivenessLevel, "get RPM multiplier")
+    Rel(DDrive, MDynamic, "is gear change allowed?")
+}
+Rel(Timer, DDrive, "handle gas -> get gear change + events")
+Rel(Timer, SoundModule, "handle events -> get sounds")
+Lay_R(Shared,SoundModule_)
+@enduml
