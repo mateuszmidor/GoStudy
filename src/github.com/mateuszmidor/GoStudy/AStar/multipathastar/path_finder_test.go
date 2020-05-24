@@ -1,7 +1,6 @@
 package multipathastar
 
 import (
-	"math"
 	"strings"
 	"testing"
 )
@@ -22,6 +21,8 @@ func AppendCity(cities *Cities, node City) NodeID {
 	return id
 }
 
+/*
+cost not used in multipath algo as all paths are to be found
 type CityTravelCosts struct {
 	cities Cities
 }
@@ -43,10 +44,13 @@ func (c *CityTravelCosts) D(from NodeID, to NodeID) CostType {
 func (c *CityTravelCosts) H(current NodeID, goal NodeID) CostType {
 	return distance(&c.cities[current], &c.cities[goal])
 }
+*/
 
 // END PROBLEM SPECIFIC CODE
 
-// test helper func
+// test helpful tools
+const pathSeparator = ", "
+
 func pathToString(path Path, cities Cities) string {
 	if len(path) == 0 {
 		return "<empty path>"
@@ -62,77 +66,247 @@ func pathToString(path Path, cities Cities) string {
 
 func pathsToString(paths []Path, cities Cities) string {
 	if len(paths) == 0 {
-		return "<no paths>"
+		return ""
 	}
 
-	result := pathToString(paths[0], cities)
-	for i := 1; i < len(paths); i++ {
-		result += ", " + pathToString(paths[i], cities)
+	var result string
+	for _, p := range paths {
+		result += pathToString(p, cities) + pathSeparator
 	}
 
 	return result
 }
 
-func Test1SegmentPath(t *testing.T) {
-	// 1. setup
-	var cities Cities
-	krk := AppendCity(&cities, City{"KRK", 0, 0})
-	waw := AppendCity(&cities, City{"WAW", 0, 25})
-	neighbors := NewNeighbors()
-	neighbors.Connect(krk, waw)
-	costs := NewCityTravelCosts(cities)
+func cutOutSubstring(src, sub string) string {
+	i := strings.Index(src, sub)
+	if i == -1 {
+		return src
+	}
 
-	// 2. run
-	paths := findPaths(krk, waw, neighbors, costs)
+	return src[:i] + src[i+len(sub):]
+}
 
-	// 3. check
-	pathsString := pathsToString(paths, cities)
-	if !strings.Contains(pathsString, "KRK-WAW") {
-		t.Errorf("Invalid paths found: %s", pathsString)
+func checkExpectedPaths(expected []string, actual []Path, cities Cities, t *testing.T) {
+	pathsString := pathsToString(actual, cities)
+	for _, p := range expected {
+		i := strings.Index(pathsString, p)
+		if i == -1 {
+			t.Errorf("Missing path: %s. Found: %s", p, pathsString)
+		} else {
+			pathsString = cutOutSubstring(pathsString, p+pathSeparator)
+		}
+	}
+	if len(pathsString) > 0 {
+		t.Errorf("Unexpected paths: %s", pathsString)
 	}
 }
 
-func Test2SegmentPath(t *testing.T) {
-	// 1. setup
-	// var cities Cities
-	// krk := AppendCity(&cities, City{"KRK", 0, 0})
-	// waw := AppendCity(&cities, City{"WAW", 0, 25})
-	// gda := AppendCity(&cities, City{"GDA", 0, 50})
-	// neighbors := NewNeighbors()
-	// neighbors.Connect(krk, waw)
-	// neighbors.Connect(waw, gda)
-	// costs := NewCityTravelCosts(cities)
-
-	// // 2. run
-	// path := findPath(krk, gda, neighbors, costs)
-
-	// // 3. check
-	// pathString := pathToString(path, cities)
-	// if pathString != "KRK-WAW-GDA" {
-	// 	t.Errorf("Invalid path found: %s", pathString)
-	// }
+/*
+The general direction is: GDA -> KRK
+Loops:
+-RZE-WAW-KRK-RZE
+-GDA-WAW-BYK-GDA
+                          +-----+
+                          | GDA |<------
+                       /--+-----+\      \------------
+                 /-----    /      \                  \-----
++-----+    /-----         /        \                    +-----+
+| SZC | <--              v          \                   | BYK |
++-----+              +-----+         |                  +-----+
+   \                 | BDG |         \                    -> ^
+    \                +-----+          \               ---/  /
+     |                  /              \          ---/      |
+     \                /-                \     ---/         /
+      \              /                   v  -/             |
+       \           /-                 +-----+             /
+        |         /                   | WAW |             |
+        \        /                    +-----+<           /
+         \     /-                        /    \          |
+          v   <                         /      \        /
+        +-----+                        |        \-      |
+        | WRO |                        /          \    /
+        +-----+--\                    /            \   |
+                  ---\               /              \ /
+                      ---\          v             +-----+
+                          -->+-----+       ------>| RZE |
+                             | KRK |------/       +-----+
+                             +-----+
+*/
+type Map struct {
+	cities                                      Cities
+	neighbors                                   *Neighbors
+	costs                                       Costs
+	lub, gda, szc, bdg, byk, waw, wro, rze, krk NodeID
 }
 
-func Test2SegmentBestPath(t *testing.T) {
-	// 1. setup
-	// var cities Cities
-	// krk := AppendCity(&cities, City{"KRK", 0, 0})
-	// waw := AppendCity(&cities, City{"WAW", 0, 25})
-	// wro := AppendCity(&cities, City{"WRO", -5, 25})
-	// gda := AppendCity(&cities, City{"GDA", 0, 50})
-	// neighbors := NewNeighbors()
-	// neighbors.Connect(krk, waw)
-	// neighbors.Connect(waw, gda)
-	// neighbors.Connect(krk, wro)
-	// neighbors.Connect(wro, gda)
-	// costs := NewCityTravelCosts(cities)
+func makeFlightMap() Map {
+	cities := Cities{}
+	krk := AppendCity(&cities, City{"KRK", 0, 0})    // 0
+	rze := AppendCity(&cities, City{"RZE", 20, 5})   // 1
+	wro := AppendCity(&cities, City{"WRO", -20, 10}) // 2
+	waw := AppendCity(&cities, City{"WAW", 10, 20})  // 3
+	byk := AppendCity(&cities, City{"BYK", 30, 35})  // 4
+	bdg := AppendCity(&cities, City{"BDG", -10, 30}) // 5
+	szc := AppendCity(&cities, City{"SZC", -30, 30}) // 6
+	gda := AppendCity(&cities, City{"GDA", 0, 40})   // 7
+	lub := AppendCity(&cities, City{"LUB", 25, 10})  // 8, no connections
+	costs := Costs(nil)                              // costs not used in multipath algo //NewCityTravelCosts(cities)
 
-	// // 2. run
-	// path := findPath(krk, gda, neighbors, costs)
+	neighbors := NewNeighbors()
+	neighbors.Connect(gda, szc)
+	neighbors.Connect(szc, wro)
+	neighbors.Connect(gda, bdg)
+	neighbors.Connect(bdg, wro)
+	neighbors.Connect(wro, krk)
+	neighbors.Connect(gda, waw)
+	neighbors.Connect(waw, krk)
+	neighbors.Connect(krk, rze)
+	neighbors.Connect(rze, waw)
+	neighbors.Connect(waw, byk)
+	neighbors.Connect(byk, gda)
+	neighbors.Connect(rze, byk)
 
-	// // 3. check
-	// pathString := pathToString(path, cities)
-	// if pathString != "KRK-WAW-GDA" {
-	// 	t.Errorf("Invalid path found: %s", pathString)
-	// }
+	return Map{
+		cities:    cities,
+		neighbors: neighbors,
+		costs:     costs,
+		lub:       lub, gda: gda, szc: szc, bdg: bdg, byk: byk, waw: waw, wro: wro, rze: rze, krk: krk,
+	}
+}
+
+func TestShouldFindSingleSegmentPath(t *testing.T) {
+	// given
+	m := makeFlightMap()
+
+	// when
+	paths := findPaths(m.wro, m.krk, m.neighbors, m.costs)
+
+	// then
+	expected := []string{
+		"WRO-KRK",
+	}
+	checkExpectedPaths(expected, paths, m.cities, t)
+}
+
+func TestShouldFindTwoSegmentsPath(t *testing.T) {
+	// given
+	m := makeFlightMap()
+
+	// when
+	paths := findPaths(m.szc, m.krk, m.neighbors, m.costs)
+
+	// then
+	expected := []string{
+		"SZC-WRO-KRK",
+	}
+	checkExpectedPaths(expected, paths, m.cities, t)
+}
+
+func TestShouldFindTwoSegments2Paths(t *testing.T) {
+	// given
+	m := makeFlightMap()
+
+	// when
+	paths := findPaths(m.gda, m.wro, m.neighbors, m.costs)
+
+	// then
+	expected := []string{
+		"GDA-BDG-WRO",
+		"GDA-SZC-WRO",
+	}
+	checkExpectedPaths(expected, paths, m.cities, t)
+}
+
+func TestShouldFindDirectAndIndirectPath(t *testing.T) {
+	// given
+	m := makeFlightMap()
+
+	// when
+	paths := findPaths(m.rze, m.waw, m.neighbors, m.costs)
+
+	// then
+	expected := []string{
+		"RZE-WAW",
+		"RZE-BYK-GDA-WAW",
+	}
+	checkExpectedPaths(expected, paths, m.cities, t)
+}
+
+func TestShouldFindIfSplittingPaths(t *testing.T) {
+	// given
+	m := makeFlightMap()
+
+	// when
+	paths := findPaths(m.gda, m.krk, m.neighbors, m.costs)
+
+	// then
+	expected := []string{
+		"GDA-WAW-KRK",
+		"GDA-BDG-WRO-KRK",
+		"GDA-SZC-WRO-KRK",
+	}
+	checkExpectedPaths(expected, paths, m.cities, t)
+}
+
+func TestShouldFindIfMergingPaths(t *testing.T) {
+	// given
+	m := makeFlightMap()
+
+	// when
+	paths := findPaths(m.byk, m.wro, m.neighbors, m.costs)
+
+	// then
+	expected := []string{
+		"BYK-GDA-SZC-WRO",
+		"BYK-GDA-BDG-WRO",
+	}
+	checkExpectedPaths(expected, paths, m.cities, t)
+}
+
+func TestShouldFindMultiLongPaths(t *testing.T) {
+	// given
+	m := makeFlightMap()
+
+	// when
+	paths := findPaths(m.gda, m.byk, m.neighbors, m.costs)
+
+	// then
+	expected := []string{
+		"GDA-WAW-BYK",
+		"GDA-WAW-KRK-RZE-BYK",
+		"GDA-SZC-WRO-KRK-RZE-BYK",
+		"GDA-BDG-WRO-KRK-RZE-BYK",
+		"GDA-SZC-WRO-KRK-RZE-WAW-BYK",
+		"GDA-BDG-WRO-KRK-RZE-WAW-BYK",
+	}
+	checkExpectedPaths(expected, paths, m.cities, t)
+}
+
+func TestShouldHandleCycle(t *testing.T) {
+	// given
+	m := makeFlightMap()
+
+	// when
+	paths := findPaths(m.waw, m.szc, m.neighbors, m.costs)
+
+	// then
+	expected := []string{
+		"WAW-BYK-GDA-SZC",
+		"WAW-KRK-RZE-BYK-GDA-SZC",
+	}
+	checkExpectedPaths(expected, paths, m.cities, t)
+}
+
+func TestShouldHandleNoSuchPath(t *testing.T) {
+	// given
+	m := makeFlightMap()
+
+	// when
+	paths := findPaths(m.waw, m.lub, m.neighbors, m.costs)
+
+	// then
+	expected := []string{
+		// no such connection
+	}
+	checkExpectedPaths(expected, paths, m.cities, t)
 }

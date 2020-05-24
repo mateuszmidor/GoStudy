@@ -4,13 +4,6 @@ type Path = []NodeID
 
 type CameFrom = map[NodeID]NodeID
 
-type PathUnderConstruction struct {
-	OpenSet   *OpenSet
-	ClosedSet *ClosedSet
-	path      [10]NodeID
-	pathLen   uint
-}
-
 func reconstructPath(cameFrom CameFrom, current NodeID) Path {
 	var ok bool
 	path := Path{current}
@@ -23,47 +16,36 @@ func reconstructPath(cameFrom CameFrom, current NodeID) Path {
 	return path
 }
 
-func findPaths(start NodeID, goal NodeID, neighbors *Neighbors, costs Costs) []Path {
-	// prepare brand new PathUnderConstruction
-	openSet := NewOpenSet()
-	openSet.Add(start)
+// find all possible paths, not only the least costly
+func findPaths(start NodeID, goal NodeID, neighbors *Neighbors, costs Costs) (result []Path) {
 	closedSet := NewClosedSet()
-
 	cameFrom := make(CameFrom)
+	var recursive func(current NodeID)
 
-	gScore := NewScore()
-	gScore.Set(start, 0)
-
-	fScore := NewScore()
-	fScore.Set(start, costs.H(start, goal))
-
-	extend(pathUnderConstruction, neighbors, costs)
-	// pathUnderConstruciont:= PathUnderConstruction.Clone(), spawn new findPath here
-	// where to remember it? some sort of generatedPaths slice
-	for openSet.IsEmpty() == false {
-		current := openSet.GetNodeWithLowestFScore(fScore)
+	recursive = func(current NodeID) {
+		// check if path found
 		if current == goal {
-			return reconstructPath(cameFrom, current)
+			result = append(result, reconstructPath(cameFrom, current))
+			return
 		}
 
-		openSet.Remove(current)
+		// mark current as visited
 		closedSet.Add(current)
+
+		// check all neighbors of current
 		for neighbor := range neighbors.GetNeighbors(current) {
+			// avoid cycles
 			if closedSet.Contains(neighbor) {
 				continue
 			}
 
-			// d(current,neighbor) is the weight of the edge from current to neighbor
-			// tentativeGScore is the distance from start to the neighbor through current
-			tentativeGScore := gScore.Get(current) + costs.D(current, neighbor)
-			if tentativeGScore < gScore.Get(neighbor) { // if the new path is cheaper
-				cameFrom[neighbor] = current
-				gScore.Set(neighbor, tentativeGScore)
-				fScore.Set(neighbor, tentativeGScore+costs.H(neighbor, goal))
-				openSet.Add(neighbor)
-			}
+			// process neighbor
+			cameFrom[neighbor] = current
+			recursive(neighbor)
+			closedSet.Remove(neighbor)
 		}
 	}
 
-	return nil
+	recursive(start)
+	return result
 }
