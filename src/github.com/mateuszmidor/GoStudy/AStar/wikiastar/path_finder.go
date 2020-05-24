@@ -36,16 +36,16 @@ func reconstructPath(cameFrom map[*Node]*Node, current *Node) string {
 }
 
 func findPath(start *Node, goal *Node, graph *Graph) string {
-	openSet := NewOpenSet()
+	openSet := NewOpenSet() // current node neighbors to be visited
 	openSet.Add(start)
-	closedSet := NewClosedSet()
+	closedSet := NewClosedSet() // nodes already visited
 
 	cameFrom := make(CameFrom)
 
-	gScore := NewScore()
+	gScore := NewScore() // real distance from start to current
 	gScore.Set(start, 0)
 
-	fScore := NewScore()
+	fScore := NewScore() // estimated distance from start to goal
 	fScore.Set(start, h(start, goal))
 
 	for openSet.IsEmpty() == false {
