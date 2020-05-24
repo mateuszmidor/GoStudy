@@ -282,6 +282,13 @@ func TestShouldFindMultiLongPaths(t *testing.T) {
 	checkExpectedPaths(expected, paths, m.cities, t)
 }
 
+func BenchmarkFindMultiLongPaths(b *testing.B) {
+	m := makeFlightMap()
+	for n := 0; n < b.N; n++ {
+		_ = findPaths(m.gda, m.byk, m.neighbors, m.costs)
+	}
+}
+
 func TestShouldHandleCycle(t *testing.T) {
 	// given
 	m := makeFlightMap()
