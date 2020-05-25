@@ -22,10 +22,14 @@ Propozycja rozwązania dla <http://devupgrade.online/>
 
 ![ES](doc/design-level-es.png)
 
+## Zachowania
+
+![C3](doc/sequence.png)
+
 ## Dizajn
 
 ![C3](doc/component.png)
 
-## Zależości 
+## Zależności
 
 <https://github.com/DevUpgrade-online/gearbox>

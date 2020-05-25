@@ -1,0 +1,19 @@
+title Gear Box Driver (https://www.websequencediagrams.com/)
+
+Timer->DDrive: HandleGas
+note right of DDrive: Adjust gear to conditions
+DDrive->ExternalData: IsManualChangeInEffect
+DDrive->MDynamic: IsGearChangeAllowed
+DDrive->DrivingMode: GetOptimalRPM
+DrivingMode->Aggressiveness: GetRPMMultiplier
+DDrive->GearAdjustment: AdjustForOptimalRPM
+DDrive->GearAdjustment: AdjustForEngineBreaking
+GearAdjustment->ExternalData: IsTrailorAttached
+GearAdjustment->ExternalData: IsDrivingDownTheHill
+DDrive->GearAdjustment: AdjustForKickDown
+GearAdjustment->DrivingMode:GetGearChangeForGasValue
+DDrive->DDrive: EmitEvents
+DDrive->Timer: Gear, Events
+Timer->SoundModule: HandleEvents
+note right of DDrive: Emit sounds for events
+SoundModule->Timer: Sounds
