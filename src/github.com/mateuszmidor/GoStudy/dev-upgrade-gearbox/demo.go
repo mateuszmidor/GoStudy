@@ -1,7 +1,7 @@
 package main
 
 import (
-	"driver"
+	gearboxdriver "driver"
 	"driver/externalsystemsfacade"
 	"fmt"
 	"shared/gas"
@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type scenario = func() (gas.Value, driver.DDrive, soundmodule.SoundModule)
+type scenario = func() (gas.Value, gearboxdriver.DDrive, soundmodule.SoundModule)
 
 func params(s externalsystemsfacade.Stub) {
 	fmt.Printf("%4v RPM", s.CurrentRPM)
@@ -22,11 +22,11 @@ func params(s externalsystemsfacade.Stub) {
 	fmt.Print(" - ")
 }
 
-func justDriving() (gas.Value, driver.DDrive, soundmodule.SoundModule) {
+func justDriving() (gas.Value, gearboxdriver.DDrive, soundmodule.SoundModule) {
 	esf := externalsystemsfacade.Stub{
 		CurrentRPM: 1500,
 	}
-	d := driver.NewDDrive(&esf)
+	d := gearboxdriver.NewDDrive(&esf)
 	sm := soundmodule.NewSoundModule()
 
 	params(esf)
@@ -34,11 +34,11 @@ func justDriving() (gas.Value, driver.DDrive, soundmodule.SoundModule) {
 	return gas.Half, d, sm
 }
 
-func speedingUp() (gas.Value, driver.DDrive, soundmodule.SoundModule) {
+func speedingUp() (gas.Value, gearboxdriver.DDrive, soundmodule.SoundModule) {
 	esf := externalsystemsfacade.Stub{
 		CurrentRPM: 2500,
 	}
-	d := driver.NewDDrive(&esf)
+	d := gearboxdriver.NewDDrive(&esf)
 	sm := soundmodule.NewSoundModule()
 
 	params(esf)
@@ -46,11 +46,11 @@ func speedingUp() (gas.Value, driver.DDrive, soundmodule.SoundModule) {
 	return gas.Full, d, sm
 }
 
-func slowingDown() (gas.Value, driver.DDrive, soundmodule.SoundModule) {
+func slowingDown() (gas.Value, gearboxdriver.DDrive, soundmodule.SoundModule) {
 	esf := externalsystemsfacade.Stub{
 		CurrentRPM: 500,
 	}
-	d := driver.NewDDrive(&esf)
+	d := gearboxdriver.NewDDrive(&esf)
 	sm := soundmodule.NewSoundModule()
 
 	params(esf)
@@ -58,13 +58,13 @@ func slowingDown() (gas.Value, driver.DDrive, soundmodule.SoundModule) {
 	return gas.Zero, d, sm
 }
 
-func breakingWithEngine() (gas.Value, driver.DDrive, soundmodule.SoundModule) {
+func breakingWithEngine() (gas.Value, gearboxdriver.DDrive, soundmodule.SoundModule) {
 	esf := externalsystemsfacade.Stub{
 		CurrentRPM:          1500,
 		TrailorAttached:     true,
 		DrivingDownTheSlope: true,
 	}
-	d := driver.NewDDrive(&esf)
+	d := gearboxdriver.NewDDrive(&esf)
 	sm := soundmodule.NewSoundModule()
 
 	params(esf)
@@ -72,12 +72,12 @@ func breakingWithEngine() (gas.Value, driver.DDrive, soundmodule.SoundModule) {
 	return gas.Zero, d, sm
 }
 
-func kickDown1SportAggressiveness1() (gas.Value, driver.DDrive, soundmodule.SoundModule) {
+func kickDown1SportAggressiveness1() (gas.Value, gearboxdriver.DDrive, soundmodule.SoundModule) {
 	esf := externalsystemsfacade.Stub{
 		CurrentRPM: 1800,
 	}
 
-	d := driver.NewDDrive(&esf)
+	d := gearboxdriver.NewDDrive(&esf)
 	d.SetDrivingModeSport()
 	sm := soundmodule.NewSoundModule()
 
@@ -86,12 +86,12 @@ func kickDown1SportAggressiveness1() (gas.Value, driver.DDrive, soundmodule.Soun
 	return gas.New(0.5), d, sm
 }
 
-func kickDown2SportAggressiveness3() (gas.Value, driver.DDrive, soundmodule.SoundModule) {
+func kickDown2SportAggressiveness3() (gas.Value, gearboxdriver.DDrive, soundmodule.SoundModule) {
 	esf := externalsystemsfacade.Stub{
 		CurrentRPM: 2800,
 	}
 
-	d := driver.NewDDrive(&esf)
+	d := gearboxdriver.NewDDrive(&esf)
 	d.SetDrivingModeSport()
 	d.SetAggressivenessLevel3()
 	sm := soundmodule.NewSoundModule()
