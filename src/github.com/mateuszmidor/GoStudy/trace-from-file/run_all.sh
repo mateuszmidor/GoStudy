@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-trap tearDown SIGINT
-
-
 function stage() {
     GREEN="\e[92m"
     RESET="\e[0m"
