@@ -2,7 +2,7 @@ package main
 
 import (
 	"image"
-	"math/cmplx"
+	"math"
 	"sync"
 )
 
@@ -14,10 +14,14 @@ func goMandel(img *image.RGBA, numParallel int) {
 
 func processParallelInSegments(numSegments int, img *image.RGBA) {
 	var wg sync.WaitGroup
+	var ribbonHeight = height / numSegments
+
 	for i := 0; i < numSegments; i++ {
 		wg.Add(1)
 		go func(nSegment int) {
-			processSegment(nSegment*height/numSegments, (nSegment+1)*height/numSegments, img)
+			beginy := nSegment * ribbonHeight
+			endy := (nSegment + 1) * ribbonHeight
+			processSegment(beginy, endy, img)
 			wg.Done()
 		}(i)
 	}
@@ -30,9 +34,8 @@ func processSegment(beginy, endy int, img *image.RGBA) {
 		y := float64(py)/height*(ymax-ymin) + ymin
 		for px := 0; px < width; px++ {
 			x := float64(px)/width*(xmax-xmin) + xmin
-			z := complex(x, y)
 
-			c := mandelbrot(z)
+			c := mandelbrot(x, y)
 			i := img.PixOffset(px, py)
 			s := img.Pix[i : i+4 : i+4]
 			s[0] = c
@@ -43,14 +46,21 @@ func processSegment(beginy, endy int, img *image.RGBA) {
 	}
 }
 
-func mandelbrot(z complex128) uint8 {
+func mandelbrot(x, y float64) uint8 {
 	const iterations = 200
 	const contrast = 15
 
-	var v complex128
+	var imag float64
+	var real float64
+
 	for n := uint8(0); n < iterations; n++ {
-		v = v*v + z
-		if cmplx.Abs(v) > 2.0 {
+		i := imag
+		r := real
+
+		real = (r*r - i*i) + x
+		imag = (r*i + i*r) + y
+
+		if math.Sqrt(imag*imag+real*real) > 2.0 {
 			return 255 - contrast*n
 		}
 	}

@@ -17,6 +17,11 @@ const (
 )
 
 func main() {
+	// tracef, _ := os.Create("trace.out")
+	// defer tracef.Close()
+	// trace.Start(tracef)
+	// defer trace.Stop()
+
 	cgoMandelImg := image.NewRGBA(image.Rect(0, 0, width, height))
 	benchCGOMandel(cgoMandelImg)
 	saveImage(cgoMandelImg, "cgo-mandel.png")
