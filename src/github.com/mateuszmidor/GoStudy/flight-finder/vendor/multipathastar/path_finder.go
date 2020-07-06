@@ -28,7 +28,7 @@ func FindPaths(start NodeID, goal NodeID, connections Connections) (result []Pat
 
 		// check all outgoing connections of current
 		first, last := connections.GetOutgoingConnections(current)
-		for connID := first; connID <= last; connID++ {
+		for connID := first; connID < last; connID++ {
 			dest := connections.GetDestinationNode(connID)
 
 			// avoid cycles

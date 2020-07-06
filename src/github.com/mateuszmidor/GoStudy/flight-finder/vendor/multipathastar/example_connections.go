@@ -59,8 +59,8 @@ func (e *exampleConnections) sort() {
 }
 
 func equalRange(connections []exampleConnection, node NodeID) (first ConnectionID, last ConnectionID) {
-	first = -1
-	last = -2 // so for i := first; i <= last; i++ doesnt execute when no elements
+	first = ConnectionID(len(connections))
+	last = ConnectionID(len(connections))
 
 	for i := 0; i < len(connections); i++ {
 		if connections[i].from == node {
@@ -71,7 +71,7 @@ func equalRange(connections []exampleConnection, node NodeID) (first ConnectionI
 
 	for i := len(connections) - 1; i >= 0; i-- {
 		if connections[i].from == node {
-			last = ConnectionID(i)
+			last = ConnectionID(i + 1)
 			break
 		}
 	}

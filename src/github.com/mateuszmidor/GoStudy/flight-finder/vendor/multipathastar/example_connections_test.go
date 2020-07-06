@@ -124,10 +124,10 @@ func TestEqualRange(t *testing.T) {
 		node        NodeID
 		first, last ConnectionID
 	}{
-		{1, 0, 1},
-		{2, 2, 4},
-		{3, 5, 6},
-		{4, -1, -2},
+		{1, 0, 2},
+		{2, 2, 5},
+		{3, 5, 7},
+		{4, 7, 7}, // no such nodeID; 7 is past the total connnection count
 	}
 
 	for _, c := range cases {
@@ -179,19 +179,19 @@ func TestGetDestinationNode(t *testing.T) {
 func TestGetOutgoingConnections(t *testing.T) {
 	// given
 	connections := &exampleConnections{}
-	c1 := connections.connect(1, 2, "1-2")
-	c2 := connections.connect(2, 3, "2-3")
-	c3 := connections.connect(3, 5, "3-5")
-	c4 := connections.connect(3, 4, "3-4")
+	connections.connect(1, 2, "1-2") // 0
+	connections.connect(2, 3, "2-3") // 1
+	connections.connect(3, 5, "3-5") // 2
+	connections.connect(3, 4, "3-4") // 3
 	connections.sort()
 
 	cases := []struct {
 		node        NodeID
 		first, last ConnectionID
 	}{
-		{1, c1, c1},
-		{2, c2, c2},
-		{3, c3, c4},
+		{1, 0, 1},
+		{2, 1, 2},
+		{3, 2, 4},
 	}
 
 	for _, c := range cases {
