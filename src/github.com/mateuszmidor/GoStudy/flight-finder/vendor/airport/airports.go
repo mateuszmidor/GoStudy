@@ -9,13 +9,22 @@ func (a Airports) Get(id AirportID) Airport {
 }
 
 // GetByCode returns AirportID of given airport
+// Precondition: airports are sorted ascending
 func (a Airports) GetByCode(code string) AirportID {
+	first := 0
+	last := len(a)
+	count := last - first
 
-	// todo: binary search assuming airports are sorted by code
-	for i := 0; i < len(a); i++ {
-		if a[i].code == code {
-			return AirportID(i)
+	for count > 0 {
+		i := first
+		step := count / 2
+		i += step
+		if a[i].code < code {
+			first = i + 1
+			count -= step + 1
+		} else {
+			count = step
 		}
 	}
-	return NilAiportID
+	return AirportID(first)
 }
