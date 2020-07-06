@@ -16,7 +16,7 @@ type SourceCSV struct {
 // Usage: go source.StartLoadingSegments(...)
 func (r *SourceCSV) StartLoadingSegments(reader io.Reader, outputSegments chan RawSegment) {
 	csv := csv.NewReader(reader)
-	csv.ReuseRecord = false
+	csv.ReuseRecord = true
 	csv.FieldsPerRecord = numCSVColumns
 
 	for {
