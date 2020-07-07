@@ -1,6 +1,6 @@
 // +build ignore
 
-package multipathastar
+package pathfinding
 
 type CostType = float64
 type Costs interface {

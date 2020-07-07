@@ -5,11 +5,12 @@ import (
 	"compress/gzip"
 	"connections"
 	"fmt"
-	"multipathastar"
 	"os"
+	"pathfinding"
 	"runtime"
 	"runtime/pprof"
 	"segment"
+	"time"
 )
 
 const segments = "../../segments.csv.gz"
@@ -23,7 +24,10 @@ func main() {
 	pprof.StartCPUProfile(cpu)
 	defer pprof.StopCPUProfile()
 
+	start := time.Now()
 	findConnectionsDemo()
+	d := time.Now().Sub(start)
+	fmt.Printf("Took %v\n", d)
 
 	// collect memory profile
 	heap, _ := os.Create("mem.out")
@@ -37,9 +41,9 @@ func findConnectionsDemo() {
 	segments := loadSegments(airports)
 	network := connections.NewNetwork(airports, segments)
 
-	krk := multipathastar.NodeID(airports.GetByCode("WAW"))
-	gdn := multipathastar.NodeID(airports.GetByCode("SEZ"))
-	paths := multipathastar.FindPaths(krk, gdn, &network)
+	from := pathfinding.NodeID(airports.GetByCode("KRK"))
+	to := pathfinding.NodeID(airports.GetByCode("SEZ"))
+	paths := pathfinding.FindPaths(from, to, &network)
 	fmt.Println(pathsToString(paths, network))
 }
 
@@ -91,7 +95,7 @@ func startLoadingSegments(outSegments chan segment.RawSegment) {
 	source.StartLoadingSegments(gzipReader, outSegments)
 }
 
-func pathsToString(paths []multipathastar.Path, net connections.Network) string {
+func pathsToString(paths []pathfinding.Path, net connections.Network) string {
 	if len(paths) == 0 {
 		return ""
 	}
@@ -104,7 +108,7 @@ func pathsToString(paths []multipathastar.Path, net connections.Network) string 
 	return result
 }
 
-func pathToString(path multipathastar.Path, net connections.Network) string {
+func pathToString(path pathfinding.Path, net connections.Network) string {
 	if len(path) == 0 {
 		return "<empty path>"
 	}

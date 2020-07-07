@@ -1,4 +1,4 @@
-package multipathastar
+package pathfinding
 
 import (
 	"fmt"

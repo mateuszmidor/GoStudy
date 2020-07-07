@@ -1,4 +1,4 @@
-package multipathastar
+package pathfinding
 
 // FindPaths find all possible paths, not only the least costly
 func FindPaths(start NodeID, goal NodeID, connections Connections) (result []Path) {

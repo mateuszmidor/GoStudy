@@ -2,11 +2,11 @@ package connections
 
 import (
 	"airport"
-	"multipathastar"
+	"pathfinding"
 	"segment"
 )
 
-// Network is flight connection network, implements multipathastar.Connections
+// Network is flight connection network, implements pathfinding.Connections
 type Network struct {
 	airports airport.Airports
 	segments segment.Segments // assumption: segments are sorted ascending by from, to
@@ -18,15 +18,15 @@ func NewNetwork(airports airport.Airports, segments segment.Segments) Network {
 }
 
 // GetDestinationNode implements Connections interface
-func (n *Network) GetDestinationNode(connection multipathastar.ConnectionID) multipathastar.NodeID {
-	return multipathastar.NodeID(n.segments[connection].To())
+func (n *Network) GetDestinationNode(connection pathfinding.ConnectionID) pathfinding.NodeID {
+	return pathfinding.NodeID(n.segments[connection].To())
 }
 
 // GetOutgoingConnections implements Connections interface
-func (n *Network) GetOutgoingConnections(node multipathastar.NodeID) (first, last multipathastar.ConnectionID) {
+func (n *Network) GetOutgoingConnections(node pathfinding.NodeID) (first, last pathfinding.ConnectionID) {
 	var finder SegmentRangeFinder
 	f, l := finder.ByFromAirport(n.segments, airport.AirportID(node))
-	return multipathastar.ConnectionID(f), multipathastar.ConnectionID(l)
+	return pathfinding.ConnectionID(f), pathfinding.ConnectionID(l)
 }
 
 // GetAirport returns airport of given id

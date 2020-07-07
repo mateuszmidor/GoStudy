@@ -1,4 +1,4 @@
-package multipathastar
+package pathfinding
 
 // This module is for testing purposes
 

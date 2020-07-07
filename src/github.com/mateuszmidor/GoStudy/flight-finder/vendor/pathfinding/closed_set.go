@@ -1,4 +1,4 @@
-package multipathastar
+package pathfinding
 
 type ClosedSet struct {
 	nodes []bool

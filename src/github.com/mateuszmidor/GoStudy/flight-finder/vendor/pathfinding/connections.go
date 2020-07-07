@@ -1,4 +1,4 @@
-package multipathastar
+package pathfinding
 
 // Connections represents a network of interconnected nodes for the sake of path finding
 // first is first outgoing connectionID
