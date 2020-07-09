@@ -38,3 +38,11 @@ func (n *Network) GetAirport(id airport.AirportID) *airport.Airport {
 func (n *Network) GetSegment(id segment.ID) *segment.Segment {
 	return &n.segments[id]
 }
+
+func (n *Network) Airports() airport.Airports {
+	return n.airports
+}
+
+func (n *Network) Segments() segment.Segments {
+	return n.segments
+}

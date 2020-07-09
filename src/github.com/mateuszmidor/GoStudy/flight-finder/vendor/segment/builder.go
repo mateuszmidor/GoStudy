@@ -2,6 +2,7 @@ package segment
 
 import (
 	"airport"
+	"carrier"
 	"sort"
 )
 
@@ -9,20 +10,20 @@ import (
 type Builder struct {
 	segments Segments
 	airports airport.Airports
+	carriers carrier.Carriers
 }
 
 // NewBuilder is constructor
-func NewBuilder(airports airport.Airports) Builder {
-	return Builder{Segments{}, airports}
+func NewBuilder(airports airport.Airports, carriers carrier.Carriers) Builder {
+	return Builder{Segments{}, airports, carriers}
 }
 
 // Append adds new segment to the collection
-func (b *Builder) Append(from, to string) {
+func (b *Builder) Append(from, to, carrier string) {
 	fromID := b.airports.GetByCode(from)
 	toID := b.airports.GetByCode(to)
-	if fromID != airport.NilAiportID && toID != airport.NilAiportID {
-		b.segments = append(b.segments, Segment{fromID, toID})
-	}
+	carrierID := b.carriers.GetByCode(carrier)
+	b.segments = append(b.segments, Segment{fromID, toID, carrierID})
 }
 
 // Build returns sorted collection of segments

@@ -8,6 +8,7 @@ import (
 
 func TestGetByCodeReturnsValidAirport(t *testing.T) {
 	// given
+	// important: airports are sorted ascending for binary search
 	airports := airport.Airports{
 		airport.NewAirport("AAA", "Andora Airport"),
 		airport.NewAirport("KKK", "Kalkuta Airport"),

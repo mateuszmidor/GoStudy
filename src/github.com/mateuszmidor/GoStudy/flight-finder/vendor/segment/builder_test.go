@@ -13,15 +13,19 @@ func TestBuilderReturnsAllSegmentsSorted(t *testing.T) {
 		airport.NewAirport("KKK", "Kalkuta Airport"),  // AirportID 1
 		airport.NewAirport("ZZZ", "Zimbabwe Airport"), // AirportID 2
 	}
-	b := segment.NewBuilder(airports)
+	carriers := carrier.Carriers{
+		carrier.NewCarrier("LH"),
+		carrier.NewCarrier("LO"),
+	}
 	expectedSegments := []segment.Segment{
-		segment.NewSegment(0, 1),
-		segment.NewSegment(1, 2),
+		segment.NewSegment(0, 1, 1),
+		segment.NewSegment(1, 2, 0),
 	}
 
 	// when
-	b.Append("KKK", "ZZZ")
-	b.Append("AAA", "KKK")
+	b := segment.NewBuilder(airports)
+	b.Append("KKK", "ZZZ", "LH")
+	b.Append("AAA", "KKK", "LO")
 	actualSegments := b.Build()
 
 	// then

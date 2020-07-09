@@ -2,8 +2,6 @@ package airport
 
 type AirportID int
 
-const NilAiportID = AirportID(-1)
-
 type Airport struct {
 	code string // KRK
 	name string // Balica Krakow Airport

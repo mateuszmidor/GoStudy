@@ -11,13 +11,13 @@ import (
 func TestFindByOriginReturnsProperRange(t *testing.T) {
 	// given
 	segments := segment.Segments{
-		segment.NewSegment(1, 10),
-		segment.NewSegment(1, 20),
-		segment.NewSegment(2, 10),
-		segment.NewSegment(2, 20),
-		segment.NewSegment(2, 30),
-		segment.NewSegment(3, 10),
-		segment.NewSegment(3, 20),
+		segment.NewSegment(1, 10, -1),
+		segment.NewSegment(1, 20, -1),
+		segment.NewSegment(2, 10, -1),
+		segment.NewSegment(2, 20, -1),
+		segment.NewSegment(2, 30, -1),
+		segment.NewSegment(3, 10, -1),
+		segment.NewSegment(3, 20, -1),
 	}
 
 	cases := []struct {
