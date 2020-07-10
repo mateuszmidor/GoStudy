@@ -10,17 +10,19 @@ func TestGetByCodeReturnsValidCarrier(t *testing.T) {
 	// given
 	// important: carriers are sorted ascending for binary search
 	carriers := carrier.Carriers{
-		carrier.NewCarrier("LH"),
-		carrier.NewCarrier("LO"),
-		carrier.NewCarrier("LY"),
+		carrier.NewCarrier("AA"),
+		carrier.NewCarrier("KK"),
+		carrier.NewCarrier("ZZ"),
 	}
 	cases := []struct {
 		code string
 		id   carrier.ID
 	}{
-		{"LH", 0},
-		{"LO", 1},
-		{"LY", 2},
+		{"AA", 0},
+		{"GG", carrier.NullID},
+		{"KK", 1},
+		{"PP", carrier.NullID},
+		{"ZZ", 2},
 	}
 
 	for _, c := range cases {

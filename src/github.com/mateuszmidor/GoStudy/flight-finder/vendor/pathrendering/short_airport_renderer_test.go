@@ -16,7 +16,7 @@ func TestRendererReturnsValidShortAirportString(t *testing.T) {
 		airport.NewAirport("WAW", ""),
 	}
 	cases := []struct {
-		id       airport.AirportID
+		id       airport.ID
 		expected string
 	}{
 		{0, "GDN"},
@@ -27,13 +27,13 @@ func TestRendererReturnsValidShortAirportString(t *testing.T) {
 	renderer := pathrendering.NewShortAirportRenderer(airports)
 
 	for _, c := range cases {
-		t.Run(fmt.Sprintf("Checking short rendered string for AirportID %d", c.id), func(t *testing.T) {
+		t.Run(fmt.Sprintf("Checking short rendered string for ID %d", c.id), func(t *testing.T) {
 			// when
 			actual := renderer.Render(c.id)
 
 			// then
 			if actual != c.expected {
-				t.Errorf("For AirportID %d expected short renderer string %s, got %s", c.id, c.expected, actual)
+				t.Errorf("For ID %d expected short renderer string %s, got %s", c.id, c.expected, actual)
 			}
 		})
 	}

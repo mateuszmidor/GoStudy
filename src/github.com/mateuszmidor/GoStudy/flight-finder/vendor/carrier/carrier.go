@@ -3,6 +3,8 @@ package carrier
 // ID is program internal carrier id
 type ID int
 
+const NullID = ID(-1)
+
 // Carrier is company who provides transportation between 2 airports
 type Carrier struct {
 	code string // eg. "LO"

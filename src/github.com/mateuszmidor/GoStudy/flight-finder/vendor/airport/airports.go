@@ -1,30 +1,27 @@
 package airport
 
+import "sort"
+
 // Airports holds mapping for id-airport
 type Airports []Airport
 
-// Get returns Airport by AirportID
-func (a Airports) Get(id AirportID) Airport {
+// Get returns Airport by ID
+func (a Airports) Get(id ID) Airport {
 	return a[id]
 }
 
-// GetByCode returns AirportID of given airport
+// GetByCode returns ID of given airport
 // Precondition: airports are sorted ascending
-func (a Airports) GetByCode(code string) AirportID {
-	first := 0
-	last := len(a)
-	count := last - first
-
-	for count > 0 {
-		i := first
-		step := count / 2
-		i += step
-		if a[i].code < code {
-			first = i + 1
-			count -= step + 1
-		} else {
-			count = step
-		}
+func (a Airports) GetByCode(code string) ID {
+	ge := func(i int) bool {
+		return a[i].code >= code
 	}
-	return AirportID(first)
+
+	foundIndex := sort.Search(len(a), ge)
+
+	if a[foundIndex].code != code {
+		return NullID
+	}
+
+	return ID(foundIndex)
 }

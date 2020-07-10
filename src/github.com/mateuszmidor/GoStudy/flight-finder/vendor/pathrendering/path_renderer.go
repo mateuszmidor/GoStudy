@@ -9,7 +9,7 @@ import (
 )
 
 type AirportRenderer interface {
-	Render(airport.AirportID) string
+	Render(airport.ID) string
 }
 
 type CarrierRenderer interface {

@@ -1,5 +1,7 @@
 package carrier
 
+import "sort"
+
 // Carriers holds mapping for id-carrier
 type Carriers []Carrier
 
@@ -11,20 +13,15 @@ func (c Carriers) Get(id ID) Carrier {
 // GetByCode returns CarrierID of given carrier
 // Precondition: carriers are sorted ascending
 func (c Carriers) GetByCode(code string) ID {
-	first := 0
-	last := len(c)
-	count := last - first
-
-	for count > 0 {
-		i := first
-		step := count / 2
-		i += step
-		if c[i].code < code {
-			first = i + 1
-			count -= step + 1
-		} else {
-			count = step
-		}
+	ge := func(i int) bool {
+		return c[i].code >= code
 	}
-	return ID(first)
+
+	foundIndex := sort.Search(len(c), ge)
+
+	if c[foundIndex].code != code {
+		return NullID
+	}
+
+	return ID(foundIndex)
 }

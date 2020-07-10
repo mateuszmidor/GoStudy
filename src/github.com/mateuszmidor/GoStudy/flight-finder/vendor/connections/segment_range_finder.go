@@ -3,51 +3,34 @@ package connections
 import (
 	"airport"
 	"segment"
+	"sort"
 )
 
 type SegmentRangeFinder struct {
 }
 
-func (s *SegmentRangeFinder) ByFromAirport(segments segment.Segments, id airport.AirportID) (first, last segment.ID) {
-	return segment.ID(lowerBound(segments, id)), segment.ID(upperBound(segments, id))
+func (s *SegmentRangeFinder) ByFromAirport(segments segment.Segments, id airport.ID) (first, last segment.ID) {
+	lo, hi := lowerBound(segments, id), upperBound(segments, id)
+	if lo == hi {
+		return segment.NullID, segment.NullID
+	}
+	return segment.ID(lo), segment.ID(hi)
 }
 
 // lowerBound is index of first matching element
-func lowerBound(segments segment.Segments, id airport.AirportID) int {
-	first := 0
-	last := len(segments)
-	count := last - first
-
-	for count > 0 {
-		i := first
-		step := count / 2
-		i += step
-		if segments[i].From() < id {
-			first = i + 1
-			count -= step + 1
-		} else {
-			count = step
-		}
+func lowerBound(segments segment.Segments, id airport.ID) int {
+	ge := func(i int) bool {
+		return segments[i].From() >= id
 	}
-	return first
+
+	return sort.Search(len(segments), ge)
 }
 
 // upperBound is index of last matching element +1
-func upperBound(segments segment.Segments, id airport.AirportID) int {
-	first := 0
-	last := len(segments)
-	count := last - first
-
-	for count > 0 {
-		i := first
-		step := count / 2
-		i += step
-		if segments[i].From() <= id {
-			first = i + 1
-			count -= step + 1
-		} else {
-			count = step
-		}
+func upperBound(segments segment.Segments, id airport.ID) int {
+	g := func(i int) bool {
+		return segments[i].From() > id
 	}
-	return first
+
+	return sort.Search(len(segments), g)
 }

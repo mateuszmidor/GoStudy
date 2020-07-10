@@ -1,6 +1,8 @@
 package airport
 
-type AirportID int
+type ID int
+
+const NullID = ID(-1)
 
 type Airport struct {
 	code string // KRK

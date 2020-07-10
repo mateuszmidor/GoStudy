@@ -4,7 +4,7 @@ import (
 	"airport"
 )
 
-// ShortAirportRenderer renders short string representation of airportID
+// ShortAirportRenderer renders short string representation of ID
 type ShortAirportRenderer struct {
 	airports airport.Airports
 }
@@ -15,6 +15,6 @@ func NewShortAirportRenderer(airports airport.Airports) *ShortAirportRenderer {
 }
 
 // Render creates string representation of airport
-func (r *ShortAirportRenderer) Render(id airport.AirportID) string {
+func (r *ShortAirportRenderer) Render(id airport.ID) string {
 	return r.airports[id].Code()
 }

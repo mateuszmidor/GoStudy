@@ -9,9 +9,9 @@ import (
 func TestBuilderReturnsAllSegmentsSorted(t *testing.T) {
 	// given
 	airports := airport.Airports{
-		airport.NewAirport("AAA", "Andora Airport"),   // AirportID 0
-		airport.NewAirport("KKK", "Kalkuta Airport"),  // AirportID 1
-		airport.NewAirport("ZZZ", "Zimbabwe Airport"), // AirportID 2
+		airport.NewAirport("AAA", "Andora Airport"),   // ID 0
+		airport.NewAirport("KKK", "Kalkuta Airport"),  // ID 1
+		airport.NewAirport("ZZZ", "Zimbabwe Airport"), // ID 2
 	}
 	carriers := carrier.Carriers{
 		carrier.NewCarrier("LH"),

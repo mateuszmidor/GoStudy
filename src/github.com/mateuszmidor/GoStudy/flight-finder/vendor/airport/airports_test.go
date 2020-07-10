@@ -16,21 +16,23 @@ func TestGetByCodeReturnsValidAirport(t *testing.T) {
 	}
 	cases := []struct {
 		code string
-		id   airport.AirportID
+		id   airport.ID
 	}{
 		{"AAA", 0},
+		{"GGG", airport.NullID},
 		{"KKK", 1},
+		{"PPP", airport.NullID},
 		{"ZZZ", 2},
 	}
 
 	for _, c := range cases {
-		t.Run(fmt.Sprintf("Checking AirportID for %s", c.code), func(t *testing.T) {
+		t.Run(fmt.Sprintf("Checking ID for %s", c.code), func(t *testing.T) {
 			// when
 			id := airports.GetByCode(c.code)
 
 			// then
 			if id != c.id {
-				t.Errorf("For %s expected AirportID was %d, got %d", c.code, c.id, id)
+				t.Errorf("For %s expected ID was %d, got %d", c.code, c.id, id)
 			}
 		})
 	}

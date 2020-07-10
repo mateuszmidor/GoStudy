@@ -13,7 +13,7 @@ import (
 type stubAirportRenderer struct {
 }
 
-func (r *stubAirportRenderer) Render(id airport.AirportID) string {
+func (r *stubAirportRenderer) Render(id airport.ID) string {
 	return strconv.Itoa(int(id))
 }
 

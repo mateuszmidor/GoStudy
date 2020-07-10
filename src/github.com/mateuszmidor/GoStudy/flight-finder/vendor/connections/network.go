@@ -24,6 +24,6 @@ func (n *Network) GetDestinationNode(connection pathfinding.ConnectionID) pathfi
 // GetOutgoingConnections implements Connections interface
 func (n *Network) GetOutgoingConnections(node pathfinding.NodeID) (first, last pathfinding.ConnectionID) {
 	var finder SegmentRangeFinder
-	f, l := finder.ByFromAirport(n.segments, airport.AirportID(node))
+	f, l := finder.ByFromAirport(n.segments, airport.ID(node))
 	return pathfinding.ConnectionID(f), pathfinding.ConnectionID(l)
 }
