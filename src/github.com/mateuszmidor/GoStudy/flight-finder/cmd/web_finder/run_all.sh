@@ -9,7 +9,7 @@ function tearDown() {
 
 go run . &
 sleep 1
-firefox 'http://localhost:8080/find?from=krk&to=gdn'
+firefox 'http://localhost:8080/'
 
 while true; do sleep 1; done
 

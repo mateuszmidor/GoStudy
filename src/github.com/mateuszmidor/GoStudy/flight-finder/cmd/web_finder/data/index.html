@@ -1,0 +1,255 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml"> 
+  <head> 
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>flight-finder</title> 
+    <style type="text/css">
+        html {height:100%}
+        body {height:100%;margin:0;padding:0}
+        #mapContainer { height: 100%;width: 100%;top: 0;left: 0;z-index: 0;}
+        .form-inline {text-align: center; position: relative; top: 10px; z-index: 1;}
+    </style>  
+    
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    
+    <!-- Google maps -->
+    <script src="http://maps.googleapis.com/maps/api/js"></script>
+    
+    <!-- My page scripting -->
+    <script type="text/javascript">
+        //<![CDATA[
+        
+        // page load
+        // function load() { 
+        //     //<!-- here offer groups will be injected -->
+        //     var jsonOfferGroups = '$JSON_OFFER_GROUPS$';
+        //     var offerGroups = JSON.parse(jsonOfferGroups);
+        //     var map = new OfferMap("mapContainer", $MAP_CENTER_LAT$, $MAP_CENTER_LONG$, $MAP_ZOOM$);
+        //     map.showOfferGroups(offerGroups, getBaloonHtmlForGroup);
+        // }
+
+        var setResult = function(value) {
+            $( "#mapContainer" ).html(value);
+        }
+        var onCheckDigit = function() {
+            // var canvasData = canvas.toDataURL("image/png");
+
+            $.ajax({
+                    type:'GET',
+                    url:'find',
+                    dataType: 'text',
+                    contentType: 'application/text',
+                    data:{ from: $("#fromairport").val(), to: $("#toairport").val() },  
+                    error:function() {
+                        setResult("flight finding error");
+                    },
+                    success:function(data) {
+                        setResult(data);
+                    }
+                });  
+            }
+
+        // $( document ).ready( function(){
+        //     onClear();
+        // });
+
+        // create html representing offer group: address and offers at that address
+        // function getBaloonHtmlForGroup(offerGroup) {
+        //     var offers = offerGroup.offers;
+        //     var html = "<b>" + offerGroup.address + "</b> <br/>";
+        //     for (var i in offers) { 
+        //         var offer = offers[i];
+        //         var numRooms = offer.num_rooms == 1 ? "1 pokój" : "" + offer.num_rooms + " pokoje";
+        //         html += "<br />";
+        //         html += "<b>" + offer.price + "</b>, " + numRooms + ", " + offer.area + "m2, " + offer.date + "<br/>";
+        //         html += offer.title + "<br/>";
+        //         html += offer.address_section + "<br/>";
+        //         html += offer.summary + "<br/>";
+        //         html += '<a href="' + offer.url + '" target="_blank">Link</a><br/>';
+        //     } 
+        //     return html;
+        // }    
+
+        // Create offer map instance. It s a google map crammed into given container,
+        // centred at given latitude,longitude, with given zoom applied
+        // var OfferMap = function(htmlContainerId, latitude, longitude, zoom) {
+        //     this.map = initializeEmptyMap(htmlContainerId, latitude, longitude, zoom);
+        // }
+
+        // public: 
+        // OfferMap.prototype.showOfferGroups = showOfferGroups;   
+        // // private: 
+        // OfferMap.prototype.getIconForGroup = getIconForGroup;
+        // OfferMap.prototype.createMarkerOnMap = createMarkerOnMap;
+        // OfferMap.prototype.prepareMapMarker = prepareMapMarker;
+        // OfferMap.prototype.prepareMapNumberedMarkers = prepareMapNumberedMarkers;
+
+        // // initialize empty map in given container, centered at given lat, long, with given zoom
+        // function initializeEmptyMap(htmlContenerId, latitude, longitude, zoom) {
+            
+        //     // prepare map properties
+        //     var mapProperties = {
+        //             center:new google.maps.LatLng(latitude, longitude),
+        //             zoom:zoom,
+        //             mapTypeId:google.maps.MapTypeId.ROADMAP
+        //     };
+
+        //     // get the container for map 
+        //     var mapContainer = document.getElementById(htmlContenerId);
+            
+        //     // create the map in given container, with given properties
+        //     return new google.maps.Map(mapContainer, mapProperties);
+        // };  
+
+        // // add offer groups as markers to the map 
+        // function showOfferGroups(offerGroups, getBaloonHtmlForGroup) {
+
+        //     this.red_markers = this.prepareMapNumberedMarkers("FF00F0");
+        //     this.lightred_markers = prepareMapNumberedMarkers("FFAAFA");
+                
+        //     // create baloon window to show offer details in
+        //     this.infoWindow = new google.maps.InfoWindow({
+        //         disableAutoPan:true
+        //     }); 
+            
+        //     // make clicking on the map hide the baloon
+        //     closeBaloonOnMapClick(this.map, this.infoWindow);
+
+        //     // add markers representing offers to the map
+        //     for (var i in offerGroups) {
+        //         var group = offerGroups[i];     
+        //         var icon = this.getIconForGroup(group);  
+        //         var baloonHtml = getBaloonHtmlForGroup(group);       
+
+        //         this.createMarkerOnMap(icon, baloonHtml, group.latitude, group.longitude);
+        //     }
+        // };
+
+        // function closeBaloonOnMapClick(map, window) {
+        //     google.maps.event.addListener(map, 'click', function() {
+        //         window.close();
+        //     }); 
+        // }
+
+        // // select an appropriate icon to represent an offer group
+        // function getIconForGroup(offerGroup) {
+        //     // see if there is a todays offer in the group
+        //     Date.prototype.format=function(e){var t="";var n=Date.replaceChars;for(var r=0;r<e.length;r++){var i=e.charAt(r);if(r-1>=0&&e.charAt(r-1)=="\\"){t+=i}else if(n[i]){t+=n[i].call(this)}else if(i!="\\"){t+=i}}return t};Date.replaceChars={shortMonths:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],longMonths:["January","February","March","April","May","June","July","August","September","October","November","December"],shortDays:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],longDays:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],d:function(){return(this.getDate()<10?"0":"")+this.getDate()},D:function(){return Date.replaceChars.shortDays[this.getDay()]},j:function(){return this.getDate()},l:function(){return Date.replaceChars.longDays[this.getDay()]},N:function(){return this.getDay()+1},S:function(){return this.getDate()%10==1&&this.getDate()!=11?"st":this.getDate()%10==2&&this.getDate()!=12?"nd":this.getDate()%10==3&&this.getDate()!=13?"rd":"th"},w:function(){return this.getDay()},z:function(){var e=new Date(this.getFullYear(),0,1);return Math.ceil((this-e)/864e5)},W:function(){var e=new Date(this.getFullYear(),0,1);return Math.ceil(((this-e)/864e5+e.getDay()+1)/7)},F:function(){return Date.replaceChars.longMonths[this.getMonth()]},m:function(){return(this.getMonth()<9?"0":"")+(this.getMonth()+1)},M:function(){return Date.replaceChars.shortMonths[this.getMonth()]},n:function(){return this.getMonth()+1},t:function(){var e=new Date;return(new Date(e.getFullYear(),e.getMonth(),0)).getDate()},L:function(){var e=this.getFullYear();return e%400==0||e%100!=0&&e%4==0},o:function(){var e=new Date(this.valueOf());e.setDate(e.getDate()-(this.getDay()+6)%7+3);return e.getFullYear()},Y:function(){return this.getFullYear()},y:function(){return(""+this.getFullYear()).substr(2)},a:function(){return this.getHours()<12?"am":"pm"},A:function(){return this.getHours()<12?"AM":"PM"},B:function(){return Math.floor(((this.getUTCHours()+1)%24+this.getUTCMinutes()/60+this.getUTCSeconds()/3600)*1e3/24)},g:function(){return this.getHours()%12||12},G:function(){return this.getHours()},h:function(){return((this.getHours()%12||12)<10?"0":"")+(this.getHours()%12||12)},H:function(){return(this.getHours()<10?"0":"")+this.getHours()},i:function(){return(this.getMinutes()<10?"0":"")+this.getMinutes()},s:function(){return(this.getSeconds()<10?"0":"")+this.getSeconds()},u:function(){var e=this.getMilliseconds();return(e<10?"00":e<100?"0":"")+e},e:function(){return"Not Yet Supported"},I:function(){var e=null;for(var t=0;t<12;++t){var n=new Date(this.getFullYear(),t,1);var r=n.getTimezoneOffset();if(e===null)e=r;else if(r<e){e=r;break}else if(r>e)break}return this.getTimezoneOffset()==e|0},O:function(){return(-this.getTimezoneOffset()<0?"-":"+")+(Math.abs(this.getTimezoneOffset()/60)<10?"0":"")+Math.abs(this.getTimezoneOffset()/60)+"00"},P:function(){return(-this.getTimezoneOffset()<0?"-":"+")+(Math.abs(this.getTimezoneOffset()/60)<10?"0":"")+Math.abs(this.getTimezoneOffset()/60)+":00"},T:function(){var e=this.getMonth();this.setMonth(0);var t=this.toTimeString().replace(/^.+ \(?([^\)]+)\)?$/,"$1");this.setMonth(e);return t},Z:function(){return-this.getTimezoneOffset()*60},c:function(){return this.format("Y-m-d\\TH:i:sP")},r:function(){return this.toString()},U:function(){return this.getTime()/1e3}};
+        //     var todaysDate = new Date().format('d-m-Y');
+        //     var offers = offerGroup.offers; 
+        //     for (var i in offers) {
+        //         var offer = offers[i];
+        //         if (offer.date === todaysDate)
+        //             // todays offer found
+        //             return this.red_markers[offers.length];
+        //     }
+            
+        //     // no todays offer in the group
+        //     return this.lightred_markers[offers.length];
+        // }
+
+        // // creates a marker on the map
+        // function createMarkerOnMap(icon, baloonHtml, latitude, longitude) {
+        //     var latlng = new google.maps.LatLng(latitude, longitude);
+        //     var marker = new google.maps.Marker({
+        //         position:latlng,
+        //         icon:icon
+        //     });    
+        //     marker.setMap(this.map);
+            
+        //     // make clicking on marker display baloon with offer description
+        //     showBaloonOnMarkerClick(marker, this.infoWindow, baloonHtml, this.map);       
+        // }  
+
+        // function showBaloonOnMarkerClick(marker, infoWindow, baloonHtml, map) {
+        //     google.maps.event.addListener(marker, 'click', function() {
+        //         infoWindow.setContent(baloonHtml);
+        //         infoWindow.open(map, marker);
+        //     });   
+        // }
+
+        // // Prepare simple GoogleMap marker with label and in given color
+        // function prepareMapMarker(label, hexRgbColor) {
+        //     // icon is an object
+        //     var icon = {
+        //         url: "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld="+label+"|"+hexRgbColor+"|000000",
+        //         scaledSize: new google.maps.Size(16, 26)
+        //     };
+        //     return icon;
+        // }
+
+        // // Prepare GoogleMap marker array with labels 0-99, in given color
+        // function prepareMapNumberedMarkers(hexRgbColor) {
+        //     // prepare array
+        //     var markers = []
+            
+        //     // marker zero with label zero 
+        //     markers[0] = prepareMapMarker("0", hexRgbColor);
+            
+        //     // marker one without label; this will be mostly used marker
+        //     markers[1] = prepareMapMarker("", hexRgbColor);
+            
+        //     // markers with numbers
+        //     for (i = 2; i < 100; i++) {
+        //        markers[i] = prepareMapMarker(i, hexRgbColor);
+        //     }
+
+        //     return markers;
+        // } 
+        
+        // initialize map on load
+        // google.maps.event.addDomListener(window, 'load', load);        
+        //]]>
+    </script>  
+  </head>
+
+  <body>
+    
+        <div class="container-fluid">
+            <!-- THIS FORM IS FOR NON-MOBILE SIZE DEVICES -->
+            <form class="form-inline" id="formbig" role="form" method="get" action="">
+                <!--
+                    <div class="form-group">
+                        <label class="sr-only" for="numrooms">Liczba pokojów:</label>
+                        <input type="number" min="0" step="1" class="form-control" placeholder="Liczba pokojów" id="numrooms" name="num_rooms" value="$NUM_ROOMS$">
+                    </div>              
+               
+                    <div class="form-group">
+                        <label class="sr-only" for="maxprice">Cena maksymalna:</label>
+                        <input type="number" min="1" class="form-control" placeholder="Cena maksymalna" id="maxprice" name="max_price" value="$MAX_PRICE$">
+                    </div>
+                -->
+                    <div class="form-group">
+                        <label class="sr-only" for="fromairport">From:</label>
+                        <input type="text" class="form-control" placeholder="krk" id="fromairport" name="fromairport" value="krk">
+                    </div>
+               
+                    <div class="form-group">
+                        <label class="sr-only" for="toairport">To:</label>
+                        <input type="text" class="form-control" placeholder="gdn" id="toairport" name="toairport" value="gdn">
+                    </div>
+             
+                    <div class="form-group">
+                        <butto  class="btn btn-danger"  onclick="onCheckDigit()">
+                            <span class="glyphicon glyphicon-search"></span>
+                            Szukaj!
+                        </button>                      
+                    </div>
+            </form>
+
+            <!-- FLIGHTS LIST -->
+            <div id="mapContainer">HERE IS FLIGHTS</div>
+        </div>
+  </body>
+</html>
