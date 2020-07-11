@@ -1,17 +1,17 @@
-package carrier_test
+package carriers_test
 
 import (
-	"carrier"
+	"carriers"
 	"testing"
 )
 
 func TestBuilderReturnsAllCarriersSorted(t *testing.T) {
 	// given
-	var b carrier.Builder
-	expectedCarriers := carrier.Carriers{
-		carrier.NewCarrier("AA"),
-		carrier.NewCarrier("BB"),
-		carrier.NewCarrier("CC"),
+	var b carriers.Builder
+	expectedCarriers := carriers.Carriers{
+		carriers.NewCarrier("AA"),
+		carriers.NewCarrier("BB"),
+		carriers.NewCarrier("CC"),
 	}
 
 	// when

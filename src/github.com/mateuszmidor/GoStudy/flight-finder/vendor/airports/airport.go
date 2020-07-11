@@ -1,4 +1,4 @@
-package airport
+package airports
 
 type ID int
 

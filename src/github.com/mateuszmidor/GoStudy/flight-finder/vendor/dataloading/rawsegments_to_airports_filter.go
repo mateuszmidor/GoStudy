@@ -1,7 +1,7 @@
 package dataloading
 
 import (
-	"airport"
+	"airports"
 )
 
 type SegmentsToAirportsFilter struct {
@@ -11,7 +11,7 @@ func NewRawSegmentsToAirportsFilter() *SegmentsToAirportsFilter {
 	return &SegmentsToAirportsFilter{}
 }
 
-func (f *SegmentsToAirportsFilter) Filter(segments <-chan RawSegment) airport.Airports {
+func (f *SegmentsToAirportsFilter) Filter(segments <-chan RawSegment) airports.Airports {
 	uniqueCodes := make(map[string]bool)
 
 	for s := range segments {
@@ -19,7 +19,7 @@ func (f *SegmentsToAirportsFilter) Filter(segments <-chan RawSegment) airport.Ai
 		uniqueCodes[s.ToAirportCode] = true
 	}
 
-	var ab airport.Builder
+	var ab airports.Builder
 	for code := range uniqueCodes {
 		ab.Append(code, "")
 	}

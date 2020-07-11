@@ -1,20 +1,20 @@
 package pathrendering
 
 import (
-	"carrier"
+	"carriers"
 )
 
 // ShortCarrierRenderer renders short string representation of carrierID
 type ShortCarrierRenderer struct {
-	carriers carrier.Carriers
+	carriers carriers.Carriers
 }
 
 // NewShortCarrierRenderer is constructor
-func NewShortCarrierRenderer(carriers carrier.Carriers) *ShortCarrierRenderer {
+func NewShortCarrierRenderer(carriers carriers.Carriers) *ShortCarrierRenderer {
 	return &ShortCarrierRenderer{carriers}
 }
 
 // Render creates string representation of carrier
-func (r *ShortCarrierRenderer) Render(id carrier.ID) string {
+func (r *ShortCarrierRenderer) Render(id carriers.ID) string {
 	return r.carriers[id].Code()
 }

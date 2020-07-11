@@ -1,7 +1,7 @@
-package carrier_test
+package carriers_test
 
 import (
-	"carrier"
+	"carriers"
 	"fmt"
 	"testing"
 )
@@ -9,19 +9,19 @@ import (
 func TestGetByCodeReturnsValidCarrier(t *testing.T) {
 	// given
 	// important: carriers are sorted ascending for binary search
-	carriers := carrier.Carriers{
-		carrier.NewCarrier("AA"),
-		carrier.NewCarrier("KK"),
-		carrier.NewCarrier("ZZ"),
+	carriers := carriers.Carriers{
+		carriers.NewCarrier("AA"),
+		carriers.NewCarrier("KK"),
+		carriers.NewCarrier("ZZ"),
 	}
 	cases := []struct {
 		code string
-		id   carrier.ID
+		id   carriers.ID
 	}{
 		{"AA", 0},
-		{"GG", carrier.NullID},
+		{"GG", carriers.NullID},
 		{"KK", 1},
-		{"PP", carrier.NullID},
+		{"PP", carriers.NullID},
 		{"ZZ", 2},
 	}
 

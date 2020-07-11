@@ -1,7 +1,7 @@
 package pathrendering_test
 
 import (
-	"airport"
+	"airports"
 	"fmt"
 	"pathrendering"
 	"testing"
@@ -10,13 +10,13 @@ import (
 func TestRendererReturnsValidShortAirportString(t *testing.T) {
 	// given
 	// important: airpors are sorted ascending
-	airports := airport.Airports{
-		airport.NewAirport("GDN", ""),
-		airport.NewAirport("KRK", ""),
-		airport.NewAirport("WAW", ""),
+	airports := airports.Airports{
+		airports.NewAirport("GDN", ""),
+		airports.NewAirport("KRK", ""),
+		airports.NewAirport("WAW", ""),
 	}
 	cases := []struct {
-		id       airport.ID
+		id       airports.ID
 		expected string
 	}{
 		{0, "GDN"},

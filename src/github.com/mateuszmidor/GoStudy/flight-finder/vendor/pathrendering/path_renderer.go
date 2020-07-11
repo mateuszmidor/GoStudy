@@ -1,19 +1,19 @@
 package pathrendering
 
 import (
-	"airport"
-	"carrier"
+	"airports"
+	"carriers"
 	"fmt"
 	"pathfinding"
-	"segment"
+	"segments"
 )
 
 type AirportRenderer interface {
-	Render(airport.ID) string
+	Render(airports.ID) string
 }
 
 type CarrierRenderer interface {
-	Render(carrier.ID) string
+	Render(carriers.ID) string
 }
 
 type PathRenderer struct {
@@ -25,7 +25,7 @@ func NewRenderer(airportRenderer AirportRenderer, carrierRenderer CarrierRendere
 	return &PathRenderer{airportRenderer, carrierRenderer}
 }
 
-func (r *PathRenderer) Render(path pathfinding.Path, segments segment.Segments) string {
+func (r *PathRenderer) Render(path pathfinding.Path, segments segments.Segments) string {
 	if len(path) == 0 {
 		return "<empty path>"
 	}

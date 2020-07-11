@@ -1,24 +1,24 @@
 package connections
 
 import (
-	"airport"
-	"segment"
+	"airports"
+	"segments"
 	"sort"
 )
 
 type SegmentRangeFinder struct {
 }
 
-func (s *SegmentRangeFinder) ByFromAirport(segments segment.Segments, id airport.ID) (first, last segment.ID) {
-	lo, hi := lowerBound(segments, id), upperBound(segments, id)
+func (s *SegmentRangeFinder) ByFromAirport(segs segments.Segments, id airports.ID) (first, last segments.ID) {
+	lo, hi := lowerBound(segs, id), upperBound(segs, id)
 	if lo == hi {
-		return segment.NullID, segment.NullID
+		return segments.NullID, segments.NullID
 	}
-	return segment.ID(lo), segment.ID(hi)
+	return segments.ID(lo), segments.ID(hi)
 }
 
 // lowerBound is index of first matching element
-func lowerBound(segments segment.Segments, id airport.ID) int {
+func lowerBound(segments segments.Segments, id airports.ID) int {
 	ge := func(i int) bool {
 		return segments[i].From() >= id
 	}
@@ -27,7 +27,7 @@ func lowerBound(segments segment.Segments, id airport.ID) int {
 }
 
 // upperBound is index of last matching element +1
-func upperBound(segments segment.Segments, id airport.ID) int {
+func upperBound(segments segments.Segments, id airports.ID) int {
 	g := func(i int) bool {
 		return segments[i].From() > id
 	}

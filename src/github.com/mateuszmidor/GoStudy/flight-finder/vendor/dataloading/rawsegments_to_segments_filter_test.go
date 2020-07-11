@@ -1,33 +1,33 @@
 package dataloading_test
 
 import (
-	"airport"
-	"carrier"
+	"airports"
+	"carriers"
 	"dataloading"
-	"segment"
+	"segments"
 	"testing"
 )
 
 func TestRawsegmentsFilterReturnsValidSegments(t *testing.T) {
 	// given
 	// important: airports are sorted
-	airports := airport.Airports{
-		airport.NewAirport("GDN", ""), // ID=0
-		airport.NewAirport("KRK", ""), // ID=1
-		airport.NewAirport("WAW", ""), // ID=2
-		airport.NewAirport("WRO", ""), // ID=3
+	airports := airports.Airports{
+		airports.NewAirport("GDN", ""), // ID=0
+		airports.NewAirport("KRK", ""), // ID=1
+		airports.NewAirport("WAW", ""), // ID=2
+		airports.NewAirport("WRO", ""), // ID=3
 	}
 	// important: carrierrs are sorted
-	carriers := carrier.Carriers{
-		carrier.NewCarrier("BY"), // carrierID=0
-		carrier.NewCarrier("LH"), // carrierID=1
-		carrier.NewCarrier("LO"), // carrierID=2
+	carriers := carriers.Carriers{
+		carriers.NewCarrier("BY"), // carrierID=0
+		carriers.NewCarrier("LH"), // carrierID=1
+		carriers.NewCarrier("LO"), // carrierID=2
 	}
 	// important: expected segments are sorted
-	expectedSegments := segment.Segments{
-		segment.NewSegment(1, 2, 2),
-		segment.NewSegment(2, 3, 1),
-		segment.NewSegment(3, 0, 0),
+	expectedSegments := segments.Segments{
+		segments.NewSegment(1, 2, 2),
+		segments.NewSegment(2, 3, 1),
+		segments.NewSegment(3, 0, 0),
 	}
 	rawSegments := make(chan dataloading.RawSegment, 3)
 	rawSegments <- dataloading.NewRawSegment("KRK", "WAW", "LO")

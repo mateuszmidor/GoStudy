@@ -1,20 +1,20 @@
-package segment
+package segments
 
 import (
-	"airport"
-	"carrier"
+	"airports"
+	"carriers"
 	"sort"
 )
 
 // Builder creates sorted collection of segments
 type Builder struct {
 	segments Segments
-	airports airport.Airports
-	carriers carrier.Carriers
+	airports airports.Airports
+	carriers carriers.Carriers
 }
 
 // NewBuilder is constructor
-func NewBuilder(airports airport.Airports, carriers carrier.Carriers) Builder {
+func NewBuilder(airports airports.Airports, carriers carriers.Carriers) Builder {
 	return Builder{Segments{}, airports, carriers}
 }
 

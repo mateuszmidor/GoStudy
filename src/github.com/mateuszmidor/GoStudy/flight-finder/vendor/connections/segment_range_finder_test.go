@@ -1,34 +1,34 @@
 package connections_test
 
 import (
-	"airport"
+	"airports"
 	"connections"
 	"fmt"
-	"segment"
+	"segments"
 	"testing"
 )
 
 func TestFindByOriginReturnsProperRange(t *testing.T) {
 	// given
-	segments := segment.Segments{
-		segment.NewSegment(1, 10, -1),
-		segment.NewSegment(1, 20, -1),
-		segment.NewSegment(2, 10, -1),
-		segment.NewSegment(2, 20, -1),
-		segment.NewSegment(2, 30, -1),
-		segment.NewSegment(4, 10, -1),
-		segment.NewSegment(4, 20, -1),
+	segments := segments.Segments{
+		segments.NewSegment(1, 10, -1),
+		segments.NewSegment(1, 20, -1),
+		segments.NewSegment(2, 10, -1),
+		segments.NewSegment(2, 20, -1),
+		segments.NewSegment(2, 30, -1),
+		segments.NewSegment(4, 10, -1),
+		segments.NewSegment(4, 20, -1),
 	}
 
 	cases := []struct {
-		id          airport.ID
-		first, last segment.ID
+		id          airports.ID
+		first, last segments.ID
 	}{
 		{1, 0, 2},
 		{2, 2, 5},
-		{3, segment.NullID, segment.NullID}, // no such from airport
+		{3, segments.NullID, segments.NullID}, // no such from airport
 		{4, 5, 7},
-		{5, segment.NullID, segment.NullID}, // no such from airport
+		{5, segments.NullID, segments.NullID}, // no such from airport
 	}
 
 	var finder connections.SegmentRangeFinder

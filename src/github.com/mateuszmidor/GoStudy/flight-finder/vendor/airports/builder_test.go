@@ -1,17 +1,17 @@
-package airport_test
+package airports_test
 
 import (
-	"airport"
+	"airports"
 	"testing"
 )
 
 func TestBuilderReturnsAllAirportsSorted(t *testing.T) {
 	// given
-	var b airport.Builder
-	expectedAirports := airport.Airports{
-		airport.NewAirport("AAA", "Andora Airport"),
-		airport.NewAirport("KKK", "Kalkuta Airport"),
-		airport.NewAirport("ZZZ", "Zimbabwe Airport"),
+	var b airports.Builder
+	expectedAirports := airports.Airports{
+		airports.NewAirport("AAA", "Andora Airport"),
+		airports.NewAirport("KKK", "Kalkuta Airport"),
+		airports.NewAirport("ZZZ", "Zimbabwe Airport"),
 	}
 
 	// when

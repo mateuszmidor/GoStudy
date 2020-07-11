@@ -1,7 +1,7 @@
 package dataloading_test
 
 import (
-	"carrier"
+	"carriers"
 	"dataloading"
 	"testing"
 )
@@ -14,10 +14,10 @@ func TestAirportsCarriersLoaderReturnsValidData2(t *testing.T) {
 	rawSegments <- dataloading.NewRawSegment("WRO", "GDN", "BY")
 	close(rawSegments)
 	// expected carriers are sorted
-	expectedCarrires := carrier.Carriers{
-		carrier.NewCarrier("BY"),
-		carrier.NewCarrier("LH"),
-		carrier.NewCarrier("LO"),
+	expectedCarrires := carriers.Carriers{
+		carriers.NewCarrier("BY"),
+		carriers.NewCarrier("LH"),
+		carriers.NewCarrier("LO"),
 	}
 	filter := dataloading.NewRawSegmentsToCarriersFilter()
 

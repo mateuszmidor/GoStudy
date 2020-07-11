@@ -1,7 +1,7 @@
-package airport_test
+package airports_test
 
 import (
-	"airport"
+	"airports"
 	"fmt"
 	"testing"
 )
@@ -9,19 +9,19 @@ import (
 func TestGetByCodeReturnsValidAirport(t *testing.T) {
 	// given
 	// important: airports are sorted ascending for binary search
-	airports := airport.Airports{
-		airport.NewAirport("AAA", "Andora Airport"),
-		airport.NewAirport("KKK", "Kalkuta Airport"),
-		airport.NewAirport("ZZZ", "Zimbabwe Airport"),
+	airports := airports.Airports{
+		airports.NewAirport("AAA", "Andora Airport"),
+		airports.NewAirport("KKK", "Kalkuta Airport"),
+		airports.NewAirport("ZZZ", "Zimbabwe Airport"),
 	}
 	cases := []struct {
 		code string
-		id   airport.ID
+		id   airports.ID
 	}{
 		{"AAA", 0},
-		{"GGG", airport.NullID},
+		{"GGG", airports.NullID},
 		{"KKK", 1},
-		{"PPP", airport.NullID},
+		{"PPP", airports.NullID},
 		{"ZZZ", 2},
 	}
 

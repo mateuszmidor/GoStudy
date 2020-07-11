@@ -1,11 +1,11 @@
 package pathrendering_test
 
 import (
-	"airport"
-	"carrier"
+	"airports"
+	"carriers"
 	"pathfinding"
 	"pathrendering"
-	"segment"
+	"segments"
 	"strconv"
 	"testing"
 )
@@ -13,24 +13,24 @@ import (
 type stubAirportRenderer struct {
 }
 
-func (r *stubAirportRenderer) Render(id airport.ID) string {
+func (r *stubAirportRenderer) Render(id airports.ID) string {
 	return strconv.Itoa(int(id))
 }
 
 type stubCarrierRenderer struct {
 }
 
-func (r *stubCarrierRenderer) Render(id carrier.ID) string {
+func (r *stubCarrierRenderer) Render(id carriers.ID) string {
 	return strconv.Itoa(int(id))
 }
 
 func TestPathRendererTurnsValidPathIntoValidPathString(t *testing.T) {
 	// given
-	segments := segment.Segments{
-		segment.NewSegment(0, 1, 000),
-		segment.NewSegment(1, 2, 100), // connectionID=1
-		segment.NewSegment(2, 3, 200), // connectionID=2
-		segment.NewSegment(3, 4, 300), // connectionID=3
+	segments := segments.Segments{
+		segments.NewSegment(0, 1, 000),
+		segments.NewSegment(1, 2, 100), // connectionID=1
+		segments.NewSegment(2, 3, 200), // connectionID=2
+		segments.NewSegment(3, 4, 300), // connectionID=3
 	}
 	path := pathfinding.Path{
 		pathfinding.ConnectionID(1),
@@ -54,7 +54,7 @@ func TestPathRendererTurnsValidPathIntoValidPathString(t *testing.T) {
 
 func TestPathRendererTurnsEmptyPathIntoEmptyPathString(t *testing.T) {
 	// given
-	segments := segment.Segments{}
+	segments := segments.Segments{}
 	path := pathfinding.Path{}
 
 	expected := "<empty path>"

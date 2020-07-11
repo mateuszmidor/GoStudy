@@ -1,7 +1,7 @@
 package pathrendering_test
 
 import (
-	"carrier"
+	"carriers"
 	"fmt"
 	"pathrendering"
 	"testing"
@@ -10,13 +10,13 @@ import (
 func TestRendererReturnsValidShortCarrierString(t *testing.T) {
 	// given
 	// important: carriers are sorted ascending
-	carriers := carrier.Carriers{
-		carrier.NewCarrier("AA"), // id=0
-		carrier.NewCarrier("BB"), // id=1
-		carrier.NewCarrier("CC"), // id=2
+	carriers := carriers.Carriers{
+		carriers.NewCarrier("AA"), // id=0
+		carriers.NewCarrier("BB"), // id=1
+		carriers.NewCarrier("CC"), // id=2
 	}
 	cases := []struct {
-		id       carrier.ID
+		id       carriers.ID
 		expected string
 	}{
 		{0, "AA"},

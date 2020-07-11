@@ -1,7 +1,7 @@
 package dataloading_test
 
 import (
-	"airport"
+	"airports"
 	"dataloading"
 	"testing"
 )
@@ -14,11 +14,11 @@ func TestAirportsFilterReturnsValidAirports(t *testing.T) {
 	rawSegments <- dataloading.NewRawSegment("WRO", "GDN", "BY")
 	close(rawSegments)
 	// expected airports are sorted
-	expectedAirports := airport.Airports{
-		airport.NewAirport("GDN", ""),
-		airport.NewAirport("KRK", ""),
-		airport.NewAirport("WAW", ""),
-		airport.NewAirport("WRO", ""),
+	expectedAirports := airports.Airports{
+		airports.NewAirport("GDN", ""),
+		airports.NewAirport("KRK", ""),
+		airports.NewAirport("WAW", ""),
+		airports.NewAirport("WRO", ""),
 	}
 	filter := dataloading.NewRawSegmentsToAirportsFilter()
 

@@ -1,4 +1,4 @@
-package carrier
+package carriers
 
 // ID is program internal carrier id
 type ID int

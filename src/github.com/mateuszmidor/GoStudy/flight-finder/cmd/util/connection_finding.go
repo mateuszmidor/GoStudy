@@ -1,23 +1,23 @@
 package util
 
 import (
-	"airport"
-	"carrier"
+	"airports"
+	"carriers"
 	"connections"
 	"dataloading"
 	"fmt"
 	"io"
 	"pathfinding"
 	"pathrendering"
-	"segment"
+	"segments"
 	"time"
 )
 
 type ConnectionFinder struct {
-	airports        airport.Airports
-	carriers        carrier.Carriers
-	segments        segment.Segments
-	connections     connections.Connections
+	airports        airports.Airports
+	carriers        carriers.Carriers
+	segments        segments.Segments
+	connections     pathfinding.Connections
 	resultSeparator string
 }
 
@@ -39,20 +39,29 @@ func NewConnectionFinder(segmentsGzipCSV string, resultSeparator string) *Connec
 	go StartLoadingSegmentsFromGzipCSV(segmentsGzipCSV, rawSegments)
 	segments := dataloading.NewRawSegmentsToSegmentsFilter(airports, carriers).Filter(rawSegments)
 
-	// connection connections
-	connections := connections.NewConnections(segments)
-	return &ConnectionFinder{airports, carriers, segments, connections, resultSeparator}
+	connections := connections.NewAdapter(segments)
+	return &ConnectionFinder{airports, carriers, segments, &connections, resultSeparator}
 }
 
 func (f *ConnectionFinder) FindConnections(w io.Writer, fromAirport, toAirport string) {
+	from := f.airports.GetByCode(fromAirport)
+	if from == airports.NullID {
+		fmt.Fprintf(w, "Invalid from airport: %s%s", fromAirport, f.resultSeparator)
+		return
+	}
+
+	to := f.airports.GetByCode(toAirport)
+	if to == airports.NullID {
+		fmt.Fprintf(w, "Invalid to airport: %s%s", toAirport, f.resultSeparator)
+		return
+	}
+
 	start := time.Now()
-	from := pathfinding.NodeID(f.airports.GetByCode(fromAirport))
-	to := pathfinding.NodeID(f.airports.GetByCode(toAirport))
-	paths := pathfinding.FindPaths(from, to, &f.connections)
-	d := time.Now().Sub(start)
+	paths := pathfinding.FindPaths(pathfinding.NodeID(from), pathfinding.NodeID(to), f.connections)
+	elapsed := time.Now().Sub(start)
 
 	fmt.Fprint(w, f.pathsToString(paths))
-	fmt.Fprintf(w, "[Total paths: %d, Took: %dms]", len(paths), d.Milliseconds())
+	fmt.Fprintf(w, "[Total paths: %d, Took: %dms]", len(paths), elapsed.Milliseconds())
 	fmt.Fprintln(w, f.resultSeparator)
 }
 

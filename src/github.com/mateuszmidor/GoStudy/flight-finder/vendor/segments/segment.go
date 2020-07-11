@@ -1,8 +1,8 @@
-package segment
+package segments
 
 import (
-	"airport"
-	"carrier"
+	"airports"
+	"carriers"
 )
 
 // ID is segment uid
@@ -13,27 +13,27 @@ const NullID = ID(-1)
 
 // Segment is smallest part of the journey
 type Segment struct {
-	from    airport.ID
-	to      airport.ID
-	carrier carrier.ID
+	from    airports.ID
+	to      airports.ID
+	carrier carriers.ID
 }
 
 // NewSegment is constructor
-func NewSegment(from, to airport.ID, carrier carrier.ID) Segment {
+func NewSegment(from, to airports.ID, carrier carriers.ID) Segment {
 	return Segment{from, to, carrier}
 }
 
 // From tells where the journey begins
-func (s *Segment) From() airport.ID {
+func (s *Segment) From() airports.ID {
 	return s.from
 }
 
 // To tells where the journey ends
-func (s *Segment) To() airport.ID {
+func (s *Segment) To() airports.ID {
 	return s.to
 }
 
 // Carrier tells the carrier
-func (s *Segment) Carrier() carrier.ID {
+func (s *Segment) Carrier() carriers.ID {
 	return s.carrier
 }
