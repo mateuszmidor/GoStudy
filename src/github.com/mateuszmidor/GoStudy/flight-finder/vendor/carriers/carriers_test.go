@@ -9,7 +9,7 @@ import (
 func TestGetByCodeReturnsValidCarrier(t *testing.T) {
 	// given
 	// important: carriers are sorted ascending for binary search
-	carriers := carriers.Carriers{
+	carrierList := carriers.Carriers{
 		carriers.NewCarrier("AA"),
 		carriers.NewCarrier("KK"),
 		carriers.NewCarrier("ZZ"),
@@ -28,7 +28,7 @@ func TestGetByCodeReturnsValidCarrier(t *testing.T) {
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("Checking CarrierID for %s", c.code), func(t *testing.T) {
 			// when
-			id := carriers.GetByCode(c.code)
+			id := carrierList.GetByCode(c.code)
 
 			// then
 			if id != c.id {

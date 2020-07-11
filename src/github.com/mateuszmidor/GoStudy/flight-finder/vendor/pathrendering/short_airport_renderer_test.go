@@ -10,7 +10,7 @@ import (
 func TestRendererReturnsValidShortAirportString(t *testing.T) {
 	// given
 	// important: airpors are sorted ascending
-	airports := airports.Airports{
+	airportList := airports.Airports{
 		airports.NewAirport("GDN", ""),
 		airports.NewAirport("KRK", ""),
 		airports.NewAirport("WAW", ""),
@@ -24,7 +24,7 @@ func TestRendererReturnsValidShortAirportString(t *testing.T) {
 		{2, "WAW"},
 	}
 
-	renderer := pathrendering.NewShortAirportRenderer(airports)
+	renderer := pathrendering.NewShortAirportRenderer(airportList)
 
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("Checking short rendered string for ID %d", c.id), func(t *testing.T) {

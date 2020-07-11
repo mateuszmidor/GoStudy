@@ -3,13 +3,14 @@ package segments_test
 import (
 	"airports"
 	"carriers"
+	"segments"
 	"testing"
 )
 
 func TestBuilderReturnsAllSegmentsSorted(t *testing.T) {
 	// given
 	// airports must be sorted ascending
-	airports := airports.Airports{
+	airportList := airports.Airports{
 		airports.NewAirport("AAA", "Andora Airport"),   // ID 0
 		airports.NewAirport("KKK", "Kalkuta Airport"),  // ID 1
 		airports.NewAirport("ZZZ", "Zimbabwe Airport"), // ID 2
@@ -26,7 +27,7 @@ func TestBuilderReturnsAllSegmentsSorted(t *testing.T) {
 	}
 
 	// when
-	b := segments.NewBuilder(airports, carriers)
+	b := segments.NewBuilder(airportList, carriers)
 	b.Append("KKK", "ZZZ", "LH")
 	b.Append("AAA", "KKK", "LO")
 	actualSegments := b.Build()

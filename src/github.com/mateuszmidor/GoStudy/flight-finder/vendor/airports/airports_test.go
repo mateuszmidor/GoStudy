@@ -9,7 +9,7 @@ import (
 func TestGetByCodeReturnsValidAirport(t *testing.T) {
 	// given
 	// important: airports are sorted ascending for binary search
-	airports := airports.Airports{
+	airportList := airports.Airports{
 		airports.NewAirport("AAA", "Andora Airport"),
 		airports.NewAirport("KKK", "Kalkuta Airport"),
 		airports.NewAirport("ZZZ", "Zimbabwe Airport"),
@@ -28,7 +28,7 @@ func TestGetByCodeReturnsValidAirport(t *testing.T) {
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("Checking ID for %s", c.code), func(t *testing.T) {
 			// when
-			id := airports.GetByCode(c.code)
+			id := airportList.GetByCode(c.code)
 
 			// then
 			if id != c.id {

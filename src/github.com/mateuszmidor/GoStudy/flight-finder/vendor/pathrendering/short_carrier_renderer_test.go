@@ -10,7 +10,7 @@ import (
 func TestRendererReturnsValidShortCarrierString(t *testing.T) {
 	// given
 	// important: carriers are sorted ascending
-	carriers := carriers.Carriers{
+	carrierList := carriers.Carriers{
 		carriers.NewCarrier("AA"), // id=0
 		carriers.NewCarrier("BB"), // id=1
 		carriers.NewCarrier("CC"), // id=2
@@ -23,7 +23,7 @@ func TestRendererReturnsValidShortCarrierString(t *testing.T) {
 		{1, "BB"},
 		{2, "CC"},
 	}
-	renderer := pathrendering.NewShortCarrierRenderer(carriers)
+	renderer := pathrendering.NewShortCarrierRenderer(carrierList)
 
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("Checking short rendered string for CarrierID %d", c.id), func(t *testing.T) {

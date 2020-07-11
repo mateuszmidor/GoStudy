@@ -10,7 +10,7 @@ import (
 
 func TestFindByOriginReturnsProperRange(t *testing.T) {
 	// given
-	segments := segments.Segments{
+	segmentList := segments.Segments{
 		segments.NewSegment(1, 10, -1),
 		segments.NewSegment(1, 20, -1),
 		segments.NewSegment(2, 10, -1),
@@ -35,7 +35,7 @@ func TestFindByOriginReturnsProperRange(t *testing.T) {
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("Searching ID = %d", c.id), func(t *testing.T) {
 			// when
-			first, last := finder.ByFromAirport(segments, c.id)
+			first, last := finder.ByFromAirport(segmentList, c.id)
 
 			// then
 			if first != c.first {
