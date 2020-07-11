@@ -26,9 +26,9 @@ func TestFindByOriginReturnsProperRange(t *testing.T) {
 	}{
 		{1, 0, 2},
 		{2, 2, 5},
-		{3, segment.NullID, segment.NullID},
+		{3, segment.NullID, segment.NullID}, // no such from airport
 		{4, 5, 7},
-		{5, segment.NullID, segment.NullID},
+		{5, segment.NullID, segment.NullID}, // no such from airport
 	}
 
 	var finder connections.SegmentRangeFinder

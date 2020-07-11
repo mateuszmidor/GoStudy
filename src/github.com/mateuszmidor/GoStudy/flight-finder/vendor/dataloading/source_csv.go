@@ -1,8 +1,9 @@
-package segment
+package dataloading
 
 import (
 	"encoding/csv"
 	"io"
+	"segment"
 )
 
 const numCSVColumns = 3
@@ -14,7 +15,7 @@ type SourceCSV struct {
 // StartLoadingSegments loads raw segments
 // Pipeline instead batch load approach to accomodate segment database that would exceed machine ram limitations
 // Usage: go source.StartLoadingSegments(...)
-func (r *SourceCSV) StartLoadingSegments(reader io.Reader, outputSegments chan<- RawSegment) {
+func (r *SourceCSV) StartLoadingSegments(reader io.Reader, outputSegments chan<- segment.RawSegment) {
 	csv := csv.NewReader(reader)
 	csv.ReuseRecord = true
 	csv.FieldsPerRecord = numCSVColumns
@@ -33,11 +34,11 @@ func (r *SourceCSV) StartLoadingSegments(reader io.Reader, outputSegments chan<-
 	close(outputSegments)
 }
 
-func parseRawSegment(data []string) RawSegment {
+func parseRawSegment(data []string) segment.RawSegment {
 	// CSV structure:
 	// "KRK","KTW","LO"
 
-	return RawSegment{
+	return segment.RawSegment{
 		FromAirportCode: data[0],
 		ToAirportCode:   data[1],
 		CarrierCode:     data[2],

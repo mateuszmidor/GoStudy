@@ -1,6 +1,7 @@
-package segment_test
+package dataloading_test
 
 import (
+	"dataloading"
 	"fmt"
 	"segment"
 	"strings"
@@ -9,7 +10,7 @@ import (
 
 func TestLoadValidCSVShouldReturnAllSegments(t *testing.T) {
 	// given
-	var source segment.SourceCSV
+	var source dataloading.SourceCSV
 	actualSegments := make(chan segment.RawSegment, 1)
 	expectedSegments := []segment.RawSegment{
 		{"GDY", "WAW", "BY"},
@@ -33,7 +34,7 @@ func TestLoadValidCSVShouldReturnAllSegments(t *testing.T) {
 
 func TestLoadBrokenCSVShouldReturnOnlyValidSegments(t *testing.T) {
 	// given
-	var source segment.SourceCSV
+	var source dataloading.SourceCSV
 	actualSegments := make(chan segment.RawSegment, 1)
 	expectedSegments := []segment.RawSegment{
 		// {"GDY", "WAW", "BY"},

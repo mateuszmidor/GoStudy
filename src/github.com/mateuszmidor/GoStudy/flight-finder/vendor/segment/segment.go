@@ -13,8 +13,9 @@ const NullID = ID(-1)
 
 // Segment is smallest part of the journey
 type Segment struct {
-	from, to airport.ID
-	carrier  carrier.ID
+	from    airport.ID
+	to      airport.ID
+	carrier carrier.ID
 }
 
 // NewSegment is constructor

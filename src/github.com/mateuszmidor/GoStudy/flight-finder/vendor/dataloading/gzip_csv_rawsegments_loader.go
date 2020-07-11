@@ -30,6 +30,6 @@ func (r *GzipCSVRawSegmentsLoader) StartLoadingSegments(outSegments chan segment
 	}
 	defer gzipReader.Close()
 
-	var source segment.SourceCSV
+	var source SourceCSV
 	source.StartLoadingSegments(gzipReader, outSegments)
 }

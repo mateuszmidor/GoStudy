@@ -32,7 +32,7 @@ func (b *Builder) Build() Segments {
 		if b.segments[i].from != b.segments[j].from {
 			return b.segments[i].from < b.segments[j].from
 		}
-		return b.segments[i].to < b.segments[j].to
+		return b.segments[i].To() < b.segments[j].To()
 	}
 
 	sort.Slice(b.segments, less)
