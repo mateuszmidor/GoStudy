@@ -3,7 +3,7 @@
 trap tearDown SIGINT
 
 function tearDown() {
-    pkill -f web_finder
+    pkill -f finder_web
     exit 0
 }
 
@@ -12,5 +12,3 @@ sleep 1
 firefox 'http://localhost:8080/'
 
 while true; do sleep 1; done
-
-
