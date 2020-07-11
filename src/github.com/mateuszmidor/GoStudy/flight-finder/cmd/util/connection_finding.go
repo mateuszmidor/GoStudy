@@ -10,6 +10,7 @@ import (
 	"pathfinding"
 	"pathrendering"
 	"segments"
+	"strings"
 	"time"
 )
 
@@ -75,10 +76,11 @@ func (f *ConnectionFinder) pathsToString(paths []pathfinding.Path) string {
 	carrierRenderer := pathrendering.NewShortCarrierRenderer(f.carriers)
 	pathRenderer := pathrendering.NewRenderer(airportRenderer, carrierRenderer)
 
-	var result string
+	var sb strings.Builder
 	for _, p := range paths {
-		result += pathRenderer.Render(p, f.segments) + f.resultSeparator
+		sb.WriteString(pathRenderer.Render(p, f.segments))
+		sb.WriteString(f.resultSeparator)
 	}
 
-	return result
+	return sb.String()
 }
