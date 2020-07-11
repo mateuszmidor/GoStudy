@@ -3,16 +3,15 @@ package dataloading_test
 import (
 	"carrier"
 	"dataloading"
-	"segment"
 	"testing"
 )
 
 func TestAirportsCarriersLoaderReturnsValidData2(t *testing.T) {
 	// given
-	rawSegments := make(chan segment.RawSegment, 3)
-	rawSegments <- segment.NewRawSegment("KRK", "WAW", "LO")
-	rawSegments <- segment.NewRawSegment("WAW", "WRO", "LH")
-	rawSegments <- segment.NewRawSegment("WRO", "GDN", "BY")
+	rawSegments := make(chan dataloading.RawSegment, 3)
+	rawSegments <- dataloading.NewRawSegment("KRK", "WAW", "LO")
+	rawSegments <- dataloading.NewRawSegment("WAW", "WRO", "LH")
+	rawSegments <- dataloading.NewRawSegment("WRO", "GDN", "BY")
 	close(rawSegments)
 	// expected carriers are sorted
 	expectedCarrires := carrier.Carriers{

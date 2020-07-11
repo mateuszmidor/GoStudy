@@ -1,21 +1,21 @@
-package dataloading_test
+package csv_test
 
 import (
 	"dataloading"
+	"dataloading/csv"
 	"fmt"
-	"segment"
 	"strings"
 	"testing"
 )
 
 func TestLoadValidCSVShouldReturnAllSegments(t *testing.T) {
 	// given
-	var source dataloading.SourceCSV
-	actualSegments := make(chan segment.RawSegment, 1)
-	expectedSegments := []segment.RawSegment{
-		{"GDY", "WAW", "BY"},
-		{"WAW", "KRK", "LH"},
-		{"KRK", "KTW", "LO"},
+	var loader csv.SegmentLoader
+	actualSegments := make(chan dataloading.RawSegment, 1)
+	expectedSegments := []dataloading.RawSegment{
+		{FromAirportCode: "GDY", ToAirportCode: "WAW", CarrierCode: "BY"},
+		{FromAirportCode: "WAW", ToAirportCode: "KRK", CarrierCode: "LH"},
+		{FromAirportCode: "KRK", ToAirportCode: "KTW", CarrierCode: "LO"},
 	}
 	csv := `
 "GDY","WAW","BY"
@@ -23,7 +23,7 @@ func TestLoadValidCSVShouldReturnAllSegments(t *testing.T) {
 "KRK","KTW","LO"
 `
 	// when
-	go source.StartLoadingSegments(strings.NewReader(csv), actualSegments)
+	go loader.StartLoading(strings.NewReader(csv), actualSegments)
 
 	// then
 	errorDetails := checkExpectedSegments(expectedSegments, actualSegments)
@@ -34,9 +34,9 @@ func TestLoadValidCSVShouldReturnAllSegments(t *testing.T) {
 
 func TestLoadBrokenCSVShouldReturnOnlyValidSegments(t *testing.T) {
 	// given
-	var source dataloading.SourceCSV
-	actualSegments := make(chan segment.RawSegment, 1)
-	expectedSegments := []segment.RawSegment{
+	var loader csv.SegmentLoader
+	actualSegments := make(chan dataloading.RawSegment, 1)
+	expectedSegments := []dataloading.RawSegment{
 		// {"GDY", "WAW", "BY"},
 		// {"WAW", "KRK", "LH"},
 		{"KRK", "KTW", "LO"},
@@ -47,7 +47,7 @@ func TestLoadBrokenCSVShouldReturnOnlyValidSegments(t *testing.T) {
 "KRK","KTW","LO"
 `
 	// when
-	go source.StartLoadingSegments(strings.NewReader(csv), actualSegments)
+	go loader.StartLoading(strings.NewReader(csv), actualSegments)
 
 	// then
 	errorDetails := checkExpectedSegments(expectedSegments, actualSegments)
@@ -56,7 +56,7 @@ func TestLoadBrokenCSVShouldReturnOnlyValidSegments(t *testing.T) {
 	}
 }
 
-func checkExpectedSegments(expected []segment.RawSegment, actual chan segment.RawSegment) string {
+func checkExpectedSegments(expected []dataloading.RawSegment, actual chan dataloading.RawSegment) string {
 	var result string
 	for seg := range actual {
 		if index := findSegment(seg, expected); index != -1 {
@@ -73,7 +73,7 @@ func checkExpectedSegments(expected []segment.RawSegment, actual chan segment.Ra
 	return result
 }
 
-func findSegment(subject segment.RawSegment, list []segment.RawSegment) int {
+func findSegment(subject dataloading.RawSegment, list []dataloading.RawSegment) int {
 	for i, seg := range list {
 		if seg == subject {
 			return i
@@ -82,7 +82,7 @@ func findSegment(subject segment.RawSegment, list []segment.RawSegment) int {
 	return -1
 }
 
-func removeSegment(index int, list *[]segment.RawSegment) {
+func removeSegment(index int, list *[]dataloading.RawSegment) {
 	l := *list
 	l[index] = l[len(l)-1]
 	l = l[:len(l)-1]

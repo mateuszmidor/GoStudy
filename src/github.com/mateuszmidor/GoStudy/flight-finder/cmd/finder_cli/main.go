@@ -7,7 +7,8 @@ import (
 	"runtime"
 	"runtime/pprof"
 	"strings"
-	"time"
+
+	"github.com/mateuszmidor/GoStudy/flight-finder/cmd/util"
 )
 
 func main() {
@@ -17,8 +18,7 @@ func main() {
 	pprof.StartCPUProfile(cpu)
 	defer pprof.StopCPUProfile()
 
-	finder := newCliPathFinder("../../segments.csv.gz")
-	runCLI(finder)
+	runCLI()
 
 	// collect memory profile
 	heap, _ := os.Create("mem.out")
@@ -27,10 +27,11 @@ func main() {
 	pprof.WriteHeapProfile(heap)
 }
 
-func runCLI(f *cliPathFinder) {
+func runCLI() {
 	const promptMsg = "Try: krk gdn. For exit: exit"
 	fmt.Println(promptMsg)
 
+	finder := util.NewConnectionFinder("../../segments.csv.gz", "\n")
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
 		line := s.Text()
@@ -40,10 +41,7 @@ func runCLI(f *cliPathFinder) {
 
 		if from, to, ok := parseFromTo(line); ok {
 			fmt.Println("working...")
-			start := time.Now()
-			f.findConnections(strings.ToUpper(from), strings.ToUpper(to))
-			d := time.Now().Sub(start)
-			fmt.Printf("Took %dms\n", d.Milliseconds())
+			finder.FindConnections(os.Stdout, strings.ToUpper(from), strings.ToUpper(to))
 		} else {
 			fmt.Println(promptMsg)
 		}

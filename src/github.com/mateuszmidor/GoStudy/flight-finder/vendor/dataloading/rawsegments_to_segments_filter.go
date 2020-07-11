@@ -15,7 +15,7 @@ func NewRawSegmentsToSegmentsFilter(airports airport.Airports, carriers carrier.
 	return &RawSegmentsToSegmentsFilter{airports, carriers}
 }
 
-func (f *RawSegmentsToSegmentsFilter) Filter(segments <-chan segment.RawSegment) segment.Segments {
+func (f *RawSegmentsToSegmentsFilter) Filter(segments <-chan RawSegment) segment.Segments {
 	sb := segment.NewBuilder(f.airports, f.carriers)
 
 	for s := range segments {

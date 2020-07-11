@@ -2,7 +2,6 @@ package dataloading
 
 import (
 	"carrier"
-	"segment"
 )
 
 type SegmentsToCarriersFilter struct {
@@ -12,7 +11,7 @@ func NewRawSegmentsToCarriersFilter() *SegmentsToCarriersFilter {
 	return &SegmentsToCarriersFilter{}
 }
 
-func (f *SegmentsToCarriersFilter) Filter(segments <-chan segment.RawSegment) carrier.Carriers {
+func (f *SegmentsToCarriersFilter) Filter(segments <-chan RawSegment) carrier.Carriers {
 	codes := make(map[string]bool)
 
 	for s := range segments {

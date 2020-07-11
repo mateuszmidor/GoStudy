@@ -4,31 +4,29 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
+
+	"github.com/mateuszmidor/GoStudy/flight-finder/cmd/util"
 )
 
 func main() {
-	finder := newWebPathFinder("../../segments.csv.gz")
-	runWEB(finder)
+	runWEB()
 }
 
-func runWEB(f *webPathFinder) {
+func runWEB() {
+	finder := util.NewConnectionFinder("../../segments.csv.gz", "<br >")
 	http.Handle("/", &templateHandler{filename: "index.html"})
-	http.HandleFunc("/api/find", handleFind(f))
+	http.HandleFunc("/api/find", handleFind(finder))
 	http.ListenAndServe(":8080", nil)
 }
 
-func handleFind(f *webPathFinder) func(http.ResponseWriter, *http.Request) {
+func handleFind(f *util.ConnectionFinder) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		from := strings.ToUpper(r.FormValue("from"))
 		to := strings.ToUpper(r.FormValue("to"))
 
 		w.Header().Set("Content-Type", "application/text")
 
-		start := time.Now()
-		f.findConnections(from, to, w)
-		d := time.Now().Sub(start)
-		fmt.Fprintf(w, "Took %dms\n", d.Milliseconds())
+		f.FindConnections(w, from, to)
 
 		fmt.Printf("%s -> %s\n", from, to)
 	}

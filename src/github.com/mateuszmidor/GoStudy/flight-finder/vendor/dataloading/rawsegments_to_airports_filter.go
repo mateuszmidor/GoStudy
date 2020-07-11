@@ -2,7 +2,6 @@ package dataloading
 
 import (
 	"airport"
-	"segment"
 )
 
 type SegmentsToAirportsFilter struct {
@@ -12,7 +11,7 @@ func NewRawSegmentsToAirportsFilter() *SegmentsToAirportsFilter {
 	return &SegmentsToAirportsFilter{}
 }
 
-func (f *SegmentsToAirportsFilter) Filter(segments <-chan segment.RawSegment) airport.Airports {
+func (f *SegmentsToAirportsFilter) Filter(segments <-chan RawSegment) airport.Airports {
 	uniqueCodes := make(map[string]bool)
 
 	for s := range segments {
