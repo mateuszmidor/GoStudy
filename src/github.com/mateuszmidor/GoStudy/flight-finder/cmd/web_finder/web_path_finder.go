@@ -10,6 +10,7 @@ import (
 	"pathfinding"
 	"pathrendering"
 	"segment"
+	"sort"
 )
 
 type webPathFinder struct {
@@ -48,6 +49,10 @@ func (f *webPathFinder) findConnections(fromAirport, toAirport string, w io.Writ
 	to := pathfinding.NodeID(f.airports.GetByCode(toAirport))
 	paths := pathfinding.FindPaths(from, to, &f.network)
 
+	less := func(i, j int) bool {
+		return len(paths[i]) < len(paths[j])
+	}
+	sort.Slice(paths, less)
 	fmt.Fprintln(w, f.pathsToString(paths), "<br>")
 	fmt.Fprintln(w, "Total paths count:", len(paths), "<br>")
 }
