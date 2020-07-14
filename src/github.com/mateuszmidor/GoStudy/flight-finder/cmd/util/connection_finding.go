@@ -9,6 +9,7 @@ import (
 	"io"
 	"pathfinding"
 	"pathrendering"
+	"pathrendering/plaintext"
 	"segments"
 	"strings"
 	"time"
@@ -79,7 +80,7 @@ func (f *ConnectionFinder) pathsToString(paths []pathfinding.Path) string {
 
 	airportRenderer := pathrendering.NewLongAirportRenderer(f.airports)
 	carrierRenderer := pathrendering.NewShortCarrierRenderer(f.carriers)
-	pathRenderer := pathrendering.NewRenderer(airportRenderer, carrierRenderer)
+	pathRenderer := plaintext.NewRenderer(airportRenderer, carrierRenderer)
 
 	var sb strings.Builder
 	for i := range paths {
