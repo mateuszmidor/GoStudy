@@ -19,7 +19,7 @@ func (a Airports) GetByCode(code string) ID {
 
 	foundIndex := sort.Search(len(a), ge)
 
-	if a[foundIndex].code != code {
+	if foundIndex < 0 || foundIndex >= len(a) || a[foundIndex].code != code {
 		return NullID
 	}
 

@@ -10,9 +10,9 @@ func TestGetByCodeReturnsValidAirport(t *testing.T) {
 	// given
 	// important: airports are sorted ascending for binary search
 	airportList := airports.Airports{
-		airports.NewAirport("AAA", "Andora Airport"),
-		airports.NewAirport("KKK", "Kalkuta Airport"),
-		airports.NewAirport("ZZZ", "Zimbabwe Airport"),
+		airports.NewAirport("AAA", "", 0, 0),
+		airports.NewAirport("KKK", "", 0, 0),
+		airports.NewAirport("ZZZ", "", 0, 0),
 	}
 	cases := []struct {
 		code string

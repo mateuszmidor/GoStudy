@@ -40,6 +40,11 @@ func NewConnectionFinder(segmentsGzipCSV string, resultSeparator string) *Connec
 	go StartLoadingSegmentsFromGzipCSV(segmentsGzipCSV, rawSegments)
 	segments := dataloading.NewRawSegmentsToSegmentsFilter(airports, carriers).Filter(rawSegments)
 
+	// enhance airports with name and location
+	rawAirports := make(chan dataloading.RawAirport, 100)
+	go StartLoadingAirportsFromGzipCSV("../../airports.csv.gz", rawAirports)
+	dataloading.EnrichAirports(airports, rawAirports)
+
 	connections := connections.NewAdapter(segments)
 	return &ConnectionFinder{airports, carriers, segments, &connections, resultSeparator}
 }
@@ -72,13 +77,13 @@ func (f *ConnectionFinder) pathsToString(paths []pathfinding.Path) string {
 		return "<no paths found>"
 	}
 
-	airportRenderer := pathrendering.NewShortAirportRenderer(f.airports)
+	airportRenderer := pathrendering.NewLongAirportRenderer(f.airports)
 	carrierRenderer := pathrendering.NewShortCarrierRenderer(f.carriers)
 	pathRenderer := pathrendering.NewRenderer(airportRenderer, carrierRenderer)
 
 	var sb strings.Builder
-	for _, p := range paths {
-		sb.WriteString(pathRenderer.Render(p, f.segments))
+	for i := range paths {
+		sb.WriteString(pathRenderer.Render(paths[i], f.segments))
 		sb.WriteString(f.resultSeparator)
 	}
 

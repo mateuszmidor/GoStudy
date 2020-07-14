@@ -9,15 +9,15 @@ func TestBuilderReturnsAllAirportsSorted(t *testing.T) {
 	// given
 	var b airports.Builder
 	expectedAirports := airports.Airports{
-		airports.NewAirport("AAA", "Andora Airport"),
-		airports.NewAirport("KKK", "Kalkuta Airport"),
-		airports.NewAirport("ZZZ", "Zimbabwe Airport"),
+		airports.NewAirport("AAA", "", 0, 0),
+		airports.NewAirport("KKK", "", 0, 0),
+		airports.NewAirport("ZZZ", "", 0, 0),
 	}
 
 	// when
-	b.Append("KKK", "Kalkuta Airport")
-	b.Append("AAA", "Andora Airport")
-	b.Append("ZZZ", "Zimbabwe Airport")
+	b.Append("KKK", "")
+	b.Append("AAA", "")
+	b.Append("ZZZ", "")
 	actualAirports := b.Build()
 
 	// then

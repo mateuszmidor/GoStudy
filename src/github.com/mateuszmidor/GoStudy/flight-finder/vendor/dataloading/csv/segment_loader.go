@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-const numCSVColumns = 3
+const numSegmentCSVColumns = 3
 
 // SegmentLoader loads segments from given source
 type SegmentLoader struct {
@@ -18,7 +18,7 @@ type SegmentLoader struct {
 func (r *SegmentLoader) StartLoading(reader io.Reader, outputSegments chan<- dataloading.RawSegment) {
 	csv := csv.NewReader(reader)
 	csv.ReuseRecord = true
-	csv.FieldsPerRecord = numCSVColumns
+	csv.FieldsPerRecord = numSegmentCSVColumns
 
 	for {
 		rec, err := csv.Read()

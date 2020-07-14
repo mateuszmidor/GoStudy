@@ -1,6 +1,8 @@
 package airports
 
-import "sort"
+import (
+	"sort"
+)
 
 // Builder creates sorted collection of airports
 type Builder struct {
@@ -9,7 +11,7 @@ type Builder struct {
 
 // Append adds new airport at the collection end
 func (b *Builder) Append(code, name string) {
-	b.airports = append(b.airports, Airport{code, name})
+	b.airports = append(b.airports, NewAirport(code, "", 0, 0))
 }
 
 // Build returns sorted collection of airports

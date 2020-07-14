@@ -6,6 +6,7 @@ import (
 	"os"
 	"runtime"
 	"runtime/pprof"
+	"runtime/trace"
 	"strings"
 
 	"github.com/mateuszmidor/GoStudy/flight-finder/cmd/util"
@@ -17,6 +18,12 @@ func main() {
 	defer cpu.Close()
 	pprof.StartCPUProfile(cpu)
 	defer pprof.StopCPUProfile()
+
+	// collect traces
+	traces, _ := os.Create("trace.out")
+	defer traces.Close()
+	trace.Start(traces)
+	defer trace.Stop()
 
 	runCLI()
 
@@ -36,7 +43,7 @@ func runCLI() {
 	for s.Scan() {
 		line := s.Text()
 		if line == "exit" {
-			return
+			break
 		}
 
 		if from, to, ok := parseFromTo(line); ok {

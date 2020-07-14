@@ -2,19 +2,20 @@ package pathfinding
 
 // FindPaths find all possible paths, not only the least costly
 func FindPaths(start NodeID, goal NodeID, connections Connections) (result []Path) {
-	closedSet := NewClosedSet()
+	const maxNodeID = 1000000 // assumption: nodeID < 1'000'000; for airports should be enough
+	var closedSet [maxNodeID]bool
 	currPath := make(Path, 3)
 
 	var recursive func(current NodeID, pathLength int)
 	recursive = func(current NodeID, pathLength int) {
 		if pathLength >= len(currPath) {
 			return
-			//panic("Max path length exceeded")
 		}
 
 		if len(result) >= 1000 {
 			return
 		}
+
 		// check if path found
 		if current == goal {
 			newPath := make(Path, pathLength)
@@ -24,7 +25,7 @@ func FindPaths(start NodeID, goal NodeID, connections Connections) (result []Pat
 		}
 
 		// mark current as visited. For cycle detection
-		closedSet.Add(current)
+		closedSet[current] = true
 
 		// check all outgoing connections of current
 		first, last := connections.GetOutgoingConnections(current)
@@ -32,7 +33,7 @@ func FindPaths(start NodeID, goal NodeID, connections Connections) (result []Pat
 			dest := connections.GetDestinationNode(connID)
 
 			// avoid cycles
-			if closedSet.Contains(dest) {
+			if closedSet[dest] {
 				continue
 			}
 
@@ -40,7 +41,7 @@ func FindPaths(start NodeID, goal NodeID, connections Connections) (result []Pat
 			currPath[pathLength] = connID
 			recursive(dest, pathLength+1)
 
-			closedSet.Remove(dest) // dest added by "recursive"
+			closedSet[dest] = false // dest added by "recursive"
 		}
 
 	}

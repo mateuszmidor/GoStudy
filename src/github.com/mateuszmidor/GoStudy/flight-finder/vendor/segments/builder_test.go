@@ -11,9 +11,9 @@ func TestBuilderReturnsAllSegmentsSorted(t *testing.T) {
 	// given
 	// airports must be sorted ascending
 	airportList := airports.Airports{
-		airports.NewAirport("AAA", "Andora Airport"),   // ID 0
-		airports.NewAirport("KKK", "Kalkuta Airport"),  // ID 1
-		airports.NewAirport("ZZZ", "Zimbabwe Airport"), // ID 2
+		airports.NewAirport("AAA", "", 0, 0), // ID 0
+		airports.NewAirport("KKK", "", 0, 0), // ID 1
+		airports.NewAirport("ZZZ", "", 0, 0), // ID 2
 	}
 	// carriers must be sorted ascending
 	carriers := carriers.Carriers{
