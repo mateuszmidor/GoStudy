@@ -7,12 +7,13 @@ import (
 	"image"
 	"image/png"
 	"os"
+	"runtime"
 	"strconv"
 	"time"
 )
 
 const (
-	size          = 1024
+	size          = 1024 * 4
 	width, height = size, size
 )
 
@@ -45,11 +46,11 @@ func benchCGOMandel(img *image.RGBA) {
 
 func benchGOMandel(img *image.RGBA) {
 	fmt.Printf("go times for parallel mandel %dx%d:\n", width, height)
-	for numSegments := 1; numSegments < height; numSegments *= 2 {
+	for numParallel := 1; numParallel <= runtime.NumCPU(); numParallel++ {
 		start := time.Now()
-		goMandel(img, numSegments)
+		goMandel(img, numParallel)
 		duration := time.Now().Sub(start)
-		printTime(numSegments, duration)
+		printTime(numParallel, duration)
 	}
 }
 

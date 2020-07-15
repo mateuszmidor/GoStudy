@@ -9,34 +9,40 @@ import (
 const xmin, ymin, xmax, ymax = -2, -2, +2, +2
 
 func goMandel(img *image.RGBA, numParallel int) {
-	processParallelInSegments(numParallel, img)
+	processParallelInRasters(numParallel, img)
 }
 
-func processParallelInSegments(numSegments int, img *image.RGBA) {
+func processParallelInRasters(numParallel int, img *image.RGBA) {
 	var wg sync.WaitGroup
-	var ribbonHeight = height / numSegments
+	rasters := make(chan int, height)
 
-	for i := 0; i < numSegments; i++ {
+	// create workers
+	for i := 0; i < numParallel; i++ {
 		wg.Add(1)
-		go func(nSegment int) {
-			beginy := nSegment * ribbonHeight
-			endy := (nSegment + 1) * ribbonHeight
-			processSegment(beginy, endy, img)
+		go func(y int) {
+			processRasters(rasters, img)
 			wg.Done()
 		}(i)
 	}
 
+	// push workload
+	for i := 0; i < height; i++ {
+		rasters <- i
+	}
+	close(rasters)
+
+	// wait workers are done
 	wg.Wait()
 }
 
-func processSegment(beginy, endy int, img *image.RGBA) {
-	for py := beginy; py < endy; py++ {
-		y := float64(py)/height*(ymax-ymin) + ymin
+func processRasters(yposition chan int, img *image.RGBA) {
+	for rasterY := range yposition {
+		y := float64(rasterY)/height*(ymax-ymin) + ymin
 		for px := 0; px < width; px++ {
 			x := float64(px)/width*(xmax-xmin) + xmin
 
 			c := mandelbrot(x, y)
-			i := img.PixOffset(px, py)
+			i := img.PixOffset(px, rasterY)
 			s := img.Pix[i : i+4 : i+4]
 			s[0] = c
 			s[1] = c
