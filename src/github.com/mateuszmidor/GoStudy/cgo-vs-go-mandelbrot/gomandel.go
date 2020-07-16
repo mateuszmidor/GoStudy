@@ -35,8 +35,8 @@ func processParallelInRasters(numParallel int, img *image.RGBA) {
 	wg.Wait()
 }
 
-func processRasters(yposition chan int, img *image.RGBA) {
-	for rasterY := range yposition {
+func processRasters(rasters chan int, img *image.RGBA) {
+	for rasterY := range rasters {
 		y := float64(rasterY)/height*(ymax-ymin) + ymin
 		for px := 0; px < width; px++ {
 			x := float64(px)/width*(xmax-xmin) + xmin
