@@ -35,3 +35,11 @@ func (a *Airport) SetCoordinates(lon geo.Longitude, lat geo.Latitude) {
 	a.longitude = lon
 	a.latitude = lat
 }
+
+func (a *Airport) Longitude() geo.Longitude {
+	return a.longitude
+}
+
+func (a *Airport) Latitude() geo.Latitude {
+	return a.latitude
+}
