@@ -43,11 +43,9 @@
             $( "#mapContainer" ).html(value);
         }
         var onCheckDigit = function() {
-            // var canvasData = canvas.toDataURL("image/png");
-
             $.ajax({
                     type:'GET',
-                    url:'api/find',
+                    url:'api/find/text',
                     dataType: 'text',
                     contentType: 'application/text',
                     data:{ from: $("#fromairport").val(), to: $("#toairport").val() },  
@@ -59,7 +57,21 @@
                     }
                 });  
             }
-
+            var onCheckDigitJSON = function() {
+            $.ajax({
+                    type:'GET',
+                    url:'api/find/json',
+                    dataType: 'text',
+                    contentType: 'application/json',
+                    data:{ from: $("#fromairport").val(), to: $("#toairport").val() },  
+                    error:function() {
+                        setResult("flight finding error");
+                    },
+                    success:function(data) {
+                        setResult(data);
+                    }
+                });  
+            }
         // $( document ).ready( function(){
         //     onClear();
         // });
@@ -244,7 +256,13 @@
                         <butto  class="btn btn-danger"  onclick="onCheckDigit()">
                             <span class="glyphicon glyphicon-search"></span>
                             Szukaj!
-                        </button>                      
+                        </button>         
+                    </div>
+                    <div class="form-group">
+                        <butto  class="btn btn-danger"  onclick="onCheckDigitJSON()">
+                            <span class="glyphicon glyphicon-search"></span>
+                            SzukajJSON!
+                        </button>         
                     </div>
             </form>
 

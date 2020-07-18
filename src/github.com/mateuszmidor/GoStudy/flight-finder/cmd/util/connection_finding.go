@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"io"
 	"pathfinding"
-	"pathrendering"
-	"pathrendering/plaintext"
+	"pathrendering/asjson"
+	"pathrendering/astext"
 	"segments"
 	"strings"
 	"time"
@@ -50,7 +50,7 @@ func NewConnectionFinder(segmentsGzipCSV string, resultSeparator string) *Connec
 	return &ConnectionFinder{airports, carriers, segments, &connections, resultSeparator}
 }
 
-func (f *ConnectionFinder) FindConnections(w io.Writer, fromAirport, toAirport string) {
+func (f *ConnectionFinder) FindConnectionsAsText(w io.Writer, fromAirport, toAirport string) {
 	from := f.airports.GetByCode(fromAirport)
 	if from == airports.NullID {
 		fmt.Fprintf(w, "Invalid from airport: %s%s", fromAirport, f.resultSeparator)
@@ -72,15 +72,38 @@ func (f *ConnectionFinder) FindConnections(w io.Writer, fromAirport, toAirport s
 	fmt.Fprintln(w, f.resultSeparator)
 }
 
+func (f *ConnectionFinder) FindConnectionsAsJSON(w io.Writer, fromAirport, toAirport string) {
+	from := f.airports.GetByCode(fromAirport)
+	if from == airports.NullID {
+		fmt.Fprintf(w, "Invalid from airport: %s%s", fromAirport, f.resultSeparator)
+		return
+	}
+
+	to := f.airports.GetByCode(toAirport)
+	if to == airports.NullID {
+		fmt.Fprintf(w, "Invalid to airport: %s%s", toAirport, f.resultSeparator)
+		return
+	}
+
+	// start := time.Now()
+	paths := pathfinding.FindPaths(pathfinding.NodeID(from), pathfinding.NodeID(to), f.connections)
+	// elapsed := time.Now().Sub(start)
+
+	f.pathsToJSON(w, paths)
+	// fmt.Fprint(w, f.pathsToString(paths))
+	// fmt.Fprintf(w, "[Total paths: %d, Took: %dms]", len(paths), elapsed.Milliseconds())
+	// fmt.Fprintln(w, f.resultSeparator)
+}
+
 func (f *ConnectionFinder) pathsToString(paths []pathfinding.Path) string {
 
 	if len(paths) == 0 {
 		return "<no paths found>"
 	}
 
-	airportRenderer := pathrendering.NewLongAirportRenderer(f.airports)
-	carrierRenderer := pathrendering.NewShortCarrierRenderer(f.carriers)
-	pathRenderer := plaintext.NewRenderer(airportRenderer, carrierRenderer)
+	airportRenderer := astext.NewLongAirportRenderer(f.airports)
+	carrierRenderer := astext.NewShortCarrierRenderer(f.carriers)
+	pathRenderer := astext.NewPathRenderer(airportRenderer, carrierRenderer)
 
 	var sb strings.Builder
 	for i := range paths {
@@ -89,4 +112,9 @@ func (f *ConnectionFinder) pathsToString(paths []pathfinding.Path) string {
 	}
 
 	return sb.String()
+}
+
+func (f *ConnectionFinder) pathsToJSON(w io.Writer, paths []pathfinding.Path) {
+	renderer := asjson.NewPathRenderer(f.airports, f.carriers, f.segments)
+	renderer.Render(w, paths)
 }

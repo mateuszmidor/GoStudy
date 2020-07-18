@@ -1,9 +1,9 @@
-package pathrendering_test
+package astext_test
 
 import (
 	"carriers"
 	"fmt"
-	"pathrendering"
+	"pathrendering/astext"
 	"testing"
 )
 
@@ -23,7 +23,7 @@ func TestRendererReturnsValidShortCarrierString(t *testing.T) {
 		{1, "BB"},
 		{2, "CC"},
 	}
-	renderer := pathrendering.NewShortCarrierRenderer(carrierList)
+	renderer := astext.NewShortCarrierRenderer(carrierList)
 
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("Checking short rendered string for CarrierID %d", c.id), func(t *testing.T) {

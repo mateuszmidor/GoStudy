@@ -1,9 +1,9 @@
-package pathrendering_test
+package astext_test
 
 import (
 	"airports"
 	"fmt"
-	"pathrendering"
+	"pathrendering/astext"
 	"testing"
 )
 
@@ -24,7 +24,7 @@ func TestRendererReturnsValidShortAirportString(t *testing.T) {
 		{2, "WAW"},
 	}
 
-	renderer := pathrendering.NewShortAirportRenderer(airportList)
+	renderer := astext.NewShortAirportRenderer(airportList)
 
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("Checking short rendered string for ID %d", c.id), func(t *testing.T) {

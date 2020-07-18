@@ -1,4 +1,4 @@
-package pathrendering
+package astext
 
 import (
 	"airports"

@@ -1,9 +1,9 @@
-package pathrendering_test
+package astext_test
 
 import (
 	"airports"
 	"fmt"
-	"pathrendering"
+	"pathrendering/astext"
 	"testing"
 )
 
@@ -24,7 +24,7 @@ func TestRendererReturnsValidLongAirportString(t *testing.T) {
 		{2, "Warszawa"},
 	}
 
-	renderer := pathrendering.NewLongAirportRenderer(airportList)
+	renderer := astext.NewLongAirportRenderer(airportList)
 
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("Checking long rendered string for ID %d", c.id), func(t *testing.T) {

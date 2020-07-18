@@ -1,10 +1,10 @@
-package plaintext_test
+package astext_test
 
 import (
 	"airports"
 	"carriers"
 	"pathfinding"
-	"pathrendering/plaintext"
+	"pathrendering/astext"
 	"segments"
 	"strconv"
 	"testing"
@@ -43,7 +43,7 @@ func TestPathRendererTurnsValidPathIntoValidPathString(t *testing.T) {
 	// when
 	airportRenderer := stubAirportRenderer{}
 	carrierRenderer := stubCarrierRenderer{}
-	pathRenderer := plaintext.NewRenderer(&airportRenderer, &carrierRenderer)
+	pathRenderer := astext.NewPathRenderer(&airportRenderer, &carrierRenderer)
 	actual := pathRenderer.Render(path, segments)
 
 	// then
@@ -62,7 +62,7 @@ func TestPathRendererTurnsEmptyPathIntoEmptyPathString(t *testing.T) {
 	// when
 	airportRenderer := stubAirportRenderer{}
 	carrierRenderer := stubCarrierRenderer{}
-	pathRenderer := plaintext.NewRenderer(&airportRenderer, &carrierRenderer)
+	pathRenderer := astext.NewPathRenderer(&airportRenderer, &carrierRenderer)
 	actual := pathRenderer.Render(path, segments)
 
 	// then

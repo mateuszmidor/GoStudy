@@ -1,9 +1,9 @@
-package asjson
+package views
 
 import "airports"
 
-// AirportView is json view of airports.Airport
-type AirportView struct {
+// Airport is json view of airports.Airport
+type Airport struct {
 	Code string  `json:"code"`
 	Name string  `json:"name"`
 	Lon  float32 `json:"lon"`
@@ -11,8 +11,8 @@ type AirportView struct {
 }
 
 // NewJSONAirportView is constructor
-func NewJSONAirportView(a *airports.Airport) *AirportView {
-	return &AirportView{
+func NewJSONAirportView(a *airports.Airport) *Airport {
+	return &Airport{
 		Code: a.Code(),
 		Name: a.Name(),
 		Lon:  float32(a.Longitude()),

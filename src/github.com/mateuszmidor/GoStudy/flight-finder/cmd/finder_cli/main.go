@@ -48,7 +48,7 @@ func runCLI() {
 
 		if from, to, ok := parseFromTo(line); ok {
 			fmt.Println("working...")
-			finder.FindConnections(os.Stdout, strings.ToUpper(from), strings.ToUpper(to))
+			finder.FindConnectionsAsText(os.Stdout, strings.ToUpper(from), strings.ToUpper(to))
 		} else {
 			fmt.Println(promptMsg)
 		}

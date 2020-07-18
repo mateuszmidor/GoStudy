@@ -1,4 +1,4 @@
-package plaintext
+package astext
 
 import (
 	"airports"
@@ -22,7 +22,7 @@ type PathRenderer struct {
 	carrierRenderer CarrierRenderer
 }
 
-func NewRenderer(airportRenderer AirportRenderer, carrierRenderer CarrierRenderer) *PathRenderer {
+func NewPathRenderer(airportRenderer AirportRenderer, carrierRenderer CarrierRenderer) *PathRenderer {
 	return &PathRenderer{airportRenderer, carrierRenderer}
 }
 
