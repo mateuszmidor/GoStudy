@@ -1,0 +1,136 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml"> 
+  <head> 
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>flight-finder</title> 
+    <style type="text/css">
+        html {height:100%}
+        body {height:100%;margin:0;padding:0}
+        #mapContainer { height: 100%;width: 100%;position:absolute;top: 0;left: 0;z-index: 0;}
+        .form-inline {text-align: center; position: relative; top: 10px; z-index: 1;}
+    </style>  
+    
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    
+    <!-- WebGL -->
+    <script src="http://www.webglearth.com/v2/api.js"></script>
+    
+    <!-- My page scripting -->
+    <script type="text/javascript">
+        //<![CDATA[
+        $( document ).ready( function(){
+            load();
+        });
+        
+        // page load
+        function load() { 
+            var options = { zoom: 3.0, position: [0,0] };
+            var earth = new WE.map('mapContainer', options);
+            WE.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(earth);
+        }
+
+
+        var setFindResults = function(paths) {
+            let uniqueAirports = new Map();
+            //delete earth
+            $( "#mapContainer" ).html('')
+            var options = { zoom: 3.0, position: [0,0] };
+            var earth = new WE.map('mapContainer', options);
+            WE.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(earth);
+
+            
+            // airports.add("aaa");
+            // airports.add("bbb");
+            // airports.add("ccc");
+            // airports.add("aaa");
+            // airports.add("bbb");
+            $.each(paths, function( index, value ) {
+                uniqueAirports.set(value.from_airport.code, value.from_airport)
+                // var points = [[paths[0].from_airport.lat, paths[0].from_airport.lon]]
+        
+                $.each(value.segments, function( index, value ) {
+                    uniqueAirports.set(value.to_airport.code, value.to_airport)
+                //   points.push([value.to_airport.lat, value.to_airport.lon])
+                  
+                    // var marker = WE.marker([value.to_airport.lat, value.to_airport.lon]).addTo(earth);
+                    // marker.bindPopup(value.to_airport.name + '-' + value.to_airport.code, {maxWidth: 120, closeButton: false});
+                });
+
+                
+                
+                // points.push([value.segments[0].to_airport.lat, value.segments[0].to_airport.lon])
+                // var polygonA = WE.polygon(points,  {
+                    //     color: '#' + Math.floor(Math.random()*16777215).toString(16),
+                    //     opacity: 1,
+                    //     fillColor: '#f00',
+                    //     fillOpacity: 0.0,
+                    //     editable: false,
+                    //     weight: 1
+                    // }); 
+                    // polygonA.addTo(earth);           
+                });
+            // actually add unique airports to map
+            for (const airport of uniqueAirports.values()) {
+                var marker = WE.marker([airport.lat, airport.lon]).addTo(earth);
+                marker.bindPopup(airport.name + '-' + airport.code, {maxWidth: 120, closeButton: false});
+                // console.log(el);
+            }
+        }       
+        var onFindConnections = function() {
+        $.ajax({
+                type:'GET',
+                url:'api/find/json',
+                dataType: 'json',
+                contentType: 'application/json',
+                data:{ from: $("#fromairport").val(), to: $("#toairport").val() },  
+                error:function() {
+                    alert("flight finding error");
+                },
+                success:function(data) {
+                    setFindResults(data);
+                }
+            });  
+        }
+
+        //]]>
+    </script>  
+  </head>
+
+  <body>
+    
+        <div class="container-fluid">
+            
+            <!-- THIS FORM IS FOR NON-MOBILE SIZE DEVICES -->
+            <form class="form-inline" id="formbig" role="form" method="get" action="">
+                    <div class="form-group">
+                        <label class="sr-only" for="fromairport">From:</label>
+                        <input type="text" class="form-control" placeholder="krk" id="fromairport" name="fromairport" value="krk">
+                    </div>
+               
+                    <div class="form-group">
+                        <label class="sr-only" for="toairport">To:</label>
+                        <input type="text" class="form-control" placeholder="gdn" id="toairport" name="toairport" value="gdn">
+                    </div>
+             
+                    <div class="form-group">
+                        <butto  class="btn btn-danger"  onclick="onFindConnections()">
+                            <span class="glyphicon glyphicon-search"></span>
+                            Szukaj!
+                        </button>         
+                    </div>
+            </form>
+            <div id="mapContainer"></div>
+        </div>
+  </body>
+</html>

@@ -24,7 +24,7 @@
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     
     <!-- Google maps -->
-    <script src="http://maps.googleapis.com/maps/api/js"></script>
+    <!--<script src="http://maps.googleapis.com/maps/api/js"></script>-->
     
     <!-- My page scripting -->
     <script type="text/javascript">
@@ -42,6 +42,18 @@
         var setResult = function(value) {
             $( "#mapContainer" ).html(value);
         }
+
+        var setJSONResult = function(paths) {
+            $( "#mapContainer" ).html("");
+            $.each(paths, function( index, value ) {
+                $( "#mapContainer" ).append(value.from_airport.name);
+                $.each(value.segments, function( index, value ) {
+                    $( "#mapContainer" ).append("-").append("<strong>("+value.carrier.code+")</strong>"); 
+                    $( "#mapContainer" ).append("-").append(value.to_airport.name);  
+                });
+                $( "#mapContainer" ).append("<br>")               
+            });
+        }       
         var onCheckDigit = function() {
             $.ajax({
                     type:'GET',
@@ -61,14 +73,14 @@
             $.ajax({
                     type:'GET',
                     url:'api/find/json',
-                    dataType: 'text',
+                    dataType: 'json',
                     contentType: 'application/json',
                     data:{ from: $("#fromairport").val(), to: $("#toairport").val() },  
                     error:function() {
                         setResult("flight finding error");
                     },
                     success:function(data) {
-                        setResult(data);
+                        setJSONResult(data);
                     }
                 });  
             }

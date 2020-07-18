@@ -14,10 +14,11 @@ func main() {
 
 func runWEB() {
 	finder := util.NewConnectionFinder("../../segments.csv.gz", "<br >")
-	http.Handle("/", &templateHandler{filename: "index.html"})
+	http.Handle("/", &templateHandler{filename: "map.html"})
+	http.Handle("/list", &templateHandler{filename: "list.html"})
 	http.HandleFunc("/api/find/text", handleFindAsText(finder))
 	http.HandleFunc("/api/find/json", handleFindAsJSON(finder))
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":9090", nil)
 }
 
 func handleFindAsText(f *util.ConnectionFinder) func(http.ResponseWriter, *http.Request) {
