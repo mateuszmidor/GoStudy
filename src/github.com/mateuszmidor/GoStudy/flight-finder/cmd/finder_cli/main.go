@@ -43,12 +43,14 @@ func runCLI() {
 	for s.Scan() {
 		line := s.Text()
 		if line == "exit" {
+			fmt.Println("exiting now.")
 			break
 		}
 
 		if from, to, ok := parseFromTo(line); ok {
 			fmt.Println("working...")
 			finder.FindConnectionsAsText(os.Stdout, strings.ToUpper(from), strings.ToUpper(to))
+			fmt.Println()
 		} else {
 			fmt.Println(promptMsg)
 		}
