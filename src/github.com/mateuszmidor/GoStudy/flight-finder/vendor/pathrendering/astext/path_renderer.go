@@ -4,9 +4,9 @@ import (
 	"airports"
 	"carriers"
 	"fmt"
+	"io"
 	"pathfinding"
 	"segments"
-	"strings"
 )
 
 type AirportRenderer interface {
@@ -20,24 +20,37 @@ type CarrierRenderer interface {
 type PathRenderer struct {
 	airportRenderer AirportRenderer
 	carrierRenderer CarrierRenderer
+	segments        segments.Segments
+	separator       string
 }
 
-func NewPathRenderer(airportRenderer AirportRenderer, carrierRenderer CarrierRenderer) *PathRenderer {
-	return &PathRenderer{airportRenderer, carrierRenderer}
+func NewPathRenderer(airportRenderer AirportRenderer, carrierRenderer CarrierRenderer, segments segments.Segments, separator string) *PathRenderer {
+	return &PathRenderer{
+		airportRenderer: airportRenderer,
+		carrierRenderer: carrierRenderer,
+		segments:        segments,
+		separator:       separator,
+	}
 }
 
-func (r *PathRenderer) Render(path pathfinding.Path, segments segments.Segments) string {
+func (r *PathRenderer) Render(w io.Writer, paths []pathfinding.Path) {
+	for i := range paths {
+		if i > 0 {
+			w.Write([]byte(r.separator))
+		}
+		r.renderSinglePath(w, paths[i])
+	}
+}
+
+func (r *PathRenderer) renderSinglePath(w io.Writer, path pathfinding.Path) {
 	if len(path) == 0 {
-		return "<empty path>"
+		return
 	}
 
-	s0 := segments[path[0]]
-	var sb strings.Builder
-	sb.WriteString(r.airportRenderer.Render(s0.From()))
+	s0 := r.segments[path[0]]
+	w.Write([]byte(r.airportRenderer.Render(s0.From())))
 	for _, sID := range path {
-		s := segments[sID]
-		sb.WriteString(fmt.Sprintf("-(%s)-%s", r.carrierRenderer.Render(s.Carrier()), r.airportRenderer.Render(s.To())))
+		s := r.segments[sID]
+		fmt.Fprintf(w, "-(%s)-%s", r.carrierRenderer.Render(s.Carrier()), r.airportRenderer.Render(s.To()))
 	}
-
-	return sb.String()
 }

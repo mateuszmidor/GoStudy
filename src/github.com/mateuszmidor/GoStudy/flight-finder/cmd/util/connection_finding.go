@@ -5,13 +5,13 @@ import (
 	"carriers"
 	"connections"
 	"dataloading"
+	"errors"
 	"fmt"
 	"io"
 	"pathfinding"
 	"pathrendering/asjson"
 	"pathrendering/astext"
 	"segments"
-	"strings"
 	"time"
 )
 
@@ -23,18 +23,18 @@ type ConnectionFinder struct {
 	resultSeparator string
 }
 
-func NewConnectionFinder(segmentsGzipCSV string, resultSeparator string) *ConnectionFinder {
+func NewConnectionFinder(segmentsGzipCSV, airportsGzipCSV string, resultSeparator string) *ConnectionFinder {
 	var rawSegments chan dataloading.RawSegment
 
 	// get airports used in segments
 	rawSegments = make(chan dataloading.RawSegment, 100)
 	go StartLoadingSegmentsFromGzipCSV(segmentsGzipCSV, rawSegments)
-	airports := dataloading.NewRawSegmentsToAirportsFilter().Filter(rawSegments)
+	airports := dataloading.FilterAirports(rawSegments)
 
 	// get carriers used in segments
 	rawSegments = make(chan dataloading.RawSegment, 100)
 	go StartLoadingSegmentsFromGzipCSV(segmentsGzipCSV, rawSegments)
-	carriers := dataloading.NewRawSegmentsToCarriersFilter().Filter(rawSegments)
+	carriers := dataloading.FilterCarriers(rawSegments)
 
 	// get actual segments
 	rawSegments = make(chan dataloading.RawSegment, 100)
@@ -43,11 +43,11 @@ func NewConnectionFinder(segmentsGzipCSV string, resultSeparator string) *Connec
 
 	// enhance airports with name and location
 	rawAirports := make(chan dataloading.RawAirport, 100)
-	go StartLoadingAirportsFromGzipCSV("../../airports.csv.gz", rawAirports)
+	go StartLoadingAirportsFromGzipCSV(airportsGzipCSV, rawAirports)
 	dataloading.EnrichAirports(airports, rawAirports)
 
 	connections := connections.NewAdapter(segments)
-	return &ConnectionFinder{airports, carriers, segments, &connections, resultSeparator}
+	return &ConnectionFinder{airports, carriers, segments, connections, resultSeparator}
 }
 
 func (f *ConnectionFinder) FindConnectionsAsText(w io.Writer, fromAirport, toAirport string) {
@@ -67,22 +67,28 @@ func (f *ConnectionFinder) FindConnectionsAsText(w io.Writer, fromAirport, toAir
 	paths := pathfinding.FindPaths(pathfinding.NodeID(from), pathfinding.NodeID(to), f.connections)
 	elapsed := time.Now().Sub(start)
 
-	fmt.Fprint(w, f.pathsToString(paths))
+	f.pathsToText(w, paths)
+	fmt.Fprint(w, f.resultSeparator)
 	fmt.Fprintf(w, "[Total paths: %d, Took: %dms]", len(paths), elapsed.Milliseconds())
-	fmt.Fprintln(w, f.resultSeparator)
+	fmt.Fprint(w, f.resultSeparator)
 }
 
-func (f *ConnectionFinder) FindConnectionsAsJSON(w io.Writer, fromAirport, toAirport string) {
+func (f *ConnectionFinder) pathsToText(w io.Writer, paths []pathfinding.Path) {
+	airportRenderer := astext.NewLongAirportRenderer(f.airports)
+	carrierRenderer := astext.NewShortCarrierRenderer(f.carriers)
+	renderer := astext.NewPathRenderer(airportRenderer, carrierRenderer, f.segments, f.resultSeparator)
+	renderer.Render(w, paths)
+}
+
+func (f *ConnectionFinder) FindConnectionsAsJSON(w io.Writer, fromAirport, toAirport string) error {
 	from := f.airports.GetByCode(fromAirport)
 	if from == airports.NullID {
-		fmt.Fprintf(w, "Invalid from airport: %s%s", fromAirport, f.resultSeparator)
-		return
+		return errors.New("Invalid origin airport: " + fromAirport)
 	}
 
 	to := f.airports.GetByCode(toAirport)
 	if to == airports.NullID {
-		fmt.Fprintf(w, "Invalid to airport: %s%s", toAirport, f.resultSeparator)
-		return
+		return errors.New("Invalid destination airport: " + toAirport)
 	}
 
 	// start := time.Now()
@@ -93,25 +99,7 @@ func (f *ConnectionFinder) FindConnectionsAsJSON(w io.Writer, fromAirport, toAir
 	// fmt.Fprint(w, f.pathsToString(paths))
 	// fmt.Fprintf(w, "[Total paths: %d, Took: %dms]", len(paths), elapsed.Milliseconds())
 	// fmt.Fprintln(w, f.resultSeparator)
-}
-
-func (f *ConnectionFinder) pathsToString(paths []pathfinding.Path) string {
-
-	if len(paths) == 0 {
-		return "<no paths found>"
-	}
-
-	airportRenderer := astext.NewLongAirportRenderer(f.airports)
-	carrierRenderer := astext.NewShortCarrierRenderer(f.carriers)
-	pathRenderer := astext.NewPathRenderer(airportRenderer, carrierRenderer)
-
-	var sb strings.Builder
-	for i := range paths {
-		sb.WriteString(pathRenderer.Render(paths[i], f.segments))
-		sb.WriteString(f.resultSeparator)
-	}
-
-	return sb.String()
+	return nil
 }
 
 func (f *ConnectionFinder) pathsToJSON(w io.Writer, paths []pathfinding.Path) {

@@ -20,10 +20,9 @@ func TestAirportsFilterReturnsValidAirports(t *testing.T) {
 		airports.NewAirport("WAW", "", 0, 0),
 		airports.NewAirport("WRO", "", 0, 0),
 	}
-	filter := dataloading.NewRawSegmentsToAirportsFilter()
 
 	// when
-	actualAirports := filter.Filter(rawSegments)
+	actualAirports := dataloading.FilterAirports(rawSegments)
 
 	// then
 	if len(expectedAirports) != len(actualAirports) {

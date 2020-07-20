@@ -13,8 +13,8 @@ type Adapter struct {
 }
 
 // NewAdapter is constructor
-func NewAdapter(segments segments.Segments) Adapter {
-	return Adapter{segments, SegmentRangeFinder{}}
+func NewAdapter(segments segments.Segments) *Adapter {
+	return &Adapter{segments, SegmentRangeFinder{}}
 }
 
 // GetDestinationNode implements pathfinding.Connections interface

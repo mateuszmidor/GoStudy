@@ -4,14 +4,7 @@ import (
 	"carriers"
 )
 
-type SegmentsToCarriersFilter struct {
-}
-
-func NewRawSegmentsToCarriersFilter() *SegmentsToCarriersFilter {
-	return &SegmentsToCarriersFilter{}
-}
-
-func (f *SegmentsToCarriersFilter) Filter(segments <-chan RawSegment) carriers.Carriers {
+func FilterCarriers(segments <-chan RawSegment) carriers.Carriers {
 	codes := make(map[string]bool)
 
 	for s := range segments {

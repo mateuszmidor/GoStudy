@@ -19,10 +19,9 @@ func TestAirportsCarriersLoaderReturnsValidData2(t *testing.T) {
 		carriers.NewCarrier("LH"),
 		carriers.NewCarrier("LO"),
 	}
-	filter := dataloading.NewRawSegmentsToCarriersFilter()
 
 	// when
-	actualCarriers := filter.Filter(rawSegments)
+	actualCarriers := dataloading.FilterCarriers(rawSegments)
 
 	// then
 	if len(expectedCarrires) != len(actualCarriers) {

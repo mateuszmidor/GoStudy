@@ -9,6 +9,6 @@ function tearDown() {
 
 go run . &
 sleep 1
-firefox 'http://localhost:9090/'
+firefox 'http://localhost:9000/'
 
 while true; do sleep 1; done

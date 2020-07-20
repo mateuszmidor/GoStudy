@@ -4,14 +4,7 @@ import (
 	"airports"
 )
 
-type SegmentsToAirportsFilter struct {
-}
-
-func NewRawSegmentsToAirportsFilter() *SegmentsToAirportsFilter {
-	return &SegmentsToAirportsFilter{}
-}
-
-func (f *SegmentsToAirportsFilter) Filter(segments <-chan RawSegment) airports.Airports {
+func FilterAirports(segments <-chan RawSegment) airports.Airports {
 	uniqueCodes := make(map[string]bool)
 
 	for s := range segments {

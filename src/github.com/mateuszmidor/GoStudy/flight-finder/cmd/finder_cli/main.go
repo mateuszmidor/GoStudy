@@ -38,7 +38,7 @@ func runCLI() {
 	const promptMsg = "Try: krk gdn. For exit: exit"
 	fmt.Println(promptMsg)
 
-	finder := util.NewConnectionFinder("../../segments.csv.gz", "\n")
+	finder := util.NewConnectionFinder("../../segments.csv.gz", "../../airports.csv.gz", "\n")
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
 		line := s.Text()

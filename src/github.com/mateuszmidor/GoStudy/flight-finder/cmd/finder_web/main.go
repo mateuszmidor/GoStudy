@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -13,12 +15,12 @@ func main() {
 }
 
 func runWEB() {
-	finder := util.NewConnectionFinder("../../segments.csv.gz", "<br >")
+	finder := util.NewConnectionFinder("../../segments.csv.gz", "../../airports.csv.gz", "<br >")
 	http.Handle("/", &templateHandler{filename: "map.html"})
 	http.Handle("/list", &templateHandler{filename: "list.html"})
 	http.HandleFunc("/api/find/text", handleFindAsText(finder))
 	http.HandleFunc("/api/find/json", handleFindAsJSON(finder))
-	http.ListenAndServe(":9090", nil)
+	http.ListenAndServe(":9000", nil)
 }
 
 func handleFindAsText(f *util.ConnectionFinder) func(http.ResponseWriter, *http.Request) {
@@ -36,12 +38,25 @@ func handleFindAsText(f *util.ConnectionFinder) func(http.ResponseWriter, *http.
 
 func handleFindAsJSON(f *util.ConnectionFinder) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		from := strings.ToUpper(r.FormValue("from"))
-		to := strings.ToUpper(r.FormValue("to"))
-
 		w.Header().Set("Content-Type", "application/json")
 
-		f.FindConnectionsAsJSON(w, from, to)
+		from := strings.ToUpper(r.FormValue("from"))
+		to := strings.ToUpper(r.FormValue("to"))
+		if err := f.FindConnectionsAsJSON(w, from, to); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			dumpErrorAsJSON(w, err)
+		}
+
 		fmt.Printf("%s -> %s\n", from, to)
 	}
+}
+
+func dumpErrorAsJSON(w io.Writer, e error) {
+	errorView := struct {
+		Error string `json:"error"`
+	}{
+		e.Error(),
+	}
+
+	json.NewEncoder(w).Encode(errorView)
 }
