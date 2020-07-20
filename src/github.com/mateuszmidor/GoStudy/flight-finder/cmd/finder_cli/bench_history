@@ -1,1 +1,43 @@
 [pon, 20 lip 2020, 19:34:16 CEST] 0:05.34
+[pon, 20 lip 2020, 20:00:57 CEST] 0:05.32
+[pon, 20 lip 2020, 20:35:38 CEST] 0:06.84
+[pon, 20 lip 2020, 20:37:19 CEST] 0:06.83
+[pon, 20 lip 2020, 20:39:50 CEST] panic: runtime error: index out of range [10] with length 10
+
+goroutine 1 [running]:
+pathfinding.FindPaths.func1(0xc000000006, 0xa)
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/vendor/pathfinding/path_finder.go:41 +0x31e
+pathfinding.FindPaths.func1(0xc0000000e2, 0x9)
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/vendor/pathfinding/path_finder.go:42 +0x14d
+pathfinding.FindPaths.func1(0xc000000058, 0x8)
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/vendor/pathfinding/path_finder.go:42 +0x14d
+pathfinding.FindPaths.func1(0xc000000126, 0x7)
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/vendor/pathfinding/path_finder.go:42 +0x14d
+pathfinding.FindPaths.func1(0xc000000021, 0x6)
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/vendor/pathfinding/path_finder.go:42 +0x14d
+pathfinding.FindPaths.func1(0xc00000007a, 0x5)
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/vendor/pathfinding/path_finder.go:42 +0x14d
+pathfinding.FindPaths.func1(0xc00000001e, 0x4)
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/vendor/pathfinding/path_finder.go:42 +0x14d
+pathfinding.FindPaths.func1(0xc00000008e, 0x3)
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/vendor/pathfinding/path_finder.go:42 +0x14d
+pathfinding.FindPaths.func1(0xc000000005, 0x2)
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/vendor/pathfinding/path_finder.go:42 +0x14d
+pathfinding.FindPaths.func1(0xc00000004f, 0x1)
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/vendor/pathfinding/path_finder.go:42 +0x14d
+pathfinding.FindPaths.func1(0x7e3, 0x0)
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/vendor/pathfinding/path_finder.go:42 +0x14d
+pathfinding.FindPaths(0x4f9000007e3, 0x546080, 0xc000540020, 0x528798, 0x0, 0x0, 0x0)
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/vendor/pathfinding/path_finder.go:53 +0x184
+github.com/mateuszmidor/GoStudy/flight-finder/cmd/util.(*ConnectionFinder).FindConnectionsAsText(0xc00055a000, 0x545ca0, 0xc00000e010, 0xc0003f4756, 0x3, 0xc0003f4759, 0x3)
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/cmd/util/connection_finding.go:67 +0x22f
+main.runCLI()
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/cmd/finder_cli/main.go:52 +0x2f9
+main.main()
+	/home/user/SoftwareDevelopment/GoStudy/src/github.com/mateuszmidor/GoStudy/flight-finder/cmd/finder_cli/main.go:28 +0x12b
+Command exited with non-zero status 2
+0:00.71
+[pon, 20 lip 2020, 20:40:43 CEST] 0:15.46
+[pon, 20 lip 2020, 20:41:33 CEST] 0:06.92
+[pon, 20 lip 2020, 20:43:23 CEST] 0:06.84
+[pon, 20 lip 2020, 21:21:07 CEST] 0:07.12

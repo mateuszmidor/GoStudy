@@ -148,7 +148,7 @@ func TestShouldFindSingleSegmentPath(t *testing.T) {
 	m := makeFlightMap()
 
 	// when
-	paths := FindPaths(m.byk, m.gda, &m.connections)
+	paths := FindPaths(m.byk, m.gda, &m.connections, AlwaysContinueBuildingPaths)
 
 	// then
 	expected := []string{
@@ -162,7 +162,7 @@ func TestShouldFindSingleAlternativeSegmentPaths(t *testing.T) {
 	m := makeFlightMap()
 
 	// when
-	paths := FindPaths(m.wro, m.krk, &m.connections)
+	paths := FindPaths(m.wro, m.krk, &m.connections, AlwaysContinueBuildingPaths)
 
 	// then
 	expected := []string{
@@ -176,7 +176,7 @@ func TestShouldFindTwoSegmentsPath(t *testing.T) {
 	m := makeFlightMap()
 
 	// when
-	paths := FindPaths(m.byk, m.szc, &m.connections)
+	paths := FindPaths(m.byk, m.szc, &m.connections, AlwaysContinueBuildingPaths)
 
 	// then
 	expected := []string{
@@ -190,7 +190,7 @@ func TestShouldFindTwoSegments2Paths(t *testing.T) {
 	m := makeFlightMap()
 
 	// when
-	paths := FindPaths(m.gda, m.wro, &m.connections)
+	paths := FindPaths(m.gda, m.wro, &m.connections, AlwaysContinueBuildingPaths)
 
 	// then
 	expected := []string{
@@ -205,7 +205,7 @@ func TestShouldFindDirectAndIndirectPath(t *testing.T) {
 	m := makeFlightMap()
 
 	// when
-	paths := FindPaths(m.rze, m.waw, &m.connections)
+	paths := FindPaths(m.rze, m.waw, &m.connections, AlwaysContinueBuildingPaths)
 
 	// then
 	expected := []string{
@@ -220,7 +220,7 @@ func TestShouldFindIfSplittingPaths(t *testing.T) {
 	m := makeFlightMap()
 
 	// when
-	paths := FindPaths(m.gda, m.krk, &m.connections)
+	paths := FindPaths(m.gda, m.krk, &m.connections, AlwaysContinueBuildingPaths)
 
 	// then
 	expected := []string{
@@ -237,7 +237,7 @@ func TestShouldFindIfMergingPaths(t *testing.T) {
 	m := makeFlightMap()
 
 	// when
-	paths := FindPaths(m.byk, m.wro, &m.connections)
+	paths := FindPaths(m.byk, m.wro, &m.connections, AlwaysContinueBuildingPaths)
 
 	// then
 	expected := []string{
@@ -252,7 +252,7 @@ func TestShouldFindMultiLongPaths(t *testing.T) {
 	m := makeFlightMap()
 
 	// when
-	paths := FindPaths(m.gda, m.byk, &m.connections)
+	paths := FindPaths(m.gda, m.byk, &m.connections, AlwaysContinueBuildingPaths)
 
 	// then
 	expected := []string{
@@ -270,7 +270,7 @@ func TestShouldFindMultiLongPaths(t *testing.T) {
 func BenchmarkFindMultiLongPaths(b *testing.B) {
 	m := makeFlightMap()
 	for n := 0; n < b.N; n++ {
-		_ = FindPaths(m.gda, m.byk, &m.connections)
+		_ = FindPaths(m.gda, m.byk, &m.connections, AlwaysContinueBuildingPaths)
 	}
 }
 
@@ -279,7 +279,7 @@ func TestShouldHandleCycle(t *testing.T) {
 	m := makeFlightMap()
 
 	// when
-	paths := FindPaths(m.waw, m.szc, &m.connections)
+	paths := FindPaths(m.waw, m.szc, &m.connections, AlwaysContinueBuildingPaths)
 
 	// then
 	expected := []string{
@@ -295,7 +295,7 @@ func TestShouldHandleNoSuchPath(t *testing.T) {
 	m := makeFlightMap()
 
 	// when
-	paths := FindPaths(m.waw, m.lub, &m.connections)
+	paths := FindPaths(m.waw, m.lub, &m.connections, AlwaysContinueBuildingPaths)
 
 	// then
 	expected := []string{

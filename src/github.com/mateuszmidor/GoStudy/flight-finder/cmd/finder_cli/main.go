@@ -36,6 +36,7 @@ func main() {
 
 func runCLI() {
 	const promptMsg = "Try: krk gdn. For exit: exit"
+	const maxSegmentCount = 3
 	fmt.Println(promptMsg)
 
 	finder := util.NewConnectionFinder("../../segments.csv.gz", "../../airports.csv.gz", "\n")
@@ -49,7 +50,7 @@ func runCLI() {
 
 		if from, to, ok := parseFromTo(line); ok {
 			fmt.Println("working...")
-			finder.FindConnectionsAsText(os.Stdout, strings.ToUpper(from), strings.ToUpper(to))
+			finder.FindConnectionsAsText(os.Stdout, strings.ToUpper(from), strings.ToUpper(to), maxSegmentCount)
 			fmt.Println()
 		} else {
 			fmt.Println(promptMsg)

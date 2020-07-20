@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/mateuszmidor/GoStudy/flight-finder/cmd/util"
@@ -27,10 +28,11 @@ func handleFindAsText(f *util.ConnectionFinder) func(http.ResponseWriter, *http.
 	return func(w http.ResponseWriter, r *http.Request) {
 		from := strings.ToUpper(r.FormValue("from"))
 		to := strings.ToUpper(r.FormValue("to"))
+		maxSegmentCount, _ := strconv.Atoi(r.FormValue("maxsegmentcount"))
 
 		w.Header().Set("Content-Type", "application/text")
 
-		f.FindConnectionsAsText(w, from, to)
+		f.FindConnectionsAsText(w, from, to, maxSegmentCount)
 
 		fmt.Printf("%s -> %s\n", from, to)
 	}
@@ -42,7 +44,8 @@ func handleFindAsJSON(f *util.ConnectionFinder) func(http.ResponseWriter, *http.
 
 		from := strings.ToUpper(r.FormValue("from"))
 		to := strings.ToUpper(r.FormValue("to"))
-		if err := f.FindConnectionsAsJSON(w, from, to); err != nil {
+		maxSegmentCount, _ := strconv.Atoi(r.FormValue("maxsegmentcount"))
+		if err := f.FindConnectionsAsJSON(w, from, to, maxSegmentCount); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			dumpErrorAsJSON(w, err)
 		}

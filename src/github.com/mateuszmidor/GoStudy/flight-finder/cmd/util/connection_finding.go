@@ -12,6 +12,7 @@ import (
 	"pathrendering/asjson"
 	"pathrendering/astext"
 	"segments"
+	"sort"
 	"time"
 )
 
@@ -50,7 +51,7 @@ func NewConnectionFinder(segmentsGzipCSV, airportsGzipCSV string, resultSeparato
 	return &ConnectionFinder{airports, carriers, segments, connections, resultSeparator}
 }
 
-func (f *ConnectionFinder) FindConnectionsAsText(w io.Writer, fromAirport, toAirport string) {
+func (f *ConnectionFinder) FindConnectionsAsText(w io.Writer, fromAirport, toAirport string, maxSegmentCount int) {
 	from := f.airports.GetByCode(fromAirport)
 	if from == airports.NullID {
 		fmt.Fprintf(w, "Invalid from airport: %s%s", fromAirport, f.resultSeparator)
@@ -63,8 +64,10 @@ func (f *ConnectionFinder) FindConnectionsAsText(w io.Writer, fromAirport, toAir
 		return
 	}
 
+	limiter := makeLimiter(maxSegmentCount)
+
 	start := time.Now()
-	paths := pathfinding.FindPaths(pathfinding.NodeID(from), pathfinding.NodeID(to), f.connections)
+	paths := pathfinding.FindPaths(pathfinding.NodeID(from), pathfinding.NodeID(to), f.connections, limiter)
 	elapsed := time.Now().Sub(start)
 
 	f.pathsToText(w, paths)
@@ -80,7 +83,7 @@ func (f *ConnectionFinder) pathsToText(w io.Writer, paths []pathfinding.Path) {
 	renderer.Render(w, paths)
 }
 
-func (f *ConnectionFinder) FindConnectionsAsJSON(w io.Writer, fromAirport, toAirport string) error {
+func (f *ConnectionFinder) FindConnectionsAsJSON(w io.Writer, fromAirport, toAirport string, maxSegmentCount int) error {
 	from := f.airports.GetByCode(fromAirport)
 	if from == airports.NullID {
 		return errors.New("Invalid origin airport: " + fromAirport)
@@ -92,7 +95,11 @@ func (f *ConnectionFinder) FindConnectionsAsJSON(w io.Writer, fromAirport, toAir
 	}
 
 	// start := time.Now()
-	paths := pathfinding.FindPaths(pathfinding.NodeID(from), pathfinding.NodeID(to), f.connections)
+	limiter := makeLimiter(maxSegmentCount)
+	paths := pathfinding.FindPaths(pathfinding.NodeID(from), pathfinding.NodeID(to), f.connections, limiter)
+	sort.Slice(paths, func(i, j int) bool {
+		return len(paths[i]) < len(paths[j])
+	})
 	// elapsed := time.Now().Sub(start)
 
 	f.pathsToJSON(w, paths)
@@ -105,4 +112,10 @@ func (f *ConnectionFinder) FindConnectionsAsJSON(w io.Writer, fromAirport, toAir
 func (f *ConnectionFinder) pathsToJSON(w io.Writer, paths []pathfinding.Path) {
 	renderer := asjson.NewPathRenderer(f.airports, f.carriers, f.segments)
 	renderer.Render(w, paths)
+}
+
+func makeLimiter(maxSegmentCount int) pathfinding.CheckContinueBuildingPaths {
+	return func(currentPathLen, totalPathsFound int) bool {
+		return currentPathLen < maxSegmentCount && totalPathsFound < 1000
+	}
 }
