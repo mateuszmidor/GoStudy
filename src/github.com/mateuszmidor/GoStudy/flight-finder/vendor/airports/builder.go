@@ -10,8 +10,8 @@ type Builder struct {
 }
 
 // Append adds new airport at the collection end
-func (b *Builder) Append(code, name string) {
-	b.airports = append(b.airports, NewAirport(code, "", 0, 0))
+func (b *Builder) Append(code string) {
+	b.airports = append(b.airports, NewAirportCodeOnly(code))
 }
 
 // Build returns sorted collection of airports

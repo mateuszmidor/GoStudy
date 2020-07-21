@@ -12,10 +12,10 @@ func TestRawsegmentsFilterReturnsValidSegments(t *testing.T) {
 	// given
 	// important: airports are sorted
 	airports := airports.Airports{
-		airports.NewAirport("GDN", "", 0, 0), // ID=0
-		airports.NewAirport("KRK", "", 0, 0), // ID=1
-		airports.NewAirport("WAW", "", 0, 0), // ID=2
-		airports.NewAirport("WRO", "", 0, 0), // ID=3
+		airports.NewAirportCodeOnly("GDN"), // ID=0
+		airports.NewAirportCodeOnly("KRK"), // ID=1
+		airports.NewAirportCodeOnly("WAW"), // ID=2
+		airports.NewAirportCodeOnly("WRO"), // ID=3
 	}
 	// important: carrierrs are sorted
 	carriers := carriers.Carriers{

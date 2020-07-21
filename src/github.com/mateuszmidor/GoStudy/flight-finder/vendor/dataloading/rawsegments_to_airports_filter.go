@@ -14,7 +14,7 @@ func FilterAirports(segments <-chan RawSegment) airports.Airports {
 
 	var ab airports.Builder
 	for code := range uniqueCodes {
-		ab.Append(code, "")
+		ab.Append(code)
 	}
 
 	return ab.Build()

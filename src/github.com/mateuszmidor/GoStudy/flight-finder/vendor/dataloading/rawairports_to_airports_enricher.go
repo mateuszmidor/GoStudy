@@ -9,6 +9,7 @@ func EnrichAirports(poorAirports airports.Airports, rawAirports <-chan RawAirpor
 			continue
 		}
 		poorAirports[id].SetName(ra.FullName)
+		poorAirports[id].SetNation(ra.Nation)
 		poorAirports[id].SetCoordinates(ra.Longitude, ra.Latitude)
 	}
 }

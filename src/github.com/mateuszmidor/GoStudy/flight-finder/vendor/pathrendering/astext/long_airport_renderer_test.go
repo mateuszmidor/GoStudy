@@ -11,9 +11,9 @@ func TestRendererReturnsValidLongAirportString(t *testing.T) {
 	// given
 	// important: airpors are sorted ascending
 	airportList := airports.Airports{
-		airports.NewAirport("GDN", "Gdańsk", 0, 0),
-		airports.NewAirport("KRK", "Kraków", 0, 0),
-		airports.NewAirport("WAW", "Warszawa", 0, 0),
+		airports.NewAirport("GDN", "Gdańsk", "PL", 0, 0),
+		airports.NewAirport("KRK", "Kraków", "PL", 0, 0),
+		airports.NewAirport("WAW", "Warszawa", "PL", 0, 0),
 	}
 	cases := []struct {
 		id       airports.ID

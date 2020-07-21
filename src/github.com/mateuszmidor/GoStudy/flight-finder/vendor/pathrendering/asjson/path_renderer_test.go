@@ -36,9 +36,9 @@ func TestPathRendererTurnsValidPathIntoValidPathJson(t *testing.T) {
 	// given
 	// notice: airports sorted by code
 	airports := airports.Airports{
-		airports.NewAirport("GDN", "GDANSK", geo.Longitude(51), geo.Latitude(21)),
-		airports.NewAirport("KRK", "KRAKOW", geo.Longitude(49), geo.Latitude(19)),
-		airports.NewAirport("WAW", "WARSZAWA", geo.Longitude(50), geo.Latitude(20)),
+		airports.NewAirport("GDN", "GDANSK", "PL", geo.Longitude(51), geo.Latitude(21)),
+		airports.NewAirport("KRK", "KRAKOW", "PL", geo.Longitude(49), geo.Latitude(19)),
+		airports.NewAirport("WAW", "WARSZAWA", "PL", geo.Longitude(50), geo.Latitude(20)),
 	}
 	// notice: carriers sorted by code
 	carriers := carriers.Carriers{

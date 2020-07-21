@@ -15,10 +15,10 @@ func TestAirportsFilterReturnsValidAirports(t *testing.T) {
 	close(rawSegments)
 	// expected airports are sorted
 	expectedAirports := airports.Airports{
-		airports.NewAirport("GDN", "", 0, 0),
-		airports.NewAirport("KRK", "", 0, 0),
-		airports.NewAirport("WAW", "", 0, 0),
-		airports.NewAirport("WRO", "", 0, 0),
+		airports.NewAirportCodeOnly("GDN"),
+		airports.NewAirportCodeOnly("KRK"),
+		airports.NewAirportCodeOnly("WAW"),
+		airports.NewAirportCodeOnly("WRO"),
 	}
 
 	// when

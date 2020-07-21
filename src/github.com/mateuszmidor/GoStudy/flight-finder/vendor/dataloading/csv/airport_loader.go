@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-const numAirportCSVColumns = 10
+const numAirportCSVColumns = 11
 
 // AirportLoader loads airports from given source
 type AirportLoader struct {
@@ -45,7 +45,7 @@ func (r *AirportLoader) StartLoading(reader io.Reader, outputAirports chan<- dat
 
 func parseRawAirport(data []string) (dataloading.RawAirport, error) {
 	// CSV structure:
-	// MARKET,LATDEG,LATMIN,LATSEC,LNGDEG,LNGMIN,LNGSEC,LATHEM,LNGHEM,DESCRIPTION
+	// MARKET,LATDEG,LATMIN,LATSEC,LNGDEG,LNGMIN,LNGSEC,LATHEM,LNGHEM,NATION,DESCRIPTION
 	var errorString string
 	var coords [6]int
 	for i := range coords {
@@ -70,7 +70,7 @@ func parseRawAirport(data []string) (dataloading.RawAirport, error) {
 	}
 
 	if len(errorString) != 0 {
-		return dataloading.NewRawAirport(data[0], data[9], lng, lat), errors.New(errorString)
+		return dataloading.NewRawAirport(data[0], data[10], data[9], lng, lat), errors.New(errorString)
 	}
-	return dataloading.NewRawAirport(data[0], data[9], lng, lat), nil
+	return dataloading.NewRawAirport(data[0], data[10], data[9], lng, lat), nil
 }

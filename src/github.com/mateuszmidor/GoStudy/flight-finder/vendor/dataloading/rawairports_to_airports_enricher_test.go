@@ -10,20 +10,20 @@ import (
 func TestEnricherAddsExpectedInformationToAirports(t *testing.T) {
 	// given
 	rawAirports := make(chan dataloading.RawAirport, 3)
-	rawAirports <- dataloading.NewRawAirport("WAW", "Warszawa", geo.Longitude(20.0), geo.Latitude(51.0))
-	rawAirports <- dataloading.NewRawAirport("GDN", "Gdańsk", geo.Longitude(21.0), geo.Latitude(52.0))
-	rawAirports <- dataloading.NewRawAirport("KRK", "Kraków", geo.Longitude(19.0), geo.Latitude(50.0))
+	rawAirports <- dataloading.NewRawAirport("WAW", "Warszawa", "PL", geo.Longitude(20.0), geo.Latitude(51.0))
+	rawAirports <- dataloading.NewRawAirport("GDN", "Gdańsk", "PL", geo.Longitude(21.0), geo.Latitude(52.0))
+	rawAirports <- dataloading.NewRawAirport("KRK", "Kraków", "PL", geo.Longitude(19.0), geo.Latitude(50.0))
 	close(rawAirports)
 	// airports need be sorted by code for binary search purpose
 	actualAirports := airports.Airports{
-		airports.NewAirport("GDN", "", geo.Longitude(0), geo.Latitude(0)),
-		airports.NewAirport("KRK", "", geo.Longitude(0), geo.Latitude(0)),
-		airports.NewAirport("WAW", "", geo.Longitude(0), geo.Latitude(0)),
+		airports.NewAirportCodeOnly("GDN"),
+		airports.NewAirportCodeOnly("KRK"),
+		airports.NewAirportCodeOnly("WAW"),
 	}
 	expectedAirports := airports.Airports{
-		airports.NewAirport("GDN", "Gdańsk", geo.Longitude(21.0), geo.Latitude(52.0)),
-		airports.NewAirport("KRK", "Kraków", geo.Longitude(19.0), geo.Latitude(50.0)),
-		airports.NewAirport("WAW", "Warszawa", geo.Longitude(20.0), geo.Latitude(51.0)),
+		airports.NewAirport("GDN", "Gdańsk", "PL", geo.Longitude(21.0), geo.Latitude(52.0)),
+		airports.NewAirport("KRK", "Kraków", "PL", geo.Longitude(19.0), geo.Latitude(50.0)),
+		airports.NewAirport("WAW", "Warszawa", "PL", geo.Longitude(20.0), geo.Latitude(51.0)),
 	}
 
 	// when

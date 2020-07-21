@@ -11,9 +11,9 @@ func TestRendererReturnsValidShortAirportString(t *testing.T) {
 	// given
 	// important: airpors are sorted ascending
 	airportList := airports.Airports{
-		airports.NewAirport("GDN", "", 0, 0),
-		airports.NewAirport("KRK", "", 0, 0),
-		airports.NewAirport("WAW", "", 0, 0),
+		airports.NewAirport("GDN", "", "", 0, 0),
+		airports.NewAirport("KRK", "", "", 0, 0),
+		airports.NewAirport("WAW", "", "", 0, 0),
 	}
 	cases := []struct {
 		id       airports.ID

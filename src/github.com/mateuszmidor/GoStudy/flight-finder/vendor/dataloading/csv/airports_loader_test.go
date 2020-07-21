@@ -13,15 +13,15 @@ func TestLoadValidCSVShouldReturnAllAirports(t *testing.T) {
 	var loader csv.AirportLoader
 	actualAirports := make(chan dataloading.RawAirport, 1)
 	expectedAirports := []dataloading.RawAirport{
-		{AirportCode: "GDY", Latitude: 52.0, Longitude: 18.0, FullName: "Gdynia"},
-		{AirportCode: "WAW", Latitude: 51.5, Longitude: 17.5, FullName: "Warszawa"},
-		{AirportCode: "KRK", Latitude: 50.01, Longitude: 19.01, FullName: "Kraków"},
+		{AirportCode: "GDY", FullName: "Gdynia", Nation: "PL", Latitude: 52.0, Longitude: 18.0},
+		{AirportCode: "WAW", FullName: "Warszawa", Nation: "PL", Latitude: 51.5, Longitude: 17.5},
+		{AirportCode: "KRK", FullName: "Kraków", Nation: "PL", Latitude: 50.01, Longitude: 19.01},
 	}
 	// MARKET,LATDEG,LATMIN,LATSEC,LNGDEG,LNGMIN,LNGSEC,LATHEM,LNGHEM,DESCRIPTION
 	csv := `
-"GDY",52,0,0,18,0,0,"N","E","Gdynia"
-"WAW",51,30,0,17,30,0,"N","E","Warszawa"
-"KRK",50,0,36,19,0,36,"N","E","Kraków"
+"GDY",52,0,0,18,0,0,"N","E","PL","Gdynia"
+"WAW",51,30,0,17,30,0,"N","E","PL","Warszawa"
+"KRK",50,0,36,19,0,36,"N","E","PL","Kraków"
 `
 	// when
 	go loader.StartLoading(strings.NewReader(csv), actualAirports)
@@ -38,13 +38,13 @@ func TestLoadBrokenCSVShouldReturnOnlyValidAirports(t *testing.T) {
 	var loader csv.AirportLoader
 	actualAirports := make(chan dataloading.RawAirport, 1)
 	expectedAirports := []dataloading.RawAirport{
-		{AirportCode: "KRK", Latitude: 50.01, Longitude: 19.01, FullName: "Kraków"},
+		{AirportCode: "KRK", FullName: "Kraków", Nation: "PL", Latitude: 50.01, Longitude: 19.01},
 	}
-	// MARKET,LATDEG,LATMIN,LATSEC,LNGDEG,LNGMIN,LNGSEC,LATHEM,LNGHEM,DESCRIPTION
+	// MARKET,LATDEG,LATMIN,LATSEC,LNGDEG,LNGMIN,LNGSEC,LATHEM,LNGHEM,NATION,DESCRIPTION
 	csv := `
 "GDY",52,0,0,18,0,0,"N","E"
-"WAW",51,30,0,17,30,0,"N","E", "Warszawa"
-"KRK",50,0,36,19,0,36,"N","E","Kraków"
+"WAW",51,30,0,17,30,0,"N","E","PL", "Warszawa"
+"KRK",50,0,36,19,0,36,"N","E","PL","Kraków"
 `
 	// when
 	go loader.StartLoading(strings.NewReader(csv), actualAirports)
