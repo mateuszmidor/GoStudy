@@ -116,6 +116,7 @@ func (f *ConnectionFinder) pathsToJSON(w io.Writer, paths []pathfinding.Path) {
 
 func makeLimiter(maxSegmentCount int) pathfinding.CheckContinueBuildingPaths {
 	return func(currentPathLen, totalPathsFound int) bool {
-		return currentPathLen < maxSegmentCount && totalPathsFound < 1000
+		maxPathLen := maxSegmentCount + 1 // KRK-WAW-GDN is 2 segments made of 3 airports
+		return currentPathLen < maxPathLen && totalPathsFound < 1000
 	}
 }
