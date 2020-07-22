@@ -24,6 +24,7 @@ type jsonsegment struct {
 
 type jsonairport struct {
 	Code      string  `json:"code"`
+	Nation    string  `json:"nation"`
 	Longitude float32 `json:"lon"`
 	Latitude  float32 `json:"lat"`
 }
@@ -59,6 +60,7 @@ func TestPathRendererTurnsValidPathIntoValidPathJson(t *testing.T) {
 	expected := jsonpath{
 		FromAirport: jsonairport{
 			Code:      "KRK",
+			Nation:    "PL",
 			Longitude: 49.0,
 			Latitude:  19.0,
 		},
@@ -69,6 +71,7 @@ func TestPathRendererTurnsValidPathIntoValidPathJson(t *testing.T) {
 				},
 				ToAirport: jsonairport{
 					Code:      "WAW",
+					Nation:    "PL",
 					Longitude: 50.0,
 					Latitude:  20.0,
 				},
@@ -79,6 +82,7 @@ func TestPathRendererTurnsValidPathIntoValidPathJson(t *testing.T) {
 				},
 				ToAirport: jsonairport{
 					Code:      "GDN",
+					Nation:    "PL",
 					Longitude: 51.0,
 					Latitude:  21.0,
 				},
