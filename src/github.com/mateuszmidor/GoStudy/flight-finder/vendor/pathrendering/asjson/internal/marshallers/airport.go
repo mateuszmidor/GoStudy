@@ -3,6 +3,7 @@ package marshallers
 import (
 	"airports"
 	"encoding/json"
+	"nations"
 	"pathrendering/asjson/internal/views"
 )
 
@@ -14,6 +15,12 @@ type Airport struct {
 
 // MarshalJSON implements json.Marshaller for custom marshalling
 func (a *Airport) MarshalJSON() ([]byte, error) {
-	view := views.NewJSONAirportView(&a.Data.Airports[a.AirportID])
+	airport := &a.Data.Airports[a.AirportID]
+	nationID := a.Data.Nations.GetByCode(airport.Nation())
+	var nation *nations.Nation
+	if nationID != nations.NullID {
+		nation = &a.Data.Nations[nationID]
+	}
+	view := views.NewJSONAirportView(airport, nation)
 	return json.Marshal(view)
 }

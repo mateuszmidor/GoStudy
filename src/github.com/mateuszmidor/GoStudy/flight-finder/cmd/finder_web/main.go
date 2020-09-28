@@ -16,7 +16,7 @@ func main() {
 }
 
 func runWEB() {
-	finder := util.NewConnectionFinder("../../segments.csv.gz", "../../airports.csv.gz", "<br >")
+	finder := util.NewConnectionFinder("../../segments.csv.gz", "../../airports.csv.gz", "../../nations.csv.gz", "<br >")
 	http.Handle("/", &templateHandler{filename: "map.html"})
 	http.Handle("/list", &templateHandler{filename: "list.html"})
 	http.HandleFunc("/api/find/text", handleFindAsText(finder))

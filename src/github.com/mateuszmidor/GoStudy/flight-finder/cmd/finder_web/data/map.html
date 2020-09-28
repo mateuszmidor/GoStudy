@@ -98,7 +98,7 @@
             // actually add unique airports to map
             for (const airport of uniqueAirports.values()) {
                 var marker = WE.marker([airport.lat, airport.lon]).addTo(earth);
-                marker.bindPopup(airport.name + ' <strong>' + airport.code + '</strong><br>' + airport.nation, {maxWidth: 120, closeButton: false});
+                marker.bindPopup( '<strong>' + airport.code + '</strong><br>' + airport.name + ', ' + airport.nation_full_name, {maxWidth: 120, closeButton: false});
                 // console.log(el);
             }
         }       

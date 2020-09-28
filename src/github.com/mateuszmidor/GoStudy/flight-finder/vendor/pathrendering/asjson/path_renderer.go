@@ -5,6 +5,7 @@ import (
 	"carriers"
 	"encoding/json"
 	"io"
+	"nations"
 	"pathfinding"
 	"pathrendering/asjson/internal/marshallers"
 	"segments"
@@ -16,11 +17,12 @@ type PathRenderer struct {
 }
 
 // NewPathRenderer is constructor
-func NewPathRenderer(airports airports.Airports, carriers carriers.Carriers, segments segments.Segments) *PathRenderer {
+func NewPathRenderer(airports airports.Airports, carriers carriers.Carriers, nations nations.Nations, segments segments.Segments) *PathRenderer {
 	return &PathRenderer{
 		data: marshallers.Data{
 			Airports: airports,
 			Carriers: carriers,
+			Nations:  nations,
 			Segments: segments,
 		},
 	}

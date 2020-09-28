@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"nations"
 	"pathfinding"
 	"pathrendering/asjson"
 	"pathrendering/astext"
@@ -17,6 +18,7 @@ import (
 )
 
 type ConnectionFinder struct {
+	nations         nations.Nations
 	airports        airports.Airports
 	carriers        carriers.Carriers
 	segments        segments.Segments
@@ -24,31 +26,36 @@ type ConnectionFinder struct {
 	resultSeparator string
 }
 
-func NewConnectionFinder(segmentsGzipCSV, airportsGzipCSV string, resultSeparator string) *ConnectionFinder {
+func NewConnectionFinder(segmentsGzipCSV, airportsGzipCSV, nationsGzipCSV string, resultSeparator string) *ConnectionFinder {
 	var rawSegments chan dataloading.RawSegment
+
+	// get nations
+	rawNations := make(chan dataloading.RawNation, 100)
+	go StartLoadingNationsFromGzipCSV(nationsGzipCSV, rawNations)
+	nations := dataloading.FilterRawNations(rawNations)
 
 	// get airports used in segments
 	rawSegments = make(chan dataloading.RawSegment, 100)
 	go StartLoadingSegmentsFromGzipCSV(segmentsGzipCSV, rawSegments)
-	airports := dataloading.FilterAirports(rawSegments)
+	airportsUsedBySegments := dataloading.FilterAirports(rawSegments)
 
 	// get carriers used in segments
 	rawSegments = make(chan dataloading.RawSegment, 100)
 	go StartLoadingSegmentsFromGzipCSV(segmentsGzipCSV, rawSegments)
-	carriers := dataloading.FilterCarriers(rawSegments)
+	carriersUsedBySegments := dataloading.FilterCarriers(rawSegments)
 
 	// get actual segments
 	rawSegments = make(chan dataloading.RawSegment, 100)
 	go StartLoadingSegmentsFromGzipCSV(segmentsGzipCSV, rawSegments)
-	segments := dataloading.NewRawSegmentsToSegmentsFilter(airports, carriers).Filter(rawSegments)
+	segments := dataloading.NewRawSegmentsToSegmentsFilter(airportsUsedBySegments, carriersUsedBySegments).Filter(rawSegments)
 
 	// enhance airports with name and location
 	rawAirports := make(chan dataloading.RawAirport, 100)
 	go StartLoadingAirportsFromGzipCSV(airportsGzipCSV, rawAirports)
-	dataloading.EnrichAirports(airports, rawAirports)
+	dataloading.EnrichAirports(airportsUsedBySegments, rawAirports)
 
 	connections := connections.NewAdapter(segments)
-	return &ConnectionFinder{airports, carriers, segments, connections, resultSeparator}
+	return &ConnectionFinder{nations, airportsUsedBySegments, carriersUsedBySegments, segments, connections, resultSeparator}
 }
 
 func (f *ConnectionFinder) FindConnectionsAsText(w io.Writer, fromAirport, toAirport string, maxSegmentCount int) {
@@ -110,7 +117,7 @@ func (f *ConnectionFinder) FindConnectionsAsJSON(w io.Writer, fromAirport, toAir
 }
 
 func (f *ConnectionFinder) pathsToJSON(w io.Writer, paths []pathfinding.Path) {
-	renderer := asjson.NewPathRenderer(f.airports, f.carriers, f.segments)
+	renderer := asjson.NewPathRenderer(f.airports, f.carriers, f.nations, f.segments)
 	renderer.Render(w, paths)
 }
 

@@ -2,6 +2,7 @@ package marshallers
 
 import (
 	"encoding/json"
+	"nations"
 	"pathrendering/asjson/internal/views"
 	"segments"
 )
@@ -15,6 +16,13 @@ type Segment struct {
 // MarshalJSON implements json.Marshaller for custom marshalling
 func (s *Segment) MarshalJSON() ([]byte, error) {
 	seg := &s.Data.Segments[s.SegmentID]
-	view := views.NewJSONSegmentView(&s.Data.Carriers[seg.Carrier()], &s.Data.Airports[seg.To()])
+	carrier := &s.Data.Carriers[seg.Carrier()]
+	airport := &s.Data.Airports[seg.To()]
+	nationID := s.Data.Nations.GetByCode(airport.Nation())
+	var nation *nations.Nation
+	if nationID != nations.NullID {
+		nation = &s.Data.Nations[nationID]
+	}
+	view := views.NewJSONSegmentView(carrier, airport, nation)
 	return json.Marshal(view)
 }

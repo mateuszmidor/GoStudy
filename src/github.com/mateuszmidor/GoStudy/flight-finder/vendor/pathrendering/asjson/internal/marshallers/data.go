@@ -3,6 +3,7 @@ package marshallers
 import (
 	"airports"
 	"carriers"
+	"nations"
 	"segments"
 )
 
@@ -10,5 +11,6 @@ import (
 type Data struct {
 	Airports airports.Airports
 	Carriers carriers.Carriers
+	Nations  nations.Nations
 	Segments segments.Segments
 }
