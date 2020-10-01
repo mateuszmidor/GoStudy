@@ -4,8 +4,8 @@ Find flight connections between two given airports
 
 # Showcase
 
-## 2-segments connection
+## 2-segments connection: Kraków-Las Palmas
 ![Logo](media/krk-mad-lpa.png)
 
-## 3-segments connection
+## 3-segments connection: Kraków-Colombo
 ![Logo](media/krk-amm-mct-cmb.png)
