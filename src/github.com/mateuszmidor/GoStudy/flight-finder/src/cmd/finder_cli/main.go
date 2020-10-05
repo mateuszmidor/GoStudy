@@ -9,7 +9,8 @@ import (
 	"runtime/trace"
 	"strings"
 
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/cmd/util"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/application"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv"
 )
 
 func main() {
@@ -37,9 +38,12 @@ func main() {
 func runCLI() {
 	const promptMsg = "Try: krk gdn. For exit: exit"
 	const maxSegmentCount = 2
-	fmt.Println(promptMsg)
 
-	finder := util.NewConnectionFinder("../../../data/segments.csv.gz", "../../../data/airports.csv.gz", "../../../data/nations.csv.gz", "\n")
+	repo := csv.NewFlightsDataRepoCSV("../../../data/")
+	finder := application.NewConnectionFindingService(repo)
+	renderer := application.NewPathRendererAsText(os.Stdout)
+
+	fmt.Println(promptMsg)
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
 		line := s.Text()
@@ -50,7 +54,7 @@ func runCLI() {
 
 		if from, to, ok := parseFromTo(line); ok {
 			fmt.Println("working...")
-			finder.FindConnectionsAsText(os.Stdout, strings.ToUpper(from), strings.ToUpper(to), maxSegmentCount)
+			finder.Find(strings.ToUpper(from), strings.ToUpper(to), maxSegmentCount, renderer)
 			fmt.Println()
 		} else {
 			fmt.Println(promptMsg)

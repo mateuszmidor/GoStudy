@@ -8,7 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/cmd/util"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/application"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv"
 )
 
 func main() {
@@ -16,36 +17,24 @@ func main() {
 }
 
 func runWEB() {
-	finder := util.NewConnectionFinder("../../../data/segments.csv.gz", "../../../data/airports.csv.gz", "../../../data/nations.csv.gz", "<br >")
+	repo := csv.NewFlightsDataRepoCSV("../../../data/")
+	finder := application.NewConnectionFindingService(repo)
+
 	http.Handle("/", &templateHandler{filename: "map.html"})
-	http.Handle("/list", &templateHandler{filename: "list.html"})
-	http.HandleFunc("/api/find/text", handleFindAsText(finder))
 	http.HandleFunc("/api/find/json", handleFindAsJSON(finder))
 	http.ListenAndServe(":9000", nil)
 }
 
-func handleFindAsText(f *util.ConnectionFinder) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		from := strings.ToUpper(r.FormValue("from"))
-		to := strings.ToUpper(r.FormValue("to"))
-		maxSegmentCount, _ := strconv.Atoi(r.FormValue("maxsegmentcount"))
-
-		w.Header().Set("Content-Type", "application/text")
-
-		f.FindConnectionsAsText(w, from, to, maxSegmentCount)
-
-		fmt.Printf("%s -> %s\n", from, to)
-	}
-}
-
-func handleFindAsJSON(f *util.ConnectionFinder) func(http.ResponseWriter, *http.Request) {
+func handleFindAsJSON(f *application.ConnectionFindingService) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
 		from := strings.ToUpper(r.FormValue("from"))
 		to := strings.ToUpper(r.FormValue("to"))
 		maxSegmentCount, _ := strconv.Atoi(r.FormValue("maxsegmentcount"))
-		if err := f.FindConnectionsAsJSON(w, from, to, maxSegmentCount); err != nil {
+		renderer := application.NewPathRendererAsJSON(w)
+		if err := f.Find(from, to, maxSegmentCount, renderer); err != nil {
+			fmt.Printf("%v\n", err)
 			w.WriteHeader(http.StatusBadRequest)
 			dumpErrorAsJSON(w, err)
 		}
