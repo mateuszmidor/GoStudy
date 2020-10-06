@@ -2,6 +2,12 @@
 
 Find flight connections between two given airports
 
+# Structure
+![Logo](media/structure.png)
+
+# Sequence
+![Logo](media/sequence.png)
+
 # Showcase
 
 ## 2-segments connection: Kraków-Las Palmas

@@ -1,0 +1,19 @@
+ https://www.websequencediagrams.com
+
+title FlightFinder
+
+
+actor init
+actor user
+init->init: repo = infra.NewRepoCSV("data/")
+init->+ConnectionFindingService: finder = application.NewConnectionFindingService(repo)
+ConnectionFindingService -> ConnectionFindingService: flightsData = repo.Load()
+ConnectionFindingService->ConnectionFindingService: connections = connections.NewAdapter(flightsData.segments)
+ConnectionFindingService-->-init:
+
+
+user->+ConnectionFindingService: finder.find(fromAirport, toAirport)
+ConnectionFindingService->ConnectionFindingService: pathRenderer = application.NewPathRendererAsJSON(httpResponseWriter)
+ConnectionFindingService->PathFinding: paths = find(fromAirport, toAirport, connections)
+ConnectionFindingService->PathRendererAsJSON: pathRenderer.render(paths, flightsData)
+ConnectionFindingService-->-user: // connections rendered in http response as JSON
