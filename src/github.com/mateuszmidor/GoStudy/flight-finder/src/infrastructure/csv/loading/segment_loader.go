@@ -1,10 +1,8 @@
-package csv
+package loading
 
 import (
 	"encoding/csv"
 	"io"
-
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/dataloading"
 )
 
 const numSegmentCSVColumns = 3
@@ -16,7 +14,7 @@ type SegmentLoader struct {
 // StartLoading starts loading raw segments into output channel
 // Pipeline instead batch load approach to accomodate segment database that would exceed machine ram limitations
 // Usage: go source.StartLoading(...)
-func (r *SegmentLoader) StartLoading(reader io.Reader, outputSegments chan<- dataloading.RawSegment) {
+func (r *SegmentLoader) StartLoading(reader io.Reader, outputSegments chan<- CSVSegment) {
 	csv := csv.NewReader(reader)
 	csv.ReuseRecord = true
 	csv.FieldsPerRecord = numSegmentCSVColumns
@@ -27,7 +25,7 @@ func (r *SegmentLoader) StartLoading(reader io.Reader, outputSegments chan<- dat
 			break
 		}
 		if err == nil && rec != nil {
-			outputSegments <- parseRawSegment(rec)
+			outputSegments <- parseCSVSegment(rec)
 		}
 
 	}
@@ -35,11 +33,11 @@ func (r *SegmentLoader) StartLoading(reader io.Reader, outputSegments chan<- dat
 	close(outputSegments)
 }
 
-func parseRawSegment(data []string) dataloading.RawSegment {
+func parseCSVSegment(data []string) CSVSegment {
 	// CSV structure:
 	// "KRK","KTW","LO"
 
-	return dataloading.RawSegment{
+	return CSVSegment{
 		FromAirportCode: data[0],
 		ToAirportCode:   data[1],
 		CarrierCode:     data[2],

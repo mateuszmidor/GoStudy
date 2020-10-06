@@ -1,19 +1,20 @@
-package dataloading_test
+package postprocessing_test
 
 import (
 	"testing"
 
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/carriers"
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/dataloading"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv/loading"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv/postprocessing"
 )
 
 func TestAirportsCarriersLoaderReturnsValidData2(t *testing.T) {
 	// given
-	rawSegments := make(chan dataloading.RawSegment, 3)
-	rawSegments <- dataloading.NewRawSegment("KRK", "WAW", "LO")
-	rawSegments <- dataloading.NewRawSegment("WAW", "WRO", "LH")
-	rawSegments <- dataloading.NewRawSegment("WRO", "GDN", "BY")
-	close(rawSegments)
+	csvSegments := make(chan loading.CSVSegment, 3)
+	csvSegments <- loading.NewCSVSegment("KRK", "WAW", "LO")
+	csvSegments <- loading.NewCSVSegment("WAW", "WRO", "LH")
+	csvSegments <- loading.NewCSVSegment("WRO", "GDN", "BY")
+	close(csvSegments)
 	// expected carriers are sorted
 	expectedCarrires := carriers.Carriers{
 		carriers.NewCarrier("BY"),
@@ -22,7 +23,7 @@ func TestAirportsCarriersLoaderReturnsValidData2(t *testing.T) {
 	}
 
 	// when
-	actualCarriers := dataloading.FilterCarriers(rawSegments)
+	actualCarriers := postprocessing.ExtractCarriers(csvSegments)
 
 	// then
 	if len(expectedCarrires) != len(actualCarriers) {

@@ -1,9 +1,9 @@
-package dataloading
+package loading
 
 import "github.com/mateuszmidor/GoStudy/flight-finder/src/domain/geo"
 
-// RawAirport is airport in its denormalized form
-type RawAirport struct {
+// CSVAirport is airport in its denormalized form
+type CSVAirport struct {
 	AirportCode string        // eg. "GDN"
 	FullName    string        // eg. "Gdynia Airport"
 	Nation      string        // eg. "PL"
@@ -11,9 +11,9 @@ type RawAirport struct {
 	Latitude    geo.Latitude  // eg. -50.4
 }
 
-// NewRawAirport is constructor
-func NewRawAirport(code, name, nation string, lng geo.Longitude, lat geo.Latitude) RawAirport {
-	return RawAirport{
+// NewCSVAirport is constructor
+func NewCSVAirport(code, name, nation string, lng geo.Longitude, lat geo.Latitude) CSVAirport {
+	return CSVAirport{
 		AirportCode: code,
 		FullName:    name,
 		Nation:      nation,

@@ -1,4 +1,4 @@
-package dataloading_test
+package postprocessing_test
 
 import (
 	"testing"
@@ -6,10 +6,11 @@ import (
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/airports"
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/carriers"
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/segments"
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/dataloading"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv/loading"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv/postprocessing"
 )
 
-func TestRawsegmentsFilterReturnsValidSegments(t *testing.T) {
+func TestCSVsegmentsFilterReturnsValidSegments(t *testing.T) {
 	// given
 	// important: airports are sorted
 	airports := airports.Airports{
@@ -30,15 +31,15 @@ func TestRawsegmentsFilterReturnsValidSegments(t *testing.T) {
 		segments.NewSegment(2, 3, 1),
 		segments.NewSegment(3, 0, 0),
 	}
-	rawSegments := make(chan dataloading.RawSegment, 3)
-	rawSegments <- dataloading.NewRawSegment("KRK", "WAW", "LO")
-	rawSegments <- dataloading.NewRawSegment("WAW", "WRO", "LH")
-	rawSegments <- dataloading.NewRawSegment("WRO", "GDN", "BY")
-	close(rawSegments)
-	filter := dataloading.NewRawSegmentsToSegmentsFilter(airports, carriers)
+	csvSegments := make(chan loading.CSVSegment, 3)
+	csvSegments <- loading.NewCSVSegment("KRK", "WAW", "LO")
+	csvSegments <- loading.NewCSVSegment("WAW", "WRO", "LH")
+	csvSegments <- loading.NewCSVSegment("WRO", "GDN", "BY")
+	close(csvSegments)
+	filter := postprocessing.NewCSVSegmentsToSegmentsFilter(airports, carriers)
 
 	// when
-	actualSegments := filter.Filter(rawSegments)
+	actualSegments := filter.Filter(csvSegments)
 
 	// then
 	if len(actualSegments) != len(expectedSegments) {

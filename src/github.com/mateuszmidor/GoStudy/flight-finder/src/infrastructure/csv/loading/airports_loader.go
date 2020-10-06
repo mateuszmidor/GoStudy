@@ -1,4 +1,4 @@
-package csv
+package loading
 
 import (
 	"encoding/csv"
@@ -8,19 +8,18 @@ import (
 	"strconv"
 
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/geo"
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/dataloading"
 )
 
 const numAirportCSVColumns = 11
 
-// AirportLoader loads airports from given source
-type AirportLoader struct {
+// AirportsLoader loads airports from given source
+type AirportsLoader struct {
 }
 
 // StartLoading starts loading raw airports into output channel
 // Pipeline instead batch load approach to accomodate segment database that would exceed machine ram limitations
 // Usage: go source.StartLoading(...)
-func (r *AirportLoader) StartLoading(reader io.Reader, outputAirports chan<- dataloading.RawAirport) {
+func (r *AirportsLoader) StartLoading(reader io.Reader, outputAirports chan<- CSVAirport) {
 	csv := csv.NewReader(reader)
 	csv.ReuseRecord = true
 	csv.FieldsPerRecord = numAirportCSVColumns
@@ -31,7 +30,7 @@ func (r *AirportLoader) StartLoading(reader io.Reader, outputAirports chan<- dat
 			break
 		}
 		if err == nil && rec != nil {
-			airport, err := parseRawAirport(rec)
+			airport, err := parseCSVAirport(rec)
 			if err != nil {
 				fmt.Printf("AiportLoader.StartLoading error: %v %+v\n", err.Error(), airport)
 			}
@@ -44,7 +43,7 @@ func (r *AirportLoader) StartLoading(reader io.Reader, outputAirports chan<- dat
 	close(outputAirports)
 }
 
-func parseRawAirport(data []string) (dataloading.RawAirport, error) {
+func parseCSVAirport(data []string) (CSVAirport, error) {
 	// CSV structure:
 	// MARKET,LATDEG,LATMIN,LATSEC,LNGDEG,LNGMIN,LNGSEC,LATHEM,LNGHEM,NATION,DESCRIPTION
 	var errorString string
@@ -71,7 +70,7 @@ func parseRawAirport(data []string) (dataloading.RawAirport, error) {
 	}
 
 	if len(errorString) != 0 {
-		return dataloading.NewRawAirport(data[0], data[10], data[9], lng, lat), errors.New(errorString)
+		return NewCSVAirport(data[0], data[10], data[9], lng, lat), errors.New(errorString)
 	}
-	return dataloading.NewRawAirport(data[0], data[10], data[9], lng, lat), nil
+	return NewCSVAirport(data[0], data[10], data[9], lng, lat), nil
 }

@@ -1,19 +1,21 @@
-package dataloading_test
+package postprocessing_test
 
 import (
 	"testing"
 
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv/loading"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv/postprocessing"
+
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/nations"
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/dataloading"
 )
 
-func TestRawnationsFilterReturnsValidNations(t *testing.T) {
+func TestCSVnationsFilterReturnsValidNations(t *testing.T) {
 	// given
-	rawNations := make(chan dataloading.RawNation, 3)
-	rawNations <- dataloading.NewRawNation("CN", "CHN", "CNY", "CHINA")
-	rawNations <- dataloading.NewRawNation("ES", "ESP", "EUR", "SPAIN")
-	rawNations <- dataloading.NewRawNation("PL", "POL", "PLN", "POLAND")
-	close(rawNations)
+	csvNations := make(chan loading.CSVNation, 3)
+	csvNations <- loading.NewCSVNation("CN", "CHN", "CNY", "CHINA")
+	csvNations <- loading.NewCSVNation("ES", "ESP", "EUR", "SPAIN")
+	csvNations <- loading.NewCSVNation("PL", "POL", "PLN", "POLAND")
+	close(csvNations)
 	// notice: expectedNations are sorted ascending
 	expectedNations := nations.Nations{
 		nations.NewNation("CN", "CHN", "CNY", "CHINA"),
@@ -22,7 +24,7 @@ func TestRawnationsFilterReturnsValidNations(t *testing.T) {
 	}
 
 	// when
-	actualNations := dataloading.FilterRawNations(rawNations)
+	actualNations := postprocessing.FilterNations(csvNations)
 
 	// then
 	if len(actualNations) != len(expectedNations) {

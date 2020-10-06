@@ -1,19 +1,21 @@
-package dataloading_test
+package postprocessing_test
 
 import (
 	"testing"
 
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv/loading"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv/postprocessing"
+
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/airports"
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/dataloading"
 )
 
 func TestAirportsFilterReturnsValidAirports(t *testing.T) {
 	// given
-	rawSegments := make(chan dataloading.RawSegment, 3)
-	rawSegments <- dataloading.NewRawSegment("KRK", "WAW", "LO")
-	rawSegments <- dataloading.NewRawSegment("WAW", "WRO", "LH")
-	rawSegments <- dataloading.NewRawSegment("WRO", "GDN", "BY")
-	close(rawSegments)
+	csvSegments := make(chan loading.CSVSegment, 3)
+	csvSegments <- loading.NewCSVSegment("KRK", "WAW", "LO")
+	csvSegments <- loading.NewCSVSegment("WAW", "WRO", "LH")
+	csvSegments <- loading.NewCSVSegment("WRO", "GDN", "BY")
+	close(csvSegments)
 	// expected airports are sorted
 	expectedAirports := airports.Airports{
 		airports.NewAirportCodeOnly("GDN"),
@@ -23,7 +25,7 @@ func TestAirportsFilterReturnsValidAirports(t *testing.T) {
 	}
 
 	// when
-	actualAirports := dataloading.FilterAirports(rawSegments)
+	actualAirports := postprocessing.ExtractAirports(csvSegments)
 
 	// then
 	if len(expectedAirports) != len(actualAirports) {

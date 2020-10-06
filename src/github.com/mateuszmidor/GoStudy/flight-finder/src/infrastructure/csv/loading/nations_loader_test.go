@@ -1,22 +1,21 @@
-package csv_test
+package loading_test
 
 import (
 	"fmt"
 	"strings"
 	"testing"
 
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv"
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/dataloading"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv/loading"
 )
 
 func TestLoadValidCSVShouldReturnAllNations(t *testing.T) {
 	// given
-	var loader csv.NationsLoader
-	actualNations := make(chan dataloading.RawNation, 1)
-	expectedNations := []dataloading.RawNation{
-		dataloading.NewRawNation("CN", "CHN", "CNY", "CHINA"),
-		dataloading.NewRawNation("ES", "ESP", "EUR", "SPAIN"),
-		dataloading.NewRawNation("PL", "POL", "PLN", "POLAND"),
+	var loader loading.NationsLoader
+	actualNations := make(chan loading.CSVNation, 1)
+	expectedNations := []loading.CSVNation{
+		loading.NewCSVNation("CN", "CHN", "CNY", "CHINA"),
+		loading.NewCSVNation("ES", "ESP", "EUR", "SPAIN"),
+		loading.NewCSVNation("PL", "POL", "PLN", "POLAND"),
 	}
 	// NATION,ISO,CURRENCY,DESCRIPTION
 	csv := `
@@ -34,7 +33,7 @@ func TestLoadValidCSVShouldReturnAllNations(t *testing.T) {
 	}
 }
 
-func checkExpectedNations(expected []dataloading.RawNation, actual chan dataloading.RawNation) string {
+func checkExpectedNations(expected []loading.CSVNation, actual chan loading.CSVNation) string {
 	var result string
 	for seg := range actual {
 		if index := findNation(seg, expected); index != -1 {
@@ -51,7 +50,7 @@ func checkExpectedNations(expected []dataloading.RawNation, actual chan dataload
 	return result
 }
 
-func findNation(subject dataloading.RawNation, list []dataloading.RawNation) int {
+func findNation(subject loading.CSVNation, list []loading.CSVNation) int {
 	for i, seg := range list {
 		if seg == subject {
 			return i
@@ -60,7 +59,7 @@ func findNation(subject dataloading.RawNation, list []dataloading.RawNation) int
 	return -1
 }
 
-func removeNation(index int, list *[]dataloading.RawNation) {
+func removeNation(index int, list *[]loading.CSVNation) {
 	l := *list
 	l[index] = l[len(l)-1]
 	l = l[:len(l)-1]

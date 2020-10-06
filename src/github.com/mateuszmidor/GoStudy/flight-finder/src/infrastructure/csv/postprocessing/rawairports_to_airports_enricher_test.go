@@ -1,20 +1,21 @@
-package dataloading_test
+package postprocessing_test
 
 import (
 	"testing"
 
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/airports"
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/geo"
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/dataloading"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv/loading"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv/postprocessing"
 )
 
 func TestEnricherAddsExpectedInformationToAirports(t *testing.T) {
 	// given
-	rawAirports := make(chan dataloading.RawAirport, 3)
-	rawAirports <- dataloading.NewRawAirport("WAW", "Warszawa", "PL", geo.Longitude(20.0), geo.Latitude(51.0))
-	rawAirports <- dataloading.NewRawAirport("GDN", "Gdańsk", "PL", geo.Longitude(21.0), geo.Latitude(52.0))
-	rawAirports <- dataloading.NewRawAirport("KRK", "Kraków", "PL", geo.Longitude(19.0), geo.Latitude(50.0))
-	close(rawAirports)
+	csvAirports := make(chan loading.CSVAirport, 3)
+	csvAirports <- loading.NewCSVAirport("WAW", "Warszawa", "PL", geo.Longitude(20.0), geo.Latitude(51.0))
+	csvAirports <- loading.NewCSVAirport("GDN", "Gdańsk", "PL", geo.Longitude(21.0), geo.Latitude(52.0))
+	csvAirports <- loading.NewCSVAirport("KRK", "Kraków", "PL", geo.Longitude(19.0), geo.Latitude(50.0))
+	close(csvAirports)
 	// airports need be sorted by code for binary search purpose
 	actualAirports := airports.Airports{
 		airports.NewAirportCodeOnly("GDN"),
@@ -28,7 +29,7 @@ func TestEnricherAddsExpectedInformationToAirports(t *testing.T) {
 	}
 
 	// when
-	dataloading.EnrichAirports(actualAirports, rawAirports)
+	postprocessing.EnrichAirports(actualAirports, csvAirports)
 
 	// then
 	for i, actual := range actualAirports {

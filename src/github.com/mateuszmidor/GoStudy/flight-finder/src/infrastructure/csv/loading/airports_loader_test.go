@@ -1,19 +1,18 @@
-package csv_test
+package loading_test
 
 import (
 	"fmt"
 	"strings"
 	"testing"
 
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv"
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/dataloading"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv/loading"
 )
 
 func TestLoadValidCSVShouldReturnAllAirports(t *testing.T) {
 	// given
-	var loader csv.AirportLoader
-	actualAirports := make(chan dataloading.RawAirport, 1)
-	expectedAirports := []dataloading.RawAirport{
+	var loader loading.AirportsLoader
+	actualAirports := make(chan loading.CSVAirport, 1)
+	expectedAirports := []loading.CSVAirport{
 		{AirportCode: "GDY", FullName: "Gdynia", Nation: "PL", Latitude: 52.0, Longitude: 18.0},
 		{AirportCode: "WAW", FullName: "Warszawa", Nation: "PL", Latitude: 51.5, Longitude: 17.5},
 		{AirportCode: "KRK", FullName: "Kraków", Nation: "PL", Latitude: 50.01, Longitude: 19.01},
@@ -36,9 +35,9 @@ func TestLoadValidCSVShouldReturnAllAirports(t *testing.T) {
 
 func TestLoadBrokenCSVShouldReturnOnlyValidAirports(t *testing.T) {
 	// given
-	var loader csv.AirportLoader
-	actualAirports := make(chan dataloading.RawAirport, 1)
-	expectedAirports := []dataloading.RawAirport{
+	var loader loading.AirportsLoader
+	actualAirports := make(chan loading.CSVAirport, 1)
+	expectedAirports := []loading.CSVAirport{
 		{AirportCode: "KRK", FullName: "Kraków", Nation: "PL", Latitude: 50.01, Longitude: 19.01},
 	}
 	// MARKET,LATDEG,LATMIN,LATSEC,LNGDEG,LNGMIN,LNGSEC,LATHEM,LNGHEM,NATION,DESCRIPTION
@@ -57,7 +56,7 @@ func TestLoadBrokenCSVShouldReturnOnlyValidAirports(t *testing.T) {
 	}
 }
 
-func checkExpectedAirports(expected []dataloading.RawAirport, actual chan dataloading.RawAirport) string {
+func checkExpectedAirports(expected []loading.CSVAirport, actual chan loading.CSVAirport) string {
 	var result string
 	for seg := range actual {
 		if index := findAirport(seg, expected); index != -1 {
@@ -74,7 +73,7 @@ func checkExpectedAirports(expected []dataloading.RawAirport, actual chan datalo
 	return result
 }
 
-func findAirport(subject dataloading.RawAirport, list []dataloading.RawAirport) int {
+func findAirport(subject loading.CSVAirport, list []loading.CSVAirport) int {
 	for i, seg := range list {
 		if seg == subject {
 			return i
@@ -83,7 +82,7 @@ func findAirport(subject dataloading.RawAirport, list []dataloading.RawAirport) 
 	return -1
 }
 
-func removeAirport(index int, list *[]dataloading.RawAirport) {
+func removeAirport(index int, list *[]loading.CSVAirport) {
 	l := *list
 	l[index] = l[len(l)-1]
 	l = l[:len(l)-1]

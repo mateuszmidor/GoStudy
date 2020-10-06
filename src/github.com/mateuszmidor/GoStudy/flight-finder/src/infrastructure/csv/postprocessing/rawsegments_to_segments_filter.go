@@ -1,21 +1,22 @@
-package dataloading
+package postprocessing
 
 import (
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/airports"
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/carriers"
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/segments"
+	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv/loading"
 )
 
-type RawSegmentsToSegmentsFilter struct {
+type CSVSegmentsToSegmentsFilter struct {
 	airports airports.Airports
 	carriers carriers.Carriers
 }
 
-func NewRawSegmentsToSegmentsFilter(airports airports.Airports, carriers carriers.Carriers) *RawSegmentsToSegmentsFilter {
-	return &RawSegmentsToSegmentsFilter{airports, carriers}
+func NewCSVSegmentsToSegmentsFilter(airports airports.Airports, carriers carriers.Carriers) *CSVSegmentsToSegmentsFilter {
+	return &CSVSegmentsToSegmentsFilter{airports, carriers}
 }
 
-func (f *RawSegmentsToSegmentsFilter) Filter(segs <-chan RawSegment) segments.Segments {
+func (f *CSVSegmentsToSegmentsFilter) Filter(segs <-chan loading.CSVSegment) segments.Segments {
 	sb := segments.NewBuilder(f.airports, f.carriers)
 
 	for s := range segs {

@@ -1,15 +1,13 @@
-package csv
+package loading
 
 import (
 	"compress/gzip"
 	"fmt"
 	"os"
-
-	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/dataloading"
 )
 
 // StartLoadingSegmentsFromGzipCSV begins loading raw segments from gzipped csv into output channel
-func StartLoadingSegmentsFromGzipCSV(segmentsGzipCSV string, outSegments chan<- dataloading.RawSegment) {
+func StartLoadingSegmentsFromGzipCSV(segmentsGzipCSV string, outSegments chan<- CSVSegment) {
 	inputFile, err := os.Open(segmentsGzipCSV)
 	if err != nil {
 		fmt.Printf("Error opening %s: %v\n", segmentsGzipCSV, err)
@@ -31,7 +29,7 @@ func StartLoadingSegmentsFromGzipCSV(segmentsGzipCSV string, outSegments chan<- 
 }
 
 // StartLoadingAirportsFromGzipCSV begins loading raw airports from gzipped csv into output channel
-func StartLoadingAirportsFromGzipCSV(airportsGzipCSV string, outAirports chan<- dataloading.RawAirport) {
+func StartLoadingAirportsFromGzipCSV(airportsGzipCSV string, outAirports chan<- CSVAirport) {
 	inputFile, err := os.Open(airportsGzipCSV)
 	if err != nil {
 		fmt.Printf("Error opening %s: %v\n", airportsGzipCSV, err)
@@ -48,12 +46,12 @@ func StartLoadingAirportsFromGzipCSV(airportsGzipCSV string, outAirports chan<- 
 	}
 	defer gzipReader.Close()
 
-	var loader AirportLoader
+	var loader AirportsLoader
 	loader.StartLoading(gzipReader, outAirports)
 }
 
 // StartLoadingNationsFromGzipCSV begins loading raw nations from gzipped csv into output channel
-func StartLoadingNationsFromGzipCSV(nationsGzipCSV string, outNations chan<- dataloading.RawNation) {
+func StartLoadingNationsFromGzipCSV(nationsGzipCSV string, outNations chan<- CSVNation) {
 	inputFile, err := os.Open(nationsGzipCSV)
 	if err != nil {
 		fmt.Printf("Error opening %s: %v\n", nationsGzipCSV, err)

@@ -1,16 +1,16 @@
-package dataloading
+package loading
 
-// RawNation is nation in its denormalized form
-type RawNation struct {
+// CSVNation is nation in its denormalized form
+type CSVNation struct {
 	Code     string // eg. "PL"
 	Iso      string // eg. "POL"
 	Currency string // eg. "PLN"
 	Name     string // eg. "POLAND"
 }
 
-// NewRawNation is constructor
-func NewRawNation(code, iso, currency, name string) RawNation {
-	return RawNation{
+// NewCSVNation is constructor
+func NewCSVNation(code, iso, currency, name string) CSVNation {
+	return CSVNation{
 		Code:     code,
 		Iso:      iso,
 		Currency: currency,
