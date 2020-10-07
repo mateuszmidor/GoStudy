@@ -4,16 +4,20 @@ title FlightFinder
 
 
 actor init
-actor user
-init->init: repo = infra.NewRepoCSV("data/")
-init->+ConnectionFindingService: finder = application.NewConnectionFindingService(repo)
-ConnectionFindingService -> ConnectionFindingService: flightsData = repo.Load()
-ConnectionFindingService->ConnectionFindingService: connections = connections.NewAdapter(flightsData.segments)
-ConnectionFindingService-->-init:
+actor client
 
+init->+FindRequestHandler: findRequestHandler = NewFindRequestHandler()
+FindRequestHandler->FindRequestHandler: repo = infrastructure.NewFlightsRepoCSV("data/")
+FindRequestHandler->+ConnectionFinder: finder = application.NewConnectionFinder(repo)
+ConnectionFinder -> ConnectionFinder: flightsData = repo.Load()
+ConnectionFinder->ConnectionFinder: connections = connections.NewAdapter(flightsData.segments)
+ConnectionFinder-->-FindRequestHandler:
+FindRequestHandler-->-init:
+client->+FindRequestHandler: GET("api/find/json?fromAirport=KRK&toAirport=JFK")
+FindRequestHandler->FindRequestHandler: pathRenderer = application.NewPathRendererAsJSON(httpResponseWriter)
+FindRequestHandler->+ConnectionFinder: finder.find(fromAirport, toAirport, pathRenderer)
+FindRequestHandler-->-client:
 
-user->+ConnectionFindingService: finder.find(fromAirport, toAirport)
-ConnectionFindingService->ConnectionFindingService: pathRenderer = application.NewPathRendererAsJSON(httpResponseWriter)
-ConnectionFindingService->PathFinding: paths = find(fromAirport, toAirport, connections)
-ConnectionFindingService->PathRendererAsJSON: pathRenderer.render(paths, flightsData)
-ConnectionFindingService-->-user: // connections rendered in http response as JSON
+ConnectionFinder->PathFinding: paths = pathfinding.FindPaths(fromAirport, toAirport, connections)
+ConnectionFinder->PathRendererAsJSON: pathRenderer.Render(paths, flightsData)
+ConnectionFinder-->-client: // connections rendered in http response as JSON

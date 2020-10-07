@@ -3,21 +3,19 @@ package main
 import (
 	"net/http"
 	"path/filepath"
-	"sync"
 	"text/template"
 )
 
 type templateHandler struct {
-	once     sync.Once
-	filename string
-	templ    *template.Template
+	templ *template.Template
+}
+
+func NewTemplateHandler(filename string) *templateHandler {
+	template := template.Must(template.ParseFiles(filepath.Join("data", filename)))
+	return &templateHandler{templ: template}
 }
 
 func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	t.once.Do(func() {
-		t.templ = template.Must(template.ParseFiles(filepath.Join("data", t.filename)))
-	})
-
 	data := map[string]interface{}{
 		"Host": r.Host,
 	}

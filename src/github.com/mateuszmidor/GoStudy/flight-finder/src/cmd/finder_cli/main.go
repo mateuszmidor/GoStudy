@@ -40,7 +40,7 @@ func runCLI() {
 	const maxSegmentCount = 2
 
 	repo := csv.NewFlightsDataRepoCSV("../../../data/")
-	finder := application.NewConnectionFindingService(repo)
+	finder := application.NewConnectionFinder(repo)
 	renderer := application.NewPathRendererAsText(os.Stdout)
 
 	fmt.Println(promptMsg)
