@@ -3,8 +3,8 @@ package loading
 import (
 	"encoding/csv"
 	"errors"
-	"fmt"
 	"io"
+	"log"
 	"strconv"
 
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/geo"
@@ -32,7 +32,7 @@ func (r *AirportsLoader) StartLoading(reader io.Reader, outputAirports chan<- CS
 		if err == nil && rec != nil {
 			airport, err := parseCSVAirport(rec)
 			if err != nil {
-				fmt.Printf("AiportLoader.StartLoading error: %v %+v\n", err.Error(), airport)
+				log.Printf("AiportLoader.StartLoading error: %v %+v\n", err.Error(), airport)
 			}
 
 			outputAirports <- airport

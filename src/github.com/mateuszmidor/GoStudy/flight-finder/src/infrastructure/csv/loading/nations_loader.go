@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"log"
 )
 
 const numNationCSVColumns = 4
@@ -28,7 +29,7 @@ func (r *NationsLoader) StartLoading(reader io.Reader, outputNations chan<- CSVN
 		if err == nil && rec != nil {
 			nation, err := parseCSVNation(rec)
 			if err != nil {
-				fmt.Printf("AiportLoader.StartLoading error: %v %+v\n", err.Error(), nation)
+				log.Printf("AiportLoader.StartLoading error: %v %+v\n", err.Error(), nation)
 			}
 
 			outputNations <- nation

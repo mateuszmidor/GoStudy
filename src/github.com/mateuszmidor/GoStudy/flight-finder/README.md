@@ -1,6 +1,7 @@
 # Flight Finder
 
-Find flight connections between two given airports
+Find flight connections between two given airports  
+Using gin-gonic web framework
 
 # Structure
 ![Logo](media/structure.png)

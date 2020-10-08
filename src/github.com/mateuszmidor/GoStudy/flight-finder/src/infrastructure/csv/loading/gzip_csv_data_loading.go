@@ -2,7 +2,7 @@ package loading
 
 import (
 	"compress/gzip"
-	"fmt"
+	"log"
 	"os"
 )
 
@@ -10,7 +10,7 @@ import (
 func StartLoadingSegmentsFromGzipCSV(segmentsGzipCSV string, outSegments chan<- CSVSegment) {
 	inputFile, err := os.Open(segmentsGzipCSV)
 	if err != nil {
-		fmt.Printf("Error opening %s: %v\n", segmentsGzipCSV, err)
+		log.Printf("Error opening %s: %v\n", segmentsGzipCSV, err)
 		close(outSegments)
 		return
 	}
@@ -18,7 +18,7 @@ func StartLoadingSegmentsFromGzipCSV(segmentsGzipCSV string, outSegments chan<- 
 
 	gzipReader, err := gzip.NewReader(inputFile)
 	if err != nil {
-		fmt.Printf("Error creating GZIP reader %s: %v\n", segmentsGzipCSV, err)
+		log.Printf("Error creating GZIP reader %s: %v\n", segmentsGzipCSV, err)
 		close(outSegments)
 		return
 	}
@@ -32,7 +32,7 @@ func StartLoadingSegmentsFromGzipCSV(segmentsGzipCSV string, outSegments chan<- 
 func StartLoadingAirportsFromGzipCSV(airportsGzipCSV string, outAirports chan<- CSVAirport) {
 	inputFile, err := os.Open(airportsGzipCSV)
 	if err != nil {
-		fmt.Printf("Error opening %s: %v\n", airportsGzipCSV, err)
+		log.Printf("Error opening %s: %v\n", airportsGzipCSV, err)
 		close(outAirports)
 		return
 	}
@@ -40,7 +40,7 @@ func StartLoadingAirportsFromGzipCSV(airportsGzipCSV string, outAirports chan<- 
 
 	gzipReader, err := gzip.NewReader(inputFile)
 	if err != nil {
-		fmt.Printf("Error creating GZIP reader %s: %v\n", airportsGzipCSV, err)
+		log.Printf("Error creating GZIP reader %s: %v\n", airportsGzipCSV, err)
 		close(outAirports)
 		return
 	}
@@ -54,7 +54,7 @@ func StartLoadingAirportsFromGzipCSV(airportsGzipCSV string, outAirports chan<- 
 func StartLoadingNationsFromGzipCSV(nationsGzipCSV string, outNations chan<- CSVNation) {
 	inputFile, err := os.Open(nationsGzipCSV)
 	if err != nil {
-		fmt.Printf("Error opening %s: %v\n", nationsGzipCSV, err)
+		log.Printf("Error opening %s: %v\n", nationsGzipCSV, err)
 		close(outNations)
 		return
 	}
@@ -62,7 +62,7 @@ func StartLoadingNationsFromGzipCSV(nationsGzipCSV string, outNations chan<- CSV
 
 	gzipReader, err := gzip.NewReader(inputFile)
 	if err != nil {
-		fmt.Printf("Error creating GZIP reader %s: %v\n", nationsGzipCSV, err)
+		log.Printf("Error creating GZIP reader %s: %v\n", nationsGzipCSV, err)
 		close(outNations)
 		return
 	}

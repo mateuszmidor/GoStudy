@@ -205,7 +205,7 @@
         var onFindConnections = function() {
         $.ajax({
                 type:'GET',
-                url:'api/find/json',
+                url:'api/find',
                 dataType: 'json',
                 contentType: 'application/json',
                 data:{ from: $("#fromairport").val(), to: $("#toairport").val(), maxsegmentcount: $("#maxsegmentcount").val() },  
@@ -238,7 +238,7 @@
        <div class="row">
           <div class="resultList" style="background-color:#aaa; overflow:auto;" id="pathsContainer2" >
             <div class="col-4" style="padding-left: 10px;">
-                <div class="list-group " id="pathsContainer" role="tablist">
+                <div class="list-group " id="pathsContainer" role="tabl`ist">
                 </div>
             </div>
           </div>

@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"runtime"
 	"runtime/pprof"
@@ -14,6 +15,8 @@ import (
 )
 
 func main() {
+	log.SetPrefix("[APP] ")
+
 	// collect CPU profile
 	cpu, _ := os.Create("cpu.out")
 	defer cpu.Close()
