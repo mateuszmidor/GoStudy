@@ -11,8 +11,8 @@ curl \
 -d \
 '{
     "title": "Orwell 1984",
-    "description": "Audiobook by G. Orwell",
-    "url": "https://www.youtube.com/watch?v=scqLliarGpM",
+    "description": "Audiobook by Novel 1984 of G. Orwell",
+    "url": "https://www.youtube.com/embed/scqLliarGpM",
     "author" : {
         "firstname": "George",
         "lastname":"Orwell",

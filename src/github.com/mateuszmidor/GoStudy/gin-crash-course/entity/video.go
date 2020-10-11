@@ -2,7 +2,7 @@ package entity
 
 type Video struct {
 	Title       string `json:"title" binding:"min=2,max=32,required" validate:"StartsWithCapital"` // custom validator
-	Description string `json:"description" binding:"max=32"`
+	Description string `json:"description" binding:"max=128"`
 	URL         string `json:"url" binding:"url,required"`
 	Author      Person `json:"author" binding:"required"`
 }
