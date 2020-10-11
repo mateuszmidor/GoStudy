@@ -10,15 +10,21 @@ curl \
 -H "Authorization: Basic YWRtaW46YWRtaW4=" \
 -d \
 '{
-    "title": "1984",
+    "title": "Orwell 1984",
     "description": "Audiobook by G. Orwell",
-    "url": "https://www.youtube.com/watch?v=scqLliarGpM"
+    "url": "https://www.youtube.com/watch?v=scqLliarGpM",
+    "author" : {
+        "firstname": "George",
+        "lastname":"Orwell",
+        "age": 75,
+        "email": "g.orwell@gmail.com"
+    }
 }' \
 -X POST \
-localhost:8080/videos
+localhost:8080/api/videos
 ```
 
 - Get all videos
 ```bash
-curl -H "Authorization: Basic YWRtaW46YWRtaW4=" -X GET localhost:8080/videos
+curl -H "Authorization: Basic YWRtaW46YWRtaW4=" -X GET localhost:8080/api/videos
 ```

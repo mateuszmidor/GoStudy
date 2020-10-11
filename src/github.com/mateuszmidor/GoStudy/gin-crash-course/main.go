@@ -15,11 +15,15 @@ import (
 var videoController controller.VideoController = controller.New(service.New())
 
 func main() {
+	logFile, _ := os.Create("gin.log")
+	defer logFile.Close()
+	gin.DefaultWriter = io.MultiWriter(os.Stdout, logFile)
+
 	server := gin.New()
 	server.Use(gin.Recovery())
-	server.Use(middleware.Logger())
-	server.Use(middleware.BasicAuth())
-	server.Use(gindump.Dump())
+	server.Use(middleware.Logger())    // just a custom format logger
+	server.Use(middleware.BasicAuth()) // authorization in user:pass form
+	server.Use(gindump.Dump())         // dump request and response headers and body in gin log
 
 	server.GET("/test", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"messsage": "OK"})
@@ -28,13 +32,12 @@ func main() {
 		ctx.JSON(http.StatusOK, videoController.FindAll())
 	})
 	server.POST("/videos", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, videoController.Save(ctx))
+		err := videoController.Save(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			ctx.JSON(http.StatusOK, gin.H{"message": "video input is valid"})
+		}
 	})
-	setupLogOutput()
 	server.Run(":8080")
-}
-
-func setupLogOutput() {
-	logFile, _ := os.Create("gin.log")
-	gin.DefaultWriter = io.MultiWriter(os.Stdout, logFile)
 }
