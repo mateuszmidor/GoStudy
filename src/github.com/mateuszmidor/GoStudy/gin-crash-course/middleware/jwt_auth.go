@@ -13,7 +13,6 @@ import (
 func AuthorizeJWT() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		const bearerSchema = "BEARER "
-
 		authHeader := ctx.GetHeader("Authorization")
 		if len(authHeader) < len(bearerSchema) {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)

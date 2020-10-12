@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
@@ -11,9 +12,11 @@ import (
 )
 
 type VideoController interface {
-	FindAll() []entity.Video
+	FindAll() ([]entity.Video, error)
 	ShowAll(ctx *gin.Context)
 	Save(ctx *gin.Context) error
+	Update(ctx *gin.Context) error
+	Delete(ctx *gin.Context) error
 }
 
 type controller struct {
@@ -28,14 +31,19 @@ func New(s service.VideoService) VideoController {
 	return &controller{service: s}
 }
 
-func (c *controller) FindAll() []entity.Video {
+func (c *controller) FindAll() ([]entity.Video, error) {
 	return c.service.FindAll()
 }
 
 func (c *controller) ShowAll(ctx *gin.Context) {
+	videos, err := c.FindAll()
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 	data := gin.H{
 		"pageTitle": "Video Page",
-		"videos":    c.FindAll(),
+		"videos":    videos,
 	}
 	ctx.HTML(http.StatusOK, "index.html", data)
 }
@@ -51,6 +59,45 @@ func (c *controller) Save(ctx *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	c.service.Save(v)
-	return nil
+	return c.service.Save(v)
+}
+
+func (c *controller) Update(ctx *gin.Context) error {
+	// get video ID from URL param (/videos/:id)
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		return err
+	}
+
+	// get video data from request body
+	var v entity.Video
+	err = ctx.ShouldBindJSON(&v) // uses field tags to unmarshall json body into struct
+	if err != nil {
+		return err
+	}
+	v.ID = id
+
+	// REQUIRED MANUAL STEP FOR CUSTOM VALIDATION
+	err = validate.Struct(v)
+	if err != nil {
+		return err
+	}
+
+	// update the video in database
+	return c.service.Update(v)
+}
+
+func (c *controller) Delete(ctx *gin.Context) error {
+	// get video ID from URL param (/videos/:id)
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		return err
+	}
+
+	// make up video
+	var v entity.Video
+	v.ID = id
+
+	// delete the videlo from database
+	return c.service.Delete(v)
 }

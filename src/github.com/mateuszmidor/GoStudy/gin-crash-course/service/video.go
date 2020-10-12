@@ -1,25 +1,37 @@
 package service
 
-import "github.com/mateuszmidor/GoStudy/gin-crash-course/entity"
+import (
+	"github.com/mateuszmidor/GoStudy/gin-crash-course/entity"
+	"github.com/mateuszmidor/GoStudy/gin-crash-course/repo"
+)
 
 type VideoService interface {
-	Save(entity.Video) entity.Video
-	FindAll() []entity.Video
+	Save(entity.Video) error
+	Update(entity.Video) error
+	Delete(entity.Video) error
+	FindAll() ([]entity.Video, error)
 }
 
 type videoService struct {
-	videos []entity.Video
+	videos repo.VideoRepo
 }
 
-func New() VideoService {
-	return &videoService{videos: []entity.Video{}}
+func New(repo repo.VideoRepo) VideoService {
+	return &videoService{videos: repo}
 }
 
-func (s *videoService) Save(v entity.Video) entity.Video {
-	s.videos = append(s.videos, v)
-	return v
+func (s *videoService) Save(v entity.Video) error {
+	return s.videos.Save(v)
 }
 
-func (s *videoService) FindAll() []entity.Video {
-	return s.videos
+func (s *videoService) Update(v entity.Video) error {
+	return s.videos.Update(v)
+}
+
+func (s *videoService) Delete(v entity.Video) error {
+	return s.videos.Delete(v)
+}
+
+func (s *videoService) FindAll() ([]entity.Video, error) {
+	return s.videos.FindAll()
 }

@@ -9,8 +9,8 @@ import (
 	"github.com/mateuszmidor/GoStudy/gin-crash-course/controller"
 	"github.com/mateuszmidor/GoStudy/gin-crash-course/entity"
 	"github.com/mateuszmidor/GoStudy/gin-crash-course/middleware"
+	"github.com/mateuszmidor/GoStudy/gin-crash-course/repo"
 	"github.com/mateuszmidor/GoStudy/gin-crash-course/service"
-	gindump "github.com/tpkeeper/gin-dump"
 )
 
 var (
@@ -32,7 +32,7 @@ func main() {
 	// MIDDLEWARE
 	server.Use(gin.Recovery())
 	server.Use(middleware.Logger()) // just a custom format logger
-	server.Use(gindump.Dump())      // dump request and response headers and body in gin log
+	// server.Use(gindump.Dump())      // dump request and response headers and body in gin log
 
 	// ROUTES
 	// basic auth test
@@ -43,7 +43,7 @@ func main() {
 	server.POST("/login", func(ctx *gin.Context) {
 		token := loginController.Login(ctx)
 		if token != "" {
-			ctx.JSON(http.StatusOK, gin.H{"jwt token": token}) // token should be stored by client and attached in subsequent requests headers
+			ctx.JSON(http.StatusOK, gin.H{"token": token}) // token should be stored by client and attached in subsequent requests headers
 		} else {
 			ctx.JSON(http.StatusUnauthorized, nil)
 		}
@@ -51,14 +51,36 @@ func main() {
 	// API, requires JWT login first
 	apiRoutes := server.Group("/api", middleware.AuthorizeJWT())
 	apiRoutes.GET("/videos", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, videoController.FindAll())
+		videos, err := videoController.FindAll()
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		} else {
+			ctx.JSON(http.StatusOK, videos)
+		}
+
 	})
 	apiRoutes.POST("/videos", func(ctx *gin.Context) {
 		err := videoController.Save(ctx)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
-			ctx.JSON(http.StatusOK, gin.H{"message": "video input is valid"})
+			ctx.JSON(http.StatusOK, gin.H{"message": "video added"})
+		}
+	})
+	apiRoutes.PUT("/videos/:id", func(ctx *gin.Context) {
+		err := videoController.Update(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			ctx.JSON(http.StatusOK, gin.H{"message": "video updated"})
+		}
+	})
+	apiRoutes.DELETE("/videos/:id", func(ctx *gin.Context) {
+		err := videoController.Delete(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			ctx.JSON(http.StatusOK, gin.H{"message": "video deleted"})
 		}
 	})
 	// HTML views, not JWT required
@@ -70,7 +92,10 @@ func main() {
 }
 
 func setupVideoController() controller.VideoController {
-	videoService := service.New()
+	videoRepo := repo.NewVideoRepo()
+	videoService := service.New(videoRepo)
+
+	// put some initial content
 	videoService.Save(entity.Video{
 		Title:       "Morza Wszeteczne",
 		Description: "Historie prosto z morza",
