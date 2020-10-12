@@ -2,24 +2,40 @@ package main
 
 import (
 	"io"
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mateuszmidor/GoStudy/gin-crash-course/api"
 	"github.com/mateuszmidor/GoStudy/gin-crash-course/controller"
+	"github.com/mateuszmidor/GoStudy/gin-crash-course/docs"
 	"github.com/mateuszmidor/GoStudy/gin-crash-course/entity"
 	"github.com/mateuszmidor/GoStudy/gin-crash-course/middleware"
 	"github.com/mateuszmidor/GoStudy/gin-crash-course/repo"
 	"github.com/mateuszmidor/GoStudy/gin-crash-course/service"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 var (
 	logFile, _                                 = os.Create("gin.log")
 	loginController controller.LoginController = controller.NewLoginController()
 	videoController controller.VideoController = setupVideoController()
+	videoAPI        *api.VideoAPI              = api.NewVideoAPI(loginController, videoController)
 )
 
+// @securityDefinitions.apikey bearerAuth
+// @in header
+// @name Authorization
 func main() {
+	// Swagger 2.0 meta info
+	docs.SwaggerInfo.Title = "Video API"
+	docs.SwaggerInfo.Description = "YouTube Video API"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "localhost:8080"
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"http"}
+	// Swagger END
+
 	gin.DefaultWriter = io.MultiWriter(os.Stdout, logFile)
 
 	// CREATE PLAIN SERVER (NO DEFAULT MIDDLEWARE)
@@ -34,58 +50,28 @@ func main() {
 	server.Use(middleware.Logger()) // just a custom format logger
 	// server.Use(gindump.Dump())      // dump request and response headers and body in gin log
 
-	// ROUTES
-	// basic auth test
-	server.GET("/batest", middleware.BasicAuth(), func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"messsage": "BasicAuth credentials OK"})
-	})
-	// JWT login
-	server.POST("/login", func(ctx *gin.Context) {
-		token := loginController.Login(ctx)
-		if token != "" {
-			ctx.JSON(http.StatusOK, gin.H{"token": token}) // token should be stored by client and attached in subsequent requests headers
-		} else {
-			ctx.JSON(http.StatusUnauthorized, nil)
-		}
-	})
-	// API, requires JWT login first
-	apiRoutes := server.Group("/api", middleware.AuthorizeJWT())
-	apiRoutes.GET("/videos", func(ctx *gin.Context) {
-		videos, err := videoController.FindAll()
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		} else {
-			ctx.JSON(http.StatusOK, videos)
+	apiRoutes := server.Group(docs.SwaggerInfo.BasePath)
+	{
+		login := apiRoutes.Group("/auth")
+		{
+			login.GET("/basicauth", middleware.BasicAuth(), videoAPI.TestBasicAuth)
+			login.POST("/token", videoAPI.Authenticate)
 		}
 
-	})
-	apiRoutes.POST("/videos", func(ctx *gin.Context) {
-		err := videoController.Save(ctx)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		} else {
-			ctx.JSON(http.StatusOK, gin.H{"message": "video added"})
+		videos := apiRoutes.Group("/videos", middleware.AuthorizeJWT())
+		{
+			videos.GET("", videoAPI.GetVideos)
+			videos.POST("", videoAPI.CreateVideo)
+			videos.PUT(":id", videoAPI.UpdateVideo)
+			videos.DELETE(":id", videoAPI.DeleteVideo)
 		}
-	})
-	apiRoutes.PUT("/videos/:id", func(ctx *gin.Context) {
-		err := videoController.Update(ctx)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		} else {
-			ctx.JSON(http.StatusOK, gin.H{"message": "video updated"})
-		}
-	})
-	apiRoutes.DELETE("/videos/:id", func(ctx *gin.Context) {
-		err := videoController.Delete(ctx)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		} else {
-			ctx.JSON(http.StatusOK, gin.H{"message": "video deleted"})
-		}
-	})
+	}
 	// HTML views, not JWT required
 	viewRoutes := server.Group("/view")
 	viewRoutes.GET("/videos", videoController.ShowAll)
+
+	// Swagger endpoint
+	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// START SERVER
 	server.Run(":8080")
