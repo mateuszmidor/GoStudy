@@ -6,7 +6,7 @@ import (
 
 var accounts gin.Accounts = gin.Accounts{
 	"user":  "user",
-	"admin": "admin",
+	"admin": "pass",
 }
 
 func BasicAuth() gin.HandlerFunc {

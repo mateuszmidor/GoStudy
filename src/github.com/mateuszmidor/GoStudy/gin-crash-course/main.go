@@ -15,6 +15,7 @@ import (
 
 var (
 	logFile, _                                 = os.Create("gin.log")
+	loginController controller.LoginController = controller.NewLoginController()
 	videoController controller.VideoController = setupVideoController()
 )
 
@@ -30,15 +31,25 @@ func main() {
 
 	// MIDDLEWARE
 	server.Use(gin.Recovery())
-	server.Use(middleware.Logger())    // just a custom format logger
-	server.Use(middleware.BasicAuth()) // authorization in user:pass form
-	server.Use(gindump.Dump())         // dump request and response headers and body in gin log
+	server.Use(middleware.Logger()) // just a custom format logger
+	server.Use(gindump.Dump())      // dump request and response headers and body in gin log
 
 	// ROUTES
-	apiRoutes := server.Group("/api")
-	apiRoutes.GET("/test", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"messsage": "OK"})
+	// basic auth test
+	server.GET("/batest", middleware.BasicAuth(), func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"messsage": "BasicAuth credentials OK"})
 	})
+	// JWT login
+	server.POST("/login", func(ctx *gin.Context) {
+		token := loginController.Login(ctx)
+		if token != "" {
+			ctx.JSON(http.StatusOK, gin.H{"jwt token": token}) // token should be stored by client and attached in subsequent requests headers
+		} else {
+			ctx.JSON(http.StatusUnauthorized, nil)
+		}
+	})
+	// API, requires JWT login first
+	apiRoutes := server.Group("/api", middleware.AuthorizeJWT())
 	apiRoutes.GET("/videos", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, videoController.FindAll())
 	})
@@ -50,6 +61,7 @@ func main() {
 			ctx.JSON(http.StatusOK, gin.H{"message": "video input is valid"})
 		}
 	})
+	// HTML views, not JWT required
 	viewRoutes := server.Group("/view")
 	viewRoutes.GET("/videos", videoController.ShowAll)
 
