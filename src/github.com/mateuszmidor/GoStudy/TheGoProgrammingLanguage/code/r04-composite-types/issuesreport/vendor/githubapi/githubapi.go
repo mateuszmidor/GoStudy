@@ -3,7 +3,7 @@ package githubapi
 import (
 	"time"
 
-	githubapi "github.com/mateuszmidor/GoStudy/TheGoProgrammingLanguage/code/r04/github/githubapi"
+	githubapi "github.com/mateuszmidor/GoStudy/TheGoProgrammingLanguage/code/r04-composite-types/github/githubapi"
 )
 
 // SsearchIssues querries GitHub issues API

@@ -22,6 +22,5 @@ func (c *counter) Write(b []byte) (int, error) {
 func main() {
 	var c counter
 	c.Write([]byte("Litwo Ojczyzno Moja"))
-	fmt.Printf("Counted words: %d",
-		c)
+	fmt.Printf("Counted words: %d", c)
 }

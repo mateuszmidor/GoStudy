@@ -22,7 +22,7 @@ Created:        {{.CreatedAt | daysAgo}} days ago
 
 func main() {
 	funcMap := template.FuncMap{"daysAgo": daysAgo} // will handle "| daysAgo" from template
-	report := template.Must(template.New("issuelist").Funcs(funcMap).Parse(templ))
+	report := template.Must(template.New("").Funcs(funcMap).Parse(templ))
 
 	issues, err := githubapi.SearchIssuesSince3Months()
 	if err != nil {

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mateuszmidor/GoStudy/TheGoProgrammingLanguage/code/r12/yaml"
+	"github.com/mateuszmidor/GoStudy/TheGoProgrammingLanguage/code/r12-reflection/yaml"
 )
 
 func TestSimpleBool(t *testing.T) {
