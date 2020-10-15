@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <title>WebSocket time demo</title>
+
+</head>
+
+<body>
+    <div>
+        <h1>Time: </h1>
+        <h1 id="time">({{.Host}})</h1>
+    </div>
+
+    <script>
+        var socket = null
+        
+        function setupWebSocket() {
+            socket = new WebSocket("ws://{{.Host}}/time");
+            socket.onclose = function(){
+                setTimeout(setupWebSocket, 1000); // autoclose workaround
+            };
+            
+            socket.onmessage = function (e) {
+                var data = JSON.parse(e.data);
+                $("#time").html(data.time);
+            }
+        }        
+
+        if (!window["WebSocket"])
+            alert("Error: browser doesnt support web sockets");
+        else 
+            setupWebSocket();
+
+    </script>
+</body>
+
+</html>
