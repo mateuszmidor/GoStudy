@@ -4,9 +4,6 @@
 <head>
     <meta charset="utf-8" />
 
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
     <title>WebSocket time demo</title>
 
 </head>
@@ -28,7 +25,7 @@
             
             socket.onmessage = function (e) {
                 var data = JSON.parse(e.data);
-                $("#time").html(data.time);
+                document.getElementById("time").innerText = data.time
             }
         }        
 
