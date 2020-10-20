@@ -22,29 +22,38 @@ func NewConnectionFinder(repo infrastructure.FlightsDataRepo) *ConnectionFinder 
 	return &ConnectionFinder{flightsData: flightsData, connections: connections}
 }
 
-func (f *ConnectionFinder) Find(fromAirport, toAirport string, maxSegmentCount int, pathRenderer PathRenderer) error {
-	flightsData := &f.flightsData
-	from := flightsData.Airports.GetByCode(fromAirport)
-	if from == airports.NullID {
-		return fmt.Errorf(`Invalid "from" airport: %s`, fromAirport)
-	}
-
-	to := flightsData.Airports.GetByCode(toAirport)
-	if to == airports.NullID {
-		return fmt.Errorf(`Invalid "to" airport: %s`, toAirport)
+func (f *ConnectionFinder) Find(fromAirportCode, toAirportCode string, maxSegmentCount int, pathRenderer PathRenderer) error {
+	fromID, toID, err := getFromToAirportID(fromAirportCode, toAirportCode, f.flightsData.Airports)
+	if err != nil {
+		return err
 	}
 
 	limiter := makeLimiter(maxSegmentCount)
+	paths := pathfinding.FindPaths(pathfinding.NodeID(fromID), pathfinding.NodeID(toID), f.connections, limiter)
+	sortPathsByNumSegmentsAscending(paths)
 
-	// start := time.Now()
-	paths := pathfinding.FindPaths(pathfinding.NodeID(from), pathfinding.NodeID(to), f.connections, limiter)
-	// elapsed := time.Now().Sub(start)
+	pathRenderer.Render(paths, &f.flightsData)
+	return nil
+}
+
+func getFromToAirportID(fromAirportCode, toAirportCode string, airprts airports.Airports) (airports.ID, airports.ID, error) {
+	from := airprts.GetByCode(fromAirportCode)
+	if from == airports.NullID {
+		return airports.NullID, airports.NullID, fmt.Errorf(`Invalid "from" airport: %s`, fromAirportCode)
+	}
+
+	to := airprts.GetByCode(toAirportCode)
+	if to == airports.NullID {
+		return airports.NullID, airports.NullID, fmt.Errorf(`Invalid "to" airport: %s`, toAirportCode)
+	}
+
+	return from, to, nil
+}
+
+func sortPathsByNumSegmentsAscending(paths []pathfinding.Path) {
 	sort.Slice(paths, func(i, j int) bool {
 		return len(paths[i]) < len(paths[j])
 	})
-
-	pathRenderer.Render(paths, flightsData)
-	return nil
 }
 
 func makeLimiter(maxSegmentCount int) pathfinding.CheckContinueBuildingPaths {
