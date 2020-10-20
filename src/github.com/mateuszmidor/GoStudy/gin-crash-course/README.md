@@ -14,7 +14,7 @@ curl -H "Authorization: Basic YWRtaW46cGFzcw==" -X GET localhost:8080/api/v1/aut
 {"messsage":"BasicAuth credentials OK"}
 ```
 
-- Login (generates JWT)
+- Login (generates JWT to be used in next requests)
 ```bash
 curl -X POST 'localhost:8080/api/v1/auth/token?username=admin&password=pass'
 # response:
@@ -94,8 +94,8 @@ $GOPATH/bin/swag init
 ```
 localhost:8080/swagger/index.html
 ```
-first Authorize with value:
+first POST /auth/token, then Authorize with received JWT token using following:
 ```
-Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiYWRtaW4iOnRydWUsImV4cCI6MTYwMjc1MjQxNSwiaWF0IjoxNjAyNDkzMjE1LCJpc3MiOiJtYXRldXN6bWlkb3IuY29tIn0.EuoHF1zVYkMvfjLD58BJFOYVXnh6EsaLb5RMwkhXTwM
+Bearer <token string>
 ```
 
