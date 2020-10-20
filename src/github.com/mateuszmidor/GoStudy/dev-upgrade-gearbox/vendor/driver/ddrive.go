@@ -82,7 +82,7 @@ func (d *DDrive) SetAggressivenessLevel2() {
 
 // SetAggressivenessLevel3 setter
 func (d *DDrive) SetAggressivenessLevel3() {
-	panic("not implemented")
+	d.aggressivenessLevel = aggressiveness.NewLevel3()
 }
 
 // SetDrivingModeEco setter
