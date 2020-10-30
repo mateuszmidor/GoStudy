@@ -1,4 +1,8 @@
 # Kubernetes operator using Operator-SDK
+
+Operator-SDK v1.0 workshop  
+<https://www.youtube.com/watch?v=1iJKDbQzL-k>
+
 The below RedHat OpenShift Operator-SDK workshop uses some earlier version of operator-sdk so the commands differ, but the resulting operator is the same:  
 <https://www.youtube.com/watch?v=pTbuHoMp68s>
 
@@ -6,12 +10,14 @@ Migrating to new operator-sdk:
 <https://sdk.operatorframework.io/docs/building-operators/golang/migration/>
 
 ## Install minikube
+
 <https://github.com/mateuszmidor/DevOpsStudy/tree/master/Kubernetes>
 ```bash
 sudo pacman -S minikube
 ```
 
 ## Install operator-sdk
+
 <https://sdk.operatorframework.io/docs/installation/install-operator-sdk/#compile-and-install-from-master>
 ```bash
 mkdir $GOPATH/src/github.com/operator-framework
@@ -23,6 +29,7 @@ make tidy
 make install
 ```
 ## Steps (from nothing to working operator)
+
 <https://sdk.operatorframework.io/docs/building-operators/golang/quickstart/>
 - generate just general boilerplate code for operator  
   `operator-sdk init --project-name podset-operator --domain mateuszmidor.com --owner "Mateusz Midor" --license apache2`
@@ -68,5 +75,6 @@ example-podset-podxjpp2   1/1     Running   0          76s
 ```
 
 ## Exercises 
+
 outdated; uses operator-sdk v0.6 while there is v1.1 out there and the commands have changed
 <http://workshop.coreostrain.me/exercises/>
