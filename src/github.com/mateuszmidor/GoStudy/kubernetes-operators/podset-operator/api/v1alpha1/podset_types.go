@@ -43,6 +43,7 @@ type PodSetStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=ps
 
 // PodSet is the Schema for the podsets API
 type PodSet struct {

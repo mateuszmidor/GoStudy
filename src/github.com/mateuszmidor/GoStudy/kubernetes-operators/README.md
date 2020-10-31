@@ -40,7 +40,9 @@ make install
 - modify our PodSet controller under controllers/podset_controller.go to handle POD replicas    
   `wget https://raw.githubusercontent.com/openshift-labs/learn-katacoda/master/operatorframework/go-operator-podset/assets/podset_controller.go`
 - generate CRD yaml (config/crd/bases/podset.mateuszmidor.com_podsets.yaml), RBAC and install them into cluster  
-  `make install`
+  `make manifests`
+- install new CRD into cluster  
+  `make install # this actually also runs: make manifests`
 - run operator OUTSIDE the cluster, as a separate go app (it connects to kubernetes API server that is accessible from outside the cluster)  
   `make run`  
 - see new CRD "podsets" is now available:  
