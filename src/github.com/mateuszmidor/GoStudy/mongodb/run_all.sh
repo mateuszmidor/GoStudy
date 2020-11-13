@@ -3,7 +3,6 @@
 trap tearDown SIGINT
 
 IMAGE_NAME="mymongo"
-MONGO_DATABASE="shopping"
 MONGO_USER="myuser"
 MONGO_PASS="mypass"
 MONGO_PORT=27017
@@ -32,7 +31,7 @@ function checkPrerequsites() {
 function runMongo() {
     stage "Running dockerized Mongo server"
 
-    docker run --rm --name $IMAGE_NAME -e MONGO_INITDB_ROOT_USERNAME=$MONGO_USER -e MONGO_INITDB_ROOT_PASSWORD=$MONGO_PASS -e MONGO_INITDB_DATABASE=$MONGO_DATABASE -p $MONGO_PORT:$MONGO_PORT -d mongo:latest
+    docker run --rm --name $IMAGE_NAME -e MONGO_INITDB_ROOT_USERNAME=$MONGO_USER -e MONGO_INITDB_ROOT_PASSWORD=$MONGO_PASS -p $MONGO_PORT:$MONGO_PORT -d mongo:latest
 
     # sleep 10
     # wait server is up
