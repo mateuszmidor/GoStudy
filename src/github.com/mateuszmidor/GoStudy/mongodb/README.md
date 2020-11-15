@@ -1,5 +1,6 @@
 # MongoDB
 
+Mongo shell tutorial: <https://www.youtube.com/watch?v=-56x56UppqQ>
 ## Highlights
 
 - the hierarchy is: database.collection.documents
@@ -24,6 +25,8 @@ config       0.000GB
 grocery      0.000GB # created by app
 local        0.000GB
 
+# Notice: dont mind the '_id' value; these examples come from different mongo sessions
+
 > show roles
 {
 	"role" : "dbAdmin",
@@ -34,16 +37,96 @@ local        0.000GB
 }
 (... 5 more)
 
-> use grocery # change current DB to 'grocery'
+# change current DB to 'grocery'
+> use grocery 
 switched to db grocery
 
+# list collections in DB 'grocery'
 > show collections
 items
 
+# find all documents in collection 'items'
 > db.items.find()
-{ "_id" : ObjectId("5fb0105cca62310485375a01"), "id" : ObjectId("5fb0105cca62310485375a00"), "title" : "Bread", "price" : NumberLong(4) }
-{ "_id" : ObjectId("5fb0105cca62310485375a03"), "id" : ObjectId("5fb0105cca62310485375a02"), "title" : "Milk", "price" : NumberLong(3) }
-{ "_id" : ObjectId("5fb0105cca62310485375a05"), "id" : ObjectId("5fb0105cca62310485375a04"), "title" : "Guacamole", "price" : NumberLong(23) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229e"), "name" : "Bread", "price" : NumberLong(4) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229f"), "name" : "Milk", "price" : NumberLong(7) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e22a0"), "name" : "Pasztet", "price" : NumberLong(1) }
+
+# create new document
+> db.items.insert ({ name: "Hummus", price: NumberLong(8) })
+WriteResult({ "nInserted" : 1 })
+
+> db.items.find()
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229e"), "name" : "Bread", "price" : NumberLong(4) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229f"), "name" : "Milk", "price" : NumberLong(7) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e22a0"), "name" : "Pasztet", "price" : NumberLong(1) }
+{ "_id" : ObjectId("5fb1428b477ca6c011f102d1"), "name" : "Hummus", "price" : NumberLong(8) }
+
+# find by exact name
+> db.items.find({name:"Hummus"})
+{ "_id" : ObjectId("5fb1428b477ca6c011f102d1"), "name" : "Hummus", "price" : NumberLong(8) }
+
+# find by minimu price (gte = greater or equal)
+> db.items.find({price: {$gte:4}})
+{ "_id" : ObjectId("5fb1513feaf0c581fc652c6f"), "name" : "Bread", "price" : NumberLong(4) }
+{ "_id" : ObjectId("5fb1513feaf0c581fc652c70"), "name" : "Milk", "price" : NumberLong(7) }
+{ "_id" : ObjectId("5fb1428b477ca6c011f102d1"), "name" : "Hummus", "price" : NumberLong(8) }
+
+
+# find the first 2 documents
+> db.items.find().limit(2)
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229e"), "name" : "Bread", "price" : NumberLong(4) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229f"), "name" : "Milk", "price" : NumberLong(7) }
+
+# get document count
+> db.items.find().count()
+4
+
+# find and sort descending by price
+> db.items.find().sort({price:-1})
+{ "_id" : ObjectId("5fb1428b477ca6c011f102d1"), "name" : "Hummus", "price" : NumberLong(8) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229f"), "name" : "Milk", "price" : NumberLong(7) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229e"), "name" : "Bread", "price" : NumberLong(4) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e22a0"), "name" : "Pasztet", "price" : NumberLong(1) }
+
+# change price of Hummus to 11
+> db.items.update({name: "Hummus"}, {$set: {price: NumberLong(11)}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+> db.items.find().sort({price:-1})
+{ "_id" : ObjectId("5fb1425e477ca6c011f102d0"), "name" : "Hummus", "price" : NumberLong(11) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229f"), "name" : "Milk", "price" : NumberLong(7) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229e"), "name" : "Bread", "price" : NumberLong(4) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e22a0"), "name" : "Pasztet", "price" : NumberLong(1) }
+
+# increment price of Hummus by 2
+> db.items.update({name: "Hummus"}, {$inc: {price: 2}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+> db.items.find().sort({price:-1})
+{ "_id" : ObjectId("5fb1425e477ca6c011f102d0"), "name" : "Hummus", "price" : NumberLong(13) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229f"), "name" : "Milk", "price" : NumberLong(7) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229e"), "name" : "Bread", "price" : NumberLong(4) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e22a0"), "name" : "Pasztet", "price" : NumberLong(1) }
+
+# rename document field price -> cost
+> db.items.update({name: "Hummus"}, {$rename: {price: "cost"}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+> db.items.find().sort({price:-1})
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229f"), "name" : "Milk", "price" : NumberLong(7) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e229e"), "name" : "Bread", "price" : NumberLong(4) }
+{ "_id" : ObjectId("5fb14201bc3a7070f22e22a0"), "name" : "Pasztet", "price" : NumberLong(1) }
+{ "_id" : ObjectId("5fb1425e477ca6c011f102d0"), "name" : "Hummus", "cost" : NumberLong(13) }
+
+# remove document
+> db.items.remove({ name: "Hummus"})
+WriteResult({ "nRemoved" : 1 })
+
+> db.items.find().sort({price:-1})
+{ "_id" : ObjectId("5fb14df947904917007cf0d8"), "name" : "Milk", "price" : NumberLong(7) }
+{ "_id" : ObjectId("5fb14df947904917007cf0d7"), "name" : "Bread", "price" : NumberLong(4) }
+{ "_id" : ObjectId("5fb14eb327263736c7e3fad9"), "name" : "Pasztet", "price" : NumberLong(1) }
+
 
 > db.stats()
 {

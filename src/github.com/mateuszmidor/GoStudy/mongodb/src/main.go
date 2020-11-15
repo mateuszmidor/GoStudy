@@ -162,6 +162,16 @@ func replaceEntireItem(database string, oldName string, newName string, newPrice
 	panicOnErr("Error replacing item", err)
 }
 
+func delete(database string, name string) {
+	client, ctx, cancel := getConnection()
+	defer cancel()
+	defer client.Disconnect(ctx)
+
+	filterByName := bson.D{{"name", name}}
+	_, err := client.Database(database).Collection("items").DeleteOne(ctx, filterByName)
+	panicOnErr("Error replacing item", err)
+}
+
 func panicOnErr(msg string, err error) {
 	if err != nil {
 		panic(msg + ": " + err.Error())
@@ -169,46 +179,62 @@ func panicOnErr(msg string, err error) {
 }
 
 func main() {
+	// Check connection to DB
 	fmt.Println("Connecting to mongodb...")
 	getConnection()
 	fmt.Print("Connected\n\n")
 
+	// Print available databases, at this point only the default ones are available
 	fmt.Println("Listing existing databases:")
 	listDatabases()
 	fmt.Print("\n\n")
 
+	// Create documents under collections "items" under databases "grocery" and "coffee-shop"
 	fmt.Println("Adding documents to db...")
 	create(databaseCoffeeShop, "Coffee", 9)
 	create(databaseCoffeeShop, "Cake", 12)
 	create(databaseCoffeeShop, "Icecream", 6)
 	create(databaseGrocery, "Bread", 4)
 	create(databaseGrocery, "Milk", 3)
+	create(databaseGrocery, "Cheese", 8)
 	create(databaseGrocery, "Guacamole", 23)
 	fmt.Print("\n\n")
 
+	// Print documents in coffee-shop
 	fmt.Println("Listing items in DB coffee-shop:")
 	listOneByOne(databaseCoffeeShop)
 	fmt.Print("\n\n")
 
+	// Print documents in grocery
 	fmt.Println("Listing items in DB grocery:")
 	listAllAtOnce(databaseGrocery)
 	fmt.Print("\n\n")
 
+	// Print sorted documents in grocery (by price, descendig)
 	fmt.Println("Listing items in DB grocery sorted descending:")
 	listSorted(databaseGrocery)
 	fmt.Print("\n\n")
 
+	// Print documents with price < 7
 	fmt.Println("Listing items in DB grocery cheaper than 7")
 	listCheaperThan7(databaseGrocery)
 	fmt.Print("\n\n")
 
+	// Change Milk price to 7
 	fmt.Println("Updating Milk price to 7")
 	updatePrice(databaseGrocery, "Milk", 7)
 	listAllAtOnce(databaseGrocery)
 	fmt.Print("\n\n")
 
+	// Replace Guacamole with Pasztet
 	fmt.Println("Replacing Guacamole for Pasztet")
 	replaceEntireItem(databaseGrocery, "Guacamole", "Pasztet", 1)
+	listAllAtOnce(databaseGrocery)
+	fmt.Print("\n\n")
+
+	// Delete Cheese
+	fmt.Println("Deleting Cheese")
+	delete(databaseGrocery, "Cheese")
 	listAllAtOnce(databaseGrocery)
 	fmt.Print("\n\n")
 
