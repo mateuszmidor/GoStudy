@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,114 +14,204 @@ import (
 const (
 	// Timeout operations after N seconds
 	connectTimeout           = 10
-	connectionStringTemplate = "mongodb://%s:%s@%s"
-	username                 = "myuser"
-	password                 = "mypass"
-	clusterEndpoint          = "localhost"
+	databaseConnectionString = "mongodb://myuser:mypass@localhost"
 	databaseCoffeeShop       = "coffee-shop"
 	databaseGrocery          = "grocery"
 )
 
 type item struct {
-	ID    primitive.ObjectID
-	Title string
-	Price uint
+	ID    primitive.ObjectID `bson:"_id,omitempty"`
+	Name  string             `bson:"name"`
+	Price uint               `bson:"price"`
 }
 
-// GetConnection - Retrieves a client to the DocumentDB
+// getConnection - Retrieves a client to the DocumentDB
 func getConnection() (*mongo.Client, context.Context, context.CancelFunc) {
-	connectionURI := fmt.Sprintf(connectionStringTemplate, username, password, clusterEndpoint)
-
-	client, err := mongo.NewClient(options.Client().ApplyURI(connectionURI))
-	if err != nil {
-		log.Fatalf("Failed to create client: %v", err)
-	}
+	client, err := mongo.NewClient(options.Client().ApplyURI(databaseConnectionString))
+	panicOnErr("Failed to createItem client", err)
 
 	ctx, cancel := context.WithTimeout(context.Background(), connectTimeout*time.Second)
 
 	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatalf("Failed to connect to cluster: %v", err)
-	}
+	panicOnErr("Failed to connect to cluster", err)
 
 	// Force a connection to verify our connection string
 	err = client.Ping(ctx, nil)
-	if err != nil {
-		log.Fatalf("Failed to ping cluster: %v", err)
-	}
+	panicOnErr("Failed to ping cluster", err)
 
 	return client, ctx, cancel
 }
 
-func ListDatabases() {
+func listDatabases() {
 	client, ctx, cancel := getConnection()
 	defer cancel()
 	defer client.Disconnect(ctx)
 
 	dbs, err := client.ListDatabaseNames(ctx, bson.D{})
-	if err != nil {
-		log.Fatalf("Error listing databases: %v", err)
-	}
+	panicOnErr("Error listing databases", err)
 
 	fmt.Println(dbs)
 }
 
-//Create creating a item in a mongo or document db
-func Create(item *item, database string) (primitive.ObjectID, error) {
+func create(database string, name string, price uint) primitive.ObjectID {
 	client, ctx, cancel := getConnection()
 	defer cancel()
 	defer client.Disconnect(ctx)
-	item.ID = primitive.NewObjectID()
 
-	result, err := client.Database(database).Collection("items").InsertOne(ctx, item)
-	if err != nil {
-		log.Fatalf("Could not create item: %v", err)
-	}
-	oid := result.InsertedID.(primitive.ObjectID)
+	item := &item{Name: name, Price: price}
+	result, err := client.Database(database).Collection("items").InsertOne(ctx, &item)
+	panicOnErr("Could not create item", err)
+	fmt.Printf("created %s\n", name)
 
-	return oid, nil
+	return result.InsertedID.(primitive.ObjectID)
 }
 
-func List(database string) {
+func listAllAtOnce(database string) {
+	client, ctx, cancel := getConnection()
+	defer cancel()
+	defer client.Disconnect(ctx)
+
+	findAll := bson.D{} // empty document means no filtering
+	cursor, err := client.Database(database).Collection("items").Find(ctx, findAll)
+	panicOnErr("Error finding documents", err)
+
+	// get all documents into a slice
+	var items []bson.M
+	err = cursor.All(ctx, &items)
+	panicOnErr("Error unmarshalling documents", err)
+
+	// print documents
+	for _, item := range items {
+		fmt.Printf("%-10s%2d PLN\n", item["name"], item["price"])
+	}
+}
+
+func listOneByOne(database string) {
+	client, ctx, cancel := getConnection()
+	defer cancel()
+	defer client.Disconnect(ctx)
+
+	findAll := bson.D{} // D for Document, that is defined as pairs: bson.D {{"name", "Andrzej"}, {"age", 33}}
+	cursor, err := client.Database(database).Collection("items").Find(ctx, findAll)
+	panicOnErr("Error finding documents", err)
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var t item
+		cursor.Decode(&t)
+		fmt.Printf("%-10s%2d PLN\n", t.Name, t.Price)
+	}
+}
+
+func listSorted(database string) {
 	client, ctx, cancel := getConnection()
 	defer cancel()
 	defer client.Disconnect(ctx)
 
 	findAll := bson.D{}
-	cursor, err := client.Database(database).Collection("items").Find(ctx, findAll)
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
+	sortDescending := options.Find().SetSort(bson.D{{"price", -1}})
+	cursor, err := client.Database(database).Collection("items").Find(ctx, findAll, sortDescending)
+	panicOnErr("Error finding documents", err)
 
-	fmt.Println("Database", database, ":")
+	defer cursor.Close(ctx)
 	var t item
 	for cursor.Next(ctx) {
 		cursor.Decode(&t)
-		fmt.Printf("%-10s%2d PLN\n", t.Title, t.Price)
+		fmt.Printf("%-10s%2d PLN\n", t.Name, t.Price)
+	}
+}
+
+func listCheaperThan7(database string) {
+	client, ctx, cancel := getConnection()
+	defer cancel()
+	defer client.Disconnect(ctx)
+
+	// findCheapest := bson.D{{"price", 3}} // price == 3
+	findCheap := bson.D{{"price", bson.D{{"$lt", 7}}}} // price < 7
+	cursor, err := client.Database(database).Collection("items").Find(ctx, findCheap)
+	panicOnErr("Error finding documents", err)
+
+	defer cursor.Close(ctx)
+	var t item
+	for cursor.Next(ctx) {
+		cursor.Decode(&t)
+		fmt.Printf("%-10s%2d PLN\n", t.Name, t.Price)
+	}
+}
+
+func updatePrice(database string, name string, newPrice uint) {
+	client, ctx, cancel := getConnection()
+	defer cancel()
+	defer client.Disconnect(ctx)
+
+	filterByName := bson.D{{"name", name}}
+	updatePrice := bson.D{{"$set", bson.D{{"price", newPrice}}}}
+	_, err := client.Database(database).Collection("items").UpdateOne(ctx, filterByName, updatePrice)
+	panicOnErr("Error updating price", err)
+}
+
+// replace given item with completely new one but keep ObjectID "_id"
+func replaceEntireItem(database string, oldName string, newName string, newPrice uint) {
+	client, ctx, cancel := getConnection()
+	defer cancel()
+	defer client.Disconnect(ctx)
+
+	filterByName := bson.D{{"name", oldName}}
+	replacement := item{Name: newName, Price: newPrice}
+	_, err := client.Database(database).Collection("items").ReplaceOne(ctx, filterByName, replacement)
+	panicOnErr("Error replacing item", err)
+}
+
+func panicOnErr(msg string, err error) {
+	if err != nil {
+		panic(msg + ": " + err.Error())
 	}
 }
 
 func main() {
+	fmt.Println("Connecting to mongodb...")
+	getConnection()
+	fmt.Print("Connected\n\n")
+
 	fmt.Println("Listing existing databases:")
-	ListDatabases()
-	fmt.Println("Done.")
+	listDatabases()
+	fmt.Print("\n\n")
 
-	fmt.Println("\nAdding documents to db...")
-	Create(&item{Title: "Coffee", Price: 9}, databaseCoffeeShop)
-	Create(&item{Title: "Cake", Price: 12}, databaseCoffeeShop)
-	Create(&item{Title: "Icecream", Price: 5}, databaseCoffeeShop)
-	Create(&item{Title: "Bread", Price: 4}, databaseGrocery)
-	Create(&item{Title: "Milk", Price: 3}, databaseGrocery)
-	Create(&item{Title: "Guacamole", Price: 23}, databaseGrocery)
-	fmt.Println("Done.")
+	fmt.Println("Adding documents to db...")
+	create(databaseCoffeeShop, "Coffee", 9)
+	create(databaseCoffeeShop, "Cake", 12)
+	create(databaseCoffeeShop, "Icecream", 6)
+	create(databaseGrocery, "Bread", 4)
+	create(databaseGrocery, "Milk", 3)
+	create(databaseGrocery, "Guacamole", 23)
+	fmt.Print("\n\n")
 
-	fmt.Println("\nListing documents in db:")
-	List(databaseCoffeeShop)
-	fmt.Println()
-	List(databaseGrocery)
-	fmt.Println("Done.")
+	fmt.Println("Listing items in DB coffee-shop:")
+	listOneByOne(databaseCoffeeShop)
+	fmt.Print("\n\n")
 
-	fmt.Println("\nListing existing databases:")
-	ListDatabases()
-	fmt.Println("Done.")
+	fmt.Println("Listing items in DB grocery:")
+	listAllAtOnce(databaseGrocery)
+	fmt.Print("\n\n")
+
+	fmt.Println("Listing items in DB grocery sorted descending:")
+	listSorted(databaseGrocery)
+	fmt.Print("\n\n")
+
+	fmt.Println("Listing items in DB grocery cheaper than 7")
+	listCheaperThan7(databaseGrocery)
+	fmt.Print("\n\n")
+
+	fmt.Println("Updating Milk price to 7")
+	updatePrice(databaseGrocery, "Milk", 7)
+	listAllAtOnce(databaseGrocery)
+	fmt.Print("\n\n")
+
+	fmt.Println("Replacing Guacamole for Pasztet")
+	replaceEntireItem(databaseGrocery, "Guacamole", "Pasztet", 1)
+	listAllAtOnce(databaseGrocery)
+	fmt.Print("\n\n")
+
+	fmt.Println("Listing existing databases:")
+	listDatabases()
 }

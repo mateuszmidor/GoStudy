@@ -24,8 +24,8 @@ function checkPrerequsites() {
 
     command docker version > /dev/null 2>&1
     [[ $? != 0 ]] && echo "You need to install docker to run this example" && exit 1
-
-    echo "OK"
+    
+    echo "Done"
 }
 
 function runMongo() {
@@ -33,10 +33,7 @@ function runMongo() {
 
     docker run --rm --name $IMAGE_NAME -e MONGO_INITDB_ROOT_USERNAME=$MONGO_USER -e MONGO_INITDB_ROOT_PASSWORD=$MONGO_PASS -p $MONGO_PORT:$MONGO_PORT -d mongo:latest
 
-    # sleep 10
-    # wait server is up
-    # waitRabbitReady
-    echo "OK"
+    echo "Done"
 }
 
 function runExample() {
@@ -45,12 +42,7 @@ function runExample() {
     cd src/
     go run .
 
-    echo "OK"
-}
-
-function waitRabbitReady {
-    
-    while true; do curl --max-time 1 $WEB_CONSOLE_URL > /dev/null 2>&1; [[ $? == 0 ]] && break; sleep 1; done
+    echo "Done"
 }
 
 function keepAlive() {
@@ -63,6 +55,8 @@ function tearDown() {
     stage "Stopping..."
 
     docker stop $IMAGE_NAME
+
+    echo "Done"
     exit 0
 }
 
