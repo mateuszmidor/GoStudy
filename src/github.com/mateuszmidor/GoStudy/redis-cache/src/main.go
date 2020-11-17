@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 )
 
 func getClient() *redis.Client {
@@ -23,12 +24,14 @@ func main() {
 	defer c.Close()
 	fmt.Print("Done\n\n")
 
+	ctx := context.Background()
+
 	fmt.Println("Setting COLOR")
-	c.Set("COLOR", "RED", time.Hour)
+	c.Set(ctx, "COLOR", "RED", time.Hour)
 	fmt.Print("Done\n\n")
 
 	fmt.Println("Getting COLOR")
-	value, _ := c.Get("COLOR").Result()
+	value, _ := c.Get(ctx, "COLOR").Result()
 	fmt.Println(value)
 	fmt.Print("Done\n\n")
 }
