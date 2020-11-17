@@ -10,12 +10,21 @@ import (
 
 func getClient() *redis.Client {
 	options := redis.Options{
-		Password:    "mypass",         // password specified in conf/redis.conf
+		Password:    "mypass",         // password specified in conf/redis.conf; by default there is no password set
 		Addr:        "localhost:6379", // default port
 		DB:          0,                // default db
 		DialTimeout: time.Second * 10,
 	}
-	return redis.NewClient(&options)
+	c := redis.NewClient(&options)
+
+	// ping to check the connection
+	status := c.Ping(context.Background())
+	_, err := status.Result()
+	if err != nil {
+		panic(status)
+	}
+
+	return c
 }
 
 func main() {
