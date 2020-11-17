@@ -10,9 +10,9 @@ import (
 
 func getClient() *redis.Client {
 	options := redis.Options{
-		Addr:        "localhost:6379",
-		Password:    "",
-		DB:          0, // default
+		Password:    "mypass",         // password specified in conf/redis.conf
+		Addr:        "localhost:6379", // default port
+		DB:          0,                // default db
 		DialTimeout: time.Second * 10,
 	}
 	return redis.NewClient(&options)

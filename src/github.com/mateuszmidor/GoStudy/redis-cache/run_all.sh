@@ -29,7 +29,13 @@ function checkPrerequsites() {
 function runRedis() {
     stage "Running dockerized Redis server"
 
-    docker run --rm --name $IMAGE_NAME -p $REDIS_PORT:$REDIS_PORT -d redis:latest
+    docker run \
+        -d \
+        --rm \
+        --name $IMAGE_NAME \
+        -p $REDIS_PORT:$REDIS_PORT \
+        -v `pwd`/conf:/conf \
+        redis:latest redis-server /conf/redis.conf # run redis-server with config file (to set a password)
 
     echo "Done"
 }
