@@ -1,7 +1,9 @@
 # redis streams
 
-Introduction to streams <https://redis.io/topics/streams-intro>  
-Streams CLI example <https://youtu.be/O_jNJ32s6x8?t=1385>  
+Redis introduction to streams <https://redis.io/topics/streams-intro>  
+Streams CLI examples:
+- <https://youtu.be/O_jNJ32s6x8?t=1385>  
+- <https://www.youtube.com/watch?v=qXEyuUxQXZM>
 
 ## Highlights
 
@@ -69,5 +71,61 @@ docker exec -it streams redis-cli
    2) 1) "color"
       2) "BLUE"
 
+### CONSUMER GROUPS - distribute messages between clients in round robin style, eg. for parallel processing
 
+# create stream "messages" with items
+127.0.0.1:6379> xadd messages * vegetable carrot
+"1605728508606-0"
+127.0.0.1:6379> xadd messages * vegetable chive
+"1605728515552-0"
+127.0.0.1:6379> xadd messages * vegetable tomato
+"1605728529174-0"
+127.0.0.1:6379> xadd messages * vegetable onion
+"1605728537148-0"
+127.0.0.1:6379> xadd messages * vegetable garlic
+"1605728551793-0"
+
+# create consumer group vege
+127.0.0.1:6379> xgroup create messages vege $ # create group "vege", "$" means give me only new items
+OK
+
+# read items one by one, this can be done by many clients (iva, albert, jakub) and each will receive unique item
+127.0.0.1:6379> XREADGROUP group vege iva count 1 streams messages  > # ">" means: give me a fresh item. "0" means: give me my unacknowledged items
+1) 1) "messages"
+   2) 1) 1) "1605728515552-0"
+         2) 1) "vegetable"
+            2) "chive"
+127.0.0.1:6379> XREADGROUP group vege iva count 1 streams messages  >
+1) 1) "messages"
+   2) 1) 1) "1605728529174-0"
+         2) 1) "vegetable"
+            2) "tomato"
+127.0.0.1:6379> XREADGROUP group vege iva count 1 streams messages  >
+1) 1) "messages"
+   2) 1) 1) "1605728537148-0"
+         2) 1) "vegetable"
+            2) "onion"
+
+# get list of items that we received and did not acknowledged
+127.0.0.1:6379> XREADGROUP group vege iva  streams messages 0 # "0" gives us the non-acknowledged ones
+       1) 1) "1605728515552-0"
+          2) 1) "vegetable"
+             2) "chive"
+       2) 1) "1605728529174-0"
+          2) 1) "vegetable"
+             2) "tomato"
+       3) 1) "1605728537148-0"
+          2) 1) "vegetable"
+             2) "onion"
+
+# ack "chive"
+127.0.0.1:6379> xack messages vege 1605728515552-0
+(integer) 1
+127.0.0.1:6379> XREADGROUP group vege iva  streams messages 0 # "0" gives us the non-acknowledged ones
+       1) 1) "1605728529174-0"
+          2) 1) "vegetable"
+             2) "tomato"
+       2) 1) "1605728537148-0"
+          2) 1) "vegetable"
+             2) "onion"
  ```

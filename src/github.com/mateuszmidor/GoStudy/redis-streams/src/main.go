@@ -50,7 +50,8 @@ func read(startID string, count int64) {
 
 	readArgs := redis.XReadArgs{
 		Streams: []string{"messages", startID}, // read next id higher than startID
-		Count:   count,
+		Count:   count,                         // read this number of messages
+		Block:   time.Second,                   // block until messages available
 	}
 	result := c.XRead(ctx, &readArgs)
 
@@ -66,26 +67,62 @@ func xrange(startID, endID string) {
 	fmt.Println(result)
 }
 
+func readGroup(consumerName string) {
+	c := getClient()
+	defer c.Close()
+	ctx := context.Background()
+
+	readGroupArgs := redis.XReadGroupArgs{
+		Consumer: consumerName, // name is freely chosen, but uniquely identifies who receives given item
+		Group:    "vege",
+		Streams:  []string{"messages", ">"}, // ">" means: give me most recent item that I didnt receive yet, "0" would return received non-acknowledged items
+		Count:    1,
+		Block:    time.Second,
+	}
+	result := c.XReadGroup(ctx, &readGroupArgs)
+	fmt.Println(result)
+
+	// acknowledge that message has been succesfuly processed
+	msgID := result.Val()[0].Messages[0].ID
+	c.XAck(ctx, "messages", "vege", msgID)
+}
+
 // golang client method names directly copied from redis shell command names, so see: https://redis.io/commands#stream
 func main() {
+	// connect
 	fmt.Println("connecting...")
 	c := getClient()
-	c.Close()
+	defer c.Close()
 	fmt.Print("Done\n\n")
 
+	// insert many
 	fmt.Println("Inserting messages into stream")
 	idRed := add("color", "RED")
 	idGreen := add("color", "GREEN")
 	idBlue := add("color", "BLUE")
 	fmt.Print("Done\n\n")
 
+	// read single
 	fmt.Println("Reading messages one by one")
 	read("0", 1)     // read first message in stream
 	read(idRed, 1)   // read message inserted after idRed
 	read(idGreen, 1) // read message inserted after idGreen
 	fmt.Print("Done\n\n")
 
+	// read range
 	fmt.Println("Reading range of messages")
-	xrange(idRed, idBlue)
+	xrange(idRed, idBlue) // to xrange all, just do: xrange("-", "+")
 	fmt.Print("Done\n\n")
+
+	ctx := context.Background()
+	c.FlushAll(ctx)
+
+	// Consumer groups
+	c.XGroupCreateMkStream(ctx, "messages", "vege", "$") // "$" means: only new items, automatically make "messages" stream that is necessary for group create
+	add("vegetable", "chive")
+	add("vegetable", "tomato")
+	add("vegetable", "onion")
+	readGroup("iva")
+	readGroup("albert")
+	readGroup("jakub")
 }
