@@ -1,4 +1,4 @@
-module github.com/mateuszmidor/GoStudy/redis-cache/src
+module github.com/mateuszmidor/GoStudy/cockroachdb/src
 
 go 1.15
 
