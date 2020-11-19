@@ -30,8 +30,8 @@ SELECT name, age
 FROM people
 `
 
-func openConn(dbFileName string) *sql.DB {
-	db, err := sql.Open("postgres", dbFileName)
+func openConn(connectionString string) *sql.DB {
+	db, err := sql.Open("postgres", connectionString)
 	panicOnErr(err)
 
 	return db
@@ -44,6 +44,9 @@ func createTables(db *sql.DB) {
 
 func writeData(db *sql.DB) {
 	_, err := db.Exec(sqlWriteData, "Andrzej", 32)
+	panicOnErr(err)
+
+	_, err = db.Exec(sqlWriteData, "Witek", 44)
 	panicOnErr(err)
 
 	_, err = db.Exec(sqlWriteData, "Jola", 24)

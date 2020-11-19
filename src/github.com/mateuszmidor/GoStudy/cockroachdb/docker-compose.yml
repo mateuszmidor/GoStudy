@@ -26,6 +26,7 @@ services:
       cockroachdb_net:
         aliases:
           - node_2
+  
   node_3:
     container_name: node_3
     hostname: node_3

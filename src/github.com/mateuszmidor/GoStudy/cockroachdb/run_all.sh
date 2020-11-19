@@ -31,7 +31,7 @@ function runCockroachCluster() {
     stage "Running Cockroach cluster"
 
     docker-compose up &
-    sleep 5 # let the instances run
+    sleep 5 # let the instances run; should be done some smarter way
     docker exec node_1 ./cockroach init --insecure
     sleep 5 # let the instances initialize
 
