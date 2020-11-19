@@ -8,12 +8,13 @@ services:
     #  - './data/node_1:/cockroach/cockroach-data'
     command: start --insecure --join=node_1,node_2,node_3
     ports:
-      - '26257:26257'
-      - '8080:8080'
+      - '26257:26257' # db server port - access to entire cluster
+      - '8080:8080'   # webui port
     networks:
       cockroachdb_net:
         aliases:
           - node_1
+
   node_2:
     container_name: node_2
     hostname: node_2

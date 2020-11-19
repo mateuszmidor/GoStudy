@@ -32,7 +32,7 @@ function runCockroachCluster() {
 
     docker-compose up &
     sleep 5 # let the instances run
-    docker exec -it node_1 ./cockroach init --insecure
+    docker exec node_1 ./cockroach init --insecure
     sleep 5 # let the instances initialize
 
     echo "Done"
