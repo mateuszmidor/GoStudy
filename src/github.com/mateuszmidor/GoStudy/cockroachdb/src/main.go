@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS people(
 // $1, $2 is postgresql syntax for palceholders
 const sqlWriteData string = `
 INSERT INTO 
-people( name,  age) 
-VALUES($1, $2)
+people(name, age) 
+VALUES($1,   $2)
 `
 
 // READ TABLE
@@ -61,7 +61,8 @@ func readData(db *sql.DB) {
 		var name string
 		var age int
 		rows.Scan(&name, &age)
-		fmt.Println(name, age)
+
+		fmt.Printf("%+10s  %d\n", name, age)
 	}
 	panicOnErr(rows.Close())
 }
