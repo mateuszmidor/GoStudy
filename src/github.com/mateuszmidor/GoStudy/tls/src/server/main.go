@@ -50,7 +50,7 @@ func configureTLS(certFile, keyFile, caCertFile string) (tlsConfig *tls.Config, 
 }
 
 func allHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello from TLS server")
+	fmt.Fprint(w, "Hello from TLS server!\n")
 }
 
 func main() {
@@ -59,7 +59,7 @@ func main() {
 	// panicOnError(err)
 
 	http.HandleFunc("/", allHandler)
-	panicOnError(http.ListenAndServeTLS(":9000", "../../minica/mydomain.com/cert.pem", "../../minica/mydomain.com/key.pem", nil))
+	panicOnError(http.ListenAndServeTLS(":9000", "../../cert/minica/localhost/cert.pem", "../../cert/minica/localhost/key.pem", nil))
 }
 
 func panicOnError(err error) {
