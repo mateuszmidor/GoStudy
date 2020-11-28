@@ -5,52 +5,37 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
+	"path"
 )
 
-const caCertPool = "../../minica/cacert.crt"
+// CA = Certificate Authority; entity that issues certificates
+const caDir = "../../../cert/minica"
 
-func parseCert(certFile, keyFile string) (cert tls.Certificate, err error) {
-	cert, err = tls.LoadX509KeyPair(certFile, keyFile)
-	return
-}
+// CA Cert is needed to trust certificates issued by this specific CA. In this example, client will use such certificate
+var caCertFile = path.Join(caDir, "minica.pem")
+var serverKeyFile = path.Join(caDir, "localhost/key.pem")
+var serverCertFile = path.Join(caDir, "localhost/cert.pem")
 
-// configure and create a tls.Config instance using the provided cert, key, and ca cert files.
-func configureTLS(certFile, keyFile, caCertFile string) (tlsConfig *tls.Config, err error) {
-
-	c, err := parseCert(certFile, keyFile)
-	if err != nil {
-		return
-	}
-
-	ciphers := []uint16{
-		tls.TLS_RSA_WITH_AES_256_CBC_SHA,
-		tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-	}
-
-	certPool := x509.NewCertPool()
-	buf, err := ioutil.ReadFile(caCertFile)
+func getTLSConfig() *tls.Config {
+	// tell the server: trust certificates issued by this Certificate Authority (here: minica)
+	pemData, err := ioutil.ReadFile(caCertFile)
 	panicOnError(err)
+	caCert := x509.NewCertPool()
+	caCert.AppendCertsFromPEM(pemData)
 
-	if !certPool.AppendCertsFromPEM(buf) {
-		log.Fatalln("Failed to parse truststore")
+	tlsConfig := &tls.Config{
+		ClientAuth: tls.RequireAndVerifyClientCert, // require certificate from client
+		ClientCAs:  caCert,                         // trust client certificates issued by this CA
+		MinVersion: tls.VersionTLS13,
+		MaxVersion: tls.VersionTLS13,
 	}
 
-	tlsConfig = &tls.Config{
-		CipherSuites:             ciphers,
-		ClientAuth:               tls.RequireAndVerifyClientCert,
-		PreferServerCipherSuites: true,
-		RootCAs:                  certPool,
-		ClientCAs:                certPool,
-		Certificates:             []tls.Certificate{c},
-	}
-
-	return
+	return tlsConfig
 }
 
 func allHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello from TLS server!")
+	fmt.Fprintln(w, "Hello from Mutual TLS (mTLS) HTTP server!")
 	for k, v := range r.Header {
 		fmt.Fprintf(w, "%+30s  %s\n", k, v)
 	}
@@ -63,7 +48,20 @@ func panicOnError(err error) {
 }
 
 func main() {
-	fmt.Println("HTTPS Server listening on port 9000")
-	http.HandleFunc("/", allHandler)
-	panicOnError(http.ListenAndServeTLS(":9000", "../../cert/minica/localhost/cert.pem", "../../cert/minica/localhost/key.pem", nil))
+	fmt.Println("mTLS HTTP Server listening on port 9000")
+
+	// create mTLS HTTP server
+	tlsConfig := getTLSConfig()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", allHandler)
+	emptyNextProto := map[string]func(*http.Server, *tls.Conn, http.Handler){}
+	server := http.Server{
+		Addr:         ":9000",
+		Handler:      mux,
+		TLSConfig:    tlsConfig,
+		TLSNextProto: emptyNextProto,
+	}
+
+	// serve mTLS HTTP clients
+	panicOnError(server.ListenAndServeTLS(serverCertFile, serverKeyFile))
 }

@@ -3,7 +3,7 @@
 Inspired by <https://www.youtube.com/watch?v=kxKLYDLzuHA>
 
 
-## How TLS works from client-server point of view
+## How TLS works (for server-only TLS)
 - there is a Certificate Authority(CA) that issues domain certificates
 - this CA must be known to client so it can trust the issued certificates
 - in our example, the CA is minica, recognized with `cert/minica/minica.pem`, and it issues a certificate for domain `localhost`
@@ -31,7 +31,5 @@ localhost/
 - run server with generated certificate
 - curl with Certificate Authority provided:
 ```shell
-curl --cacert minica/minica.pem  https://localhost:9000
+curl --cacert minica/minica.pem https://localhost:9000
 ```
-
-## Make Firefox respect your certificate

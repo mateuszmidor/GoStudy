@@ -6,13 +6,14 @@ import (
 	"path"
 )
 
-const serverCertsDir = "../../../cert/minica/localhost"
+// CA = Certificate Authority; entity that issues certificates
+const caDir = "../../../cert/minica"
 
-var keyFile = path.Join(serverCertsDir, "key.pem")
-var certFile = path.Join(serverCertsDir, "cert.pem")
+var serverKeyFile = path.Join(caDir, "localhost/key.pem")
+var serverCertFile = path.Join(caDir, "localhost/cert.pem")
 
 func allHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello from TLS server!")
+	fmt.Fprintln(w, "Hello from TLS HTTP server!")
 	for k, v := range r.Header {
 		fmt.Fprintf(w, "%+30s  %s\n", k, v)
 	}
@@ -25,7 +26,7 @@ func panicOnError(err error) {
 }
 
 func main() {
-	fmt.Println("HTTPS Server listening on port 9000")
+	fmt.Println("TLS HTTP Server listening on port 9000")
 	http.HandleFunc("/", allHandler)
-	panicOnError(http.ListenAndServeTLS(":9000", certFile, keyFile, nil))
+	panicOnError(http.ListenAndServeTLS(":9000", serverCertFile, serverKeyFile, nil))
 }
