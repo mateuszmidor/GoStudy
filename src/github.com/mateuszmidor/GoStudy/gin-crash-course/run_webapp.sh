@@ -5,5 +5,6 @@ function runWebBrowser() {
     firefox localhost:8080/view/videos
 }
 
+go mod download # may take some time
 runWebBrowser &
 go run .
