@@ -43,12 +43,12 @@ func main() {
 	// true
 	fmt.Println("platformError contains pathError:", errors.Is(platformError, pathError))
 
-	// check platformError contains pathError
+	// check platformError contains EOF
 	// false
 	fmt.Println("platformError contains EOF:", errors.Is(platformError, io.EOF))
 
 	// extract PathError from platformError
 	pe := new(PathError)
-	errors.As(platformError, &pe) // yes, provide pointer to pointer here (&pe)
-	fmt.Println("platformError as PathError:", pe)
+	success := errors.As(platformError, &pe) // yes, provide pointer to pointer here (&pe)
+	fmt.Println("platformError as PathError:", pe, success)
 }
