@@ -1,19 +1,15 @@
-# Swagger for GO using goswagger
+# Swagger for Golang using go-swagger
 
 <https://github.com/go-swagger/go-swagger>
 
 ## Swagger 2.0/OpenAPI 3.0 YAML online editors with live preview
 
-- https://app.swaggerhub.com/ - needs free account
 - https://editor.swagger.io/ - needs no account
+- https://app.swaggerhub.com/ - needs free account
 
-## swagger-ui
+## Example: FridgeAPI
 
-(GET returns TypeError: NetworkError when attempting to fetch resource.)
-```bash
-docker run -p 80:8080 -e SWAGGER_JSON=/foo/cloud_export.openapi.yaml -v `pwd`:/foo swaggerapi/swagger-ui
-firefox localhost
-```
+![FridgeAPI use cases](./fridge_api.png)
 
 ## Install goswagger
 
@@ -27,43 +23,62 @@ go install ./cmd/swagger
 ## Validate spec
 
 ```bash
-swagger validate spec.json
-> The swagger spec at "spec.json" is valid against swagger specification 2.0
+swagger validate fridge_api.yaml
+> The swagger spec at "fridge_api.yaml" is valid against swagger specification 2.0
 ```
 
 ## Serve API as http
 
 ```bash
-swagger serve spec.json
+swagger serve fridge_api.yaml
 # web browser opens up
-```
-
-## Generate client (in folder with go.mod)
-
-```bash
-swagger generate client -f spec.json
- # lots of output, new folders created: "client" and "models"
- go mod tidy # download dependencies
- ```
-
-## Generate server (in folder with go.mod)
-
-```bash
-swagger generate server -f spec.json
- # lots of output, new folders created: "cmd", "models" and "restapi"
- go mod tidy # download dependencies
-```
-
-## Generate just the data model (in folder with go.mod)
-
-```bash
-swagger generate model --spec spec.json
- # lots of output, new folder created: "models"
 ```
 
 ## Generate markdown documentation for spec
 
 ```bash
-swagger generate markdown -f spec.json --output spec.md
- # new file created: "spec.md"
+swagger generate markdown -f fridge_api.yaml --output fridge_api.md
 ```
+
+## Generate just the data model
+
+```bash
+output="model"
+mkdir -p $output
+swagger generate model -t $output --spec fridge_api.yaml
+```
+
+## Generate client
+
+```bash
+output="generated_client"
+mkdir -p $output
+swagger generate client -t $output -f fridge_api.yaml
+ ```
+
+## Generate server
+
+```bash
+output="generated_server"
+mkdir -p $output
+swagger generate server -t $output -f fridge_api.yaml
+```
+
+## Run Golang server
+
+```bash
+go run generated_server/cmd/fridge-api-server/main.go --port 8080
+curl -X GET "http://localhost:8080/products?sort=false" -H  "accept: application/json"
+```
+
+## Run swagger-ui
+
+You can connect to the generated server with swagger-ui:
+
+```bash
+docker run -p 80:8080 -e SWAGGER_JSON=/local/fridge_api.yaml -v `pwd`:/local swaggerapi/swagger-ui
+firefox localhost
+```
+
+Note: on sending requests, swagger-ui will return "TypeError: NetworkError when attempting to fetch resource."  
+Probably the generated server must be configured with CORS.

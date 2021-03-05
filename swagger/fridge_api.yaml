@@ -1,0 +1,112 @@
+swagger: "2.0"
+info:
+  title: Fridge API
+  description: Swagger 2.0 study - a fridge API
+  version: 0.0.1
+host: localhost:8080
+basePath: /
+schemes:
+  - http
+  
+paths:
+  /products:
+    get:
+      description: List all products in the fridge
+      parameters:
+      - in: query
+        name: sort
+        description: Sort products alphabetically A to Z
+        type: boolean
+        default: false
+      produces:
+        - application/json
+      responses:
+        200:
+          description: List products success
+          schema:
+            $ref: '#/definitions/Products'          
+          
+    post:
+      description: Insert more of a product into the fridge
+      parameters:
+        - in: body
+          name: product
+          schema:
+              $ref: '#/definitions/Product'
+      consumes:
+        - application/json
+      responses:
+        201:
+          description: Insert product success
+        
+        
+  /products/{name}:
+    get:
+      description: Get single product information
+      parameters: 
+      - name: name
+        in: path
+        required: true
+        description: Name of the product to get information about
+        type: string # ProductName
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Get products success
+          schema:
+            $ref: '#/definitions/Product'  
+        404:
+          description: No such product in the fridge 
+          
+    put:
+      description: Withdraw given amount of given product from the fridge
+      parameters: 
+      - name: name
+        description: Name of the product to withdraw from the fridge
+        in: path
+        required: true
+        type: string # ProductName
+      - name: product
+        description: Amount of the product to withdraw from the fridge
+        in: body
+        schema:
+          type: object
+          properties:
+            quantity:
+              type: number
+              minimum: 0.0
+              default: 1
+              example: 1            
+      consumes:
+        - application/json
+      responses:
+        204:
+          description: Product successfuly withdrawn from the fridge
+        404:
+          description: No such product in the fridge
+          
+definitions:
+  ProductName:
+    type: string
+    minLength: 1
+    example: Milk
+    
+      
+  Product:
+    description: Single product
+    type: object
+    properties:
+      name:
+        $ref: '#/definitions/ProductName'
+      quantity:
+        type: number
+        minimum: 0.0
+        example: 0.5
+        title: Quantity of the product; pieces/liters/packages/etc
+        
+  Products:
+    description: List of products
+    type: array
+    items:  
+      $ref: '#/definitions/Product'
