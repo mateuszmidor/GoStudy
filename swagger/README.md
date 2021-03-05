@@ -7,6 +7,14 @@
 - https://app.swaggerhub.com/ - needs free account
 - https://editor.swagger.io/ - needs no account
 
+## swagger-ui
+
+(GET returns TypeError: NetworkError when attempting to fetch resource.)
+```bash
+docker run -p 80:8080 -e SWAGGER_JSON=/foo/cloud_export.openapi.yaml -v `pwd`:/foo swaggerapi/swagger-ui
+firefox localhost
+```
+
 ## Install goswagger
 
 ```bash

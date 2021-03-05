@@ -1,0 +1,125 @@
+openapi: 3.0.0
+info:
+  version: 0.0.1
+  title: Fridge API
+  description: OpenAPI 3.0.0 study - a fridge API
+  contact:
+    name: Fridge API Engineering
+    url: https://github.com/mateuszmidor/GoStudy/tree/master/openapi
+
+tags:
+  - name: FridgeService
+
+servers:
+  - url: http://localhost:8080
+    description: Test server
+
+externalDocs:
+  description: More about Fridge APIs
+  url: https://github.com/mateuszmidor/GoStudy/tree/master/openapi
+
+paths:
+  /products:
+    get:
+      description: List all products in the fridge
+      parameters: 
+        - name: sort
+          in: query
+          description: Sort products alphabetically A to Z
+          schema:
+            type: boolean
+            default: false
+            example: false
+      responses:
+        200:
+          description: List products success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Products'
+
+    post:
+      description: Insert more of a product into the fridge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+               $ref: '#/components/schemas/Product'
+      responses:
+        201:
+          description: Insert product success
+            
+
+  /products/{name}:
+    get:
+      description: Get single product information
+      parameters: 
+        - name: name
+          in: path
+          required: true
+          description: Name of the product to get information about
+          schema:
+            $ref: '#/components/schemas/ProductName'
+      responses:
+        200:
+          description: Get product success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        404:
+          description: No such product in the fridge
+    
+    put:
+      description: Withdraw given amount of given product from the fridge
+      parameters: 
+      - name: name
+        in: path
+        required: true
+        description: Name of the product to withdraw from the fridge
+        schema:
+          $ref: '#/components/schemas/ProductName'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: number
+                  minimum: 0.0
+                  default: 1
+                  example: 1
+      responses:
+        204:
+          description: Product successfuly withdrawn from the fridge
+        404:
+          description: No such product in the fridge
+          
+components:
+  schemas:
+    ProductName:
+      type: string
+      minLength: 1
+      example: Milk
+      
+    Product:
+      description: Single product
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/ProductName'
+        quantity:
+          type: number
+          minimum: 0.0
+          example: 0.5
+          title: Quantity of the product; pieces/liters/packages/etc
+
+    Products:
+      description: List of products
+      type: array
+      items:  
+        $ref: '#/components/schemas/Product'
+   

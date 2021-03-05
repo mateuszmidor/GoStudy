@@ -1,0 +1,141 @@
+openapi: 3.0.0
+info:
+  contact:
+    name: Fridge API Engineering
+    url: https://github.com/mateuszmidor/GoStudy/tree/master/openapi
+  description: OpenAPI 3.0.0 study - a fridge API
+  title: Fridge API
+  version: 0.0.1
+externalDocs:
+  description: More about Fridge APIs
+  url: https://github.com/mateuszmidor/GoStudy/openapi
+servers:
+- description: Test server
+  url: http://localhost:8080
+tags:
+- name: FridgeService
+paths:
+  /products:
+    get:
+      description: List all products in the fridge
+      parameters:
+      - description: Sort products alphabetically A to Z
+        explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          default: false
+          example: false
+          type: boolean
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Products'
+          description: List products success
+    post:
+      description: Insert more of a product into the fridge
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      responses:
+        "201":
+          description: Insert product success
+  /products/{name}:
+    get:
+      description: Get single product information
+      parameters:
+      - description: Name of the product to get information about
+        explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          $ref: '#/components/schemas/ProductName'
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: Get product success
+        "404":
+          description: No such product in the fridge
+    put:
+      description: Withdraw given amount of given product from the fridge
+      parameters:
+      - description: Name of the product to withdraw from the fridge
+        explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          $ref: '#/components/schemas/ProductName'
+        style: simple
+      requestBody:
+        $ref: '#/components/requestBodies/inline_object'
+        content:
+          application/json:
+            schema:
+              properties:
+                quantity:
+                  default: 1
+                  example: 1
+                  minimum: 0.0
+                  type: number
+              type: object
+        required: true
+      responses:
+        "204":
+          description: Product successfuly withdrawn from the fridge
+        "404":
+          description: No such product in the fridge
+components:
+  requestBodies:
+    inline_object:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_object'
+      required: true
+  schemas:
+    ProductName:
+      example: Milk
+      minLength: 1
+      type: string
+    Product:
+      description: Single product
+      example:
+        quantity: 0.5
+        name: Milk
+      properties:
+        name:
+          example: Milk
+          minLength: 1
+          type: string
+        quantity:
+          example: 0.5
+          minimum: 0.0
+          title: Quantity of the product; pieces/liters/packages/etc
+          type: number
+      type: object
+    Products:
+      description: List of products
+      items:
+        $ref: '#/components/schemas/Product'
+      type: array
+    inline_object:
+      properties:
+        quantity:
+          default: 1
+          example: 1
+          minimum: 0.0
+          type: number
+      type: object
