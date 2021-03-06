@@ -7,9 +7,6 @@ info:
     name: Fridge API Engineering
     url: https://github.com/mateuszmidor/GoStudy/tree/master/openapi
 
-tags:
-  - name: FridgeService
-
 servers:
   - url: http://localhost:8080
     description: Test server
