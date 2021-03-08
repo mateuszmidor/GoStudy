@@ -13,7 +13,7 @@ import (
 	"log"
 	"net/http"
 
-	openapi "github.com/mateuszmidor/GoStudy/openapi/server/go"
+	openapi "github.com/mateuszmidor/GoStudy/openapi/generated_server/go"
 )
 
 func main() {

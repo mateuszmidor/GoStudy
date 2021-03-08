@@ -40,7 +40,7 @@ After generating the server, a few little tweaks to the generated code may be ne
 Then:
 
 ```bash
-go run server/main.go # will serve on port :8080
+go run generated_server/main.go # will serve on port :8080
 curl -X GET "http://localhost:8080/products?sort=false" -H  "accept: application/json"
 ```
 
