@@ -11,12 +11,12 @@ package openapi
 
 import (
 	"context"
-	"net/http"
 	"errors"
+	"net/http"
 )
 
 // DefaultApiService is a service that implents the logic for the DefaultApiServicer
-// This service should implement the business logic for every endpoint for the DefaultApi API. 
+// This service should implement the business logic for every endpoint for the DefaultApi API.
 // Include any external packages or services that will be required by this service.
 type DefaultApiService struct {
 }
@@ -34,7 +34,12 @@ func (s *DefaultApiService) ProductsGet(ctx context.Context, sort bool) (ImplRes
 	//TODO: Uncomment the next line to return response Response(200, []Product{}) or use other options such as http.Ok ...
 	//return Response(200, []Product{}), nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("ProductsGet method not implemented")
+	// return Response(http.StatusNotImplemented, nil), errors.New("ProductsGet method not implemented")
+
+	// NOTE: lines below created by hand
+	p1 := Product{Name: "Milk", Quantity: 0.5}
+	p2 := Product{Name: "SpringRolls", Quantity: 4}
+	return Response(200,[]Product{p1,p2}), nil
 }
 
 // ProductsNameGet - 
