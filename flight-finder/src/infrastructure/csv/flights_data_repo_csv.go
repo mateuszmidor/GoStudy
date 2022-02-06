@@ -1,6 +1,8 @@
 package csv
 
 import (
+	"path"
+
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/airports"
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/carriers"
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/domain/nations"
@@ -80,15 +82,15 @@ func loadSegmentsFromCSV(a airports.Airports, c carriers.Carriers, csvDataDirect
 
 func getNationsCSVFilePath(csvDataDirectory string) string {
 	const nationsFileName = "nations.csv.gz"
-	return csvDataDirectory + nationsFileName
+	return path.Join(csvDataDirectory, nationsFileName)
 }
 
 func getAirportsCSVFilePath(csvDataDirectory string) string {
 	const airportsFileName = "airports.csv.gz"
-	return csvDataDirectory + airportsFileName
+	return path.Join(csvDataDirectory, airportsFileName)
 }
 
 func getSegmentsCSVFilePath(csvDataDirectory string) string {
 	const segmentsFileName = "segments.csv.gz"
-	return csvDataDirectory + segmentsFileName
+	return path.Join(csvDataDirectory, segmentsFileName)
 }

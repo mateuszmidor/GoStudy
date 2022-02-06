@@ -13,8 +13,8 @@ import (
 	"github.com/mateuszmidor/GoStudy/flight-finder/src/infrastructure/csv"
 )
 
-func newFindRequestHandler() func(*gin.Context) {
-	repo := csv.NewFlightsDataRepoCSV("../../../data/")
+func newFindRequestHandler(csv_dir string) func(*gin.Context) {
+	repo := csv.NewFlightsDataRepoCSV(csv_dir)
 	finder := application.NewConnectionFinder(repo)
 
 	return func(c *gin.Context) {
