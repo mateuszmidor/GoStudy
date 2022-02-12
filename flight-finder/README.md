@@ -3,23 +3,14 @@
 Find flight connections between two given airports.  
 Using gin-gonic web framework.
 
+## Run locally
 
+```bash
+docker run --rm --name=flight-finder -p=8080:80 mateuszmidor/flight-finder:latest
+```
 
-## Structure
-![Logo](media/structure.png)
+## Run on AWS EC2 or similar
 
-## Sequence
-![Logo](media/sequence.png)
-
-## Showcase
-
-### 2-segments connection: Kraków-Las Palmas
-![Logo](media/krk-mad-lpa.png)
-
-### 3-segments connection: Kraków-Colombo
-![Logo](media/krk-amm-mct-cmb.png)
-
-## Installation script for AWS EC2 or similar
 ```bash
 #!/usr/bin/env bash
 
@@ -47,3 +38,24 @@ systemctl enable flight-finder
 systemctl start flight-finder
 systemctl status flight-finder
 ```
+
+## Showcase
+
+### 2-segments connection: Kraków-Las Palmas
+
+![Kraków-Sevilla-Las Palmas](./media/krk-svq-lpa.png)
+
+### 3-segments connection: Kraków-Colombo
+
+![Kraków-Amman-Muscat-Colombo](./media/krk-amm-mct-cmb.png)
+
+
+## Design
+
+## Structure
+
+![Logo](media/structure.png)
+
+## Sequence
+
+![Logo](media/sequence.png)
