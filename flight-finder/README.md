@@ -6,6 +6,7 @@ Using gin-gonic web framework.
 ## Run locally
 
 ```bash
+docker build . -t mateuszmidor/flight-finder:latest
 docker run --rm --name=flight-finder -p=8080:80 mateuszmidor/flight-finder:latest
 ```
 
@@ -38,6 +39,13 @@ systemctl enable flight-finder
 systemctl start flight-finder
 systemctl status flight-finder
 ```
+
+## Run on AWS BeanStalk
+
+What BeanStalk does with your code uploaded as ZIP archive:
+- unzip the archive files
+- `go build application.go && ./application`
+- expose the application on port 5000
 
 ## Showcase
 
