@@ -1,3 +1,5 @@
+# Minica
+
 Minica is a simple CA intended for use in situations where the CA operator
 also operates each host where a certificate will be used. It automatically
 generates both a key and a certificate when asked to produce a certificate.
@@ -17,7 +19,7 @@ will not overwrite existing keys or certificates.
 
 The certificate will have a validity of 2 years and 30 days.
 
-# Installation
+## Installation
 
 First, install the [Go tools](https://golang.org/dl/) and set up your `$GOPATH`.
 Then, run:
@@ -35,10 +37,14 @@ go build
 # go install
 ```
 
-# Example usage
+## Example usage
 
 ```
 # Generate a root key and cert in minica-key.pem, and minica.pem, then
 # generate and sign an end-entity key and cert, storing them in ./foo.com/
-$ minica --domains foo.com
+$ minica --domains foo.com --uri custom:resource:myresource
 ```
+
+## Check generated certificate
+
+Copy-paste the `cert.pem` contents in https://www.sslshopper.com/certificate-decoder.html
