@@ -19,30 +19,14 @@ will not overwrite existing keys or certificates.
 
 The certificate will have a validity of 2 years and 30 days.
 
-## Installation
-
-First, install the [Go tools](https://golang.org/dl/) and set up your `$GOPATH`.
-Then, run:
-
-`go get github.com/jsha/minica`
-
-When using Go 1.11 or newer you don't need a $GOPATH and can instead do the
-following:
-
-```
-cd /ANY/PATH
-git clone https://github.com/jsha/minica.git
-go build
-## or
-# go install
-```
-
+The original code comes from https://github.com/jsha/minica.git.  
+The code here is slightly modified - allows including URIs in generated certs.  
 ## Example usage
 
-```
-# Generate a root key and cert in minica-key.pem, and minica.pem, then
-# generate and sign an end-entity key and cert, storing them in ./foo.com/
-$ minica --domains foo.com --uri custom:resource:myresource
+```sh
+# Generate a root key and cert in minica-key.pem, and minica.pem, 
+# then generate and sign an end-entity key and cert, storing them in ./foo.com/
+$ go run . --domains foo.com --uri custom:resource:myresource
 ```
 
 ## Check generated certificate
