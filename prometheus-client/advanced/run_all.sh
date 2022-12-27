@@ -35,7 +35,6 @@ function runPrometheus() {
 function runMetricProvider() {
     stage "Running 'wave' metric(a sinus function) provider at port 8080"
 
-    cd src
     go run .
 
     echo "Done"
@@ -43,6 +42,7 @@ function runMetricProvider() {
 
 
 function tearDown() {
+    
     stage "Tear down"
 
     docker stop my_prometheus
@@ -52,6 +52,7 @@ function tearDown() {
 }
 
 function keepAlive() {
+    # keep alive to intercept CTLR+C and run tearDown and kill prometheus
     stage "CTRL+C to exit"
 
     while true; do sleep 1; done
