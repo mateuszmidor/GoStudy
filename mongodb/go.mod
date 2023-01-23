@@ -1,4 +1,4 @@
-module github.com/mateuszmidor/GoStudy/mongodb/src
+module github.com/mateuszmidor/GoStudy/mongodb
 
 go 1.15
 
