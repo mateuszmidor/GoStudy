@@ -1,0 +1,26 @@
+# Note: values in this config file can be overridden with environment variables and command line parameters
+# The configuration precedence is: cmd line, env var, config file
+
+InputData:
+  GoogleDrive:
+    # env: INPUT_GD_EMAIL
+    # cmd: --InputData.GoogleDrive.Email
+    # Note: this is Google Cloud Service Account credentials
+    Email: example_input_gd_email
+
+    # env: INPUT_GD_PRIVATE_KEY
+    # cmd: --InputData.GoogleDrive.PrivateKey
+    # Note: this is Google Cloud Service Account credentials
+    # Note: for security reasons, please pass PrivateKey using environment variable
+    PrivateKey: example_input_gd_private_key
+
+    # env: INPUT_GD_FILENAME_PATTERN
+    # cmd: --InputData.GoogleDrive.FilenamePattern
+    # Note: this is the pattern in the filename to look for when collecting files to read (simple find in string; not regex)
+    FilenamePattern: jobs 
+
+
+# env: READ_INTERVAL
+# cmd: --ReadInterval
+# Note: how often to read the data
+ReadInterval: 1h30m0s
