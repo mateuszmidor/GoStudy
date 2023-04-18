@@ -4,12 +4,24 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
 	"os"
+	"runtime/pprof"
 	"strconv"
 	"strings"
+	"time"
 
 	"sort"
 )
+
+type Field struct {
+	width, height, perimeter int
+}
+
+type RunLength struct {
+	cleanX int // how many fence posts are possible going to the right
+	cleanY int // how many fence posts are possible going to the bottom
+}
 
 /*
  * Complete the 'kMarsh' function below.
@@ -25,23 +37,14 @@ func calcPerimeter(w, h int) int {
 	return 2*(w-1) + 2*(h-1)
 }
 
-func canFenceRect(limits [][]RunLength, x, y, w, h int) bool {
-	if limits[y][x].cleanX < w ||
-		limits[y][x].cleanY < h ||
-		limits[y+h-1][x].cleanX < w ||
-		limits[y][x+w-1].cleanY < h {
+func canFenceRect(runLength [][]RunLength, x, y, w, h int) bool {
+	if runLength[y][x].cleanX < w ||
+		runLength[y][x].cleanY < h ||
+		runLength[y+h-1][x].cleanX < w ||
+		runLength[y][x+w-1].cleanY < h {
 		return false
 	}
 	return true
-}
-
-type Field struct {
-	sizex, sizey, perimeter int
-}
-
-type RunLength struct {
-	cleanX int // how many fence posts are possible going to the right
-	cleanY int // how many fence posts are possible going to the bottom
 }
 
 func newRunLength(w, h int) [][]RunLength {
@@ -78,38 +81,71 @@ func computeRunLength(runLength [][]RunLength, grid []string, w, h int) {
 	}
 }
 
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func sortFields(fields []Field) {
+	compare := func(i, j int) bool {
+		return (fields[i].perimeter >= fields[j].perimeter)
+	}
+	sort.Slice(fields, compare)
+}
+
 func getMaxPerimeter(grid []string, w, h int) int { // -1 means no rectangle found
 	if w < 2 || h < 2 || w > 500 || h > 500 {
 		return -1
 	}
 
-	sizes := []Field{}
-	for sizey := 2; sizey <= h; sizey++ {
-		for sizex := 2; sizex <= w; sizex++ {
-			sizes = append(sizes, Field{sizex, sizey, calcPerimeter(sizex, sizey)})
-		}
-	}
-
-	compare := func(i, j int) bool {
-		return (sizes[i].perimeter >= sizes[j].perimeter)
-	}
-	sort.Slice(sizes, compare)
-
+	// prepare time for 500x500 input is below 200ms
+	start := time.Now()
+	fields := prepareFields(h, w)
+	sortFields(fields)
 	runLength := newRunLength(w, h)
 	computeRunLength(runLength, grid, w, h)
-	for _, size := range sizes {
-		numStepsY := h - size.sizey + 1
-		numStepsX := w - size.sizex + 1
+	fmt.Println("Precompute time:", time.Since(start))
+
+	for _, field := range fields {
+		numStepsY := h - field.height + 1
+		numStepsX := w - field.width + 1
 		for y := 0; y < numStepsY; y++ {
-			for x := 0; x < numStepsX; x++ {
-				if canFenceRect(runLength, x, y, size.sizex, size.sizey) {
-					return size.perimeter
+
+			x := 0 // .x...
+			for {
+				if x >= numStepsX {
+					break
+				}
+				// clear := runLength[y][x].cleanX
+				// if x < numStepsX && clear < field.width {
+				// 	x += clear + 1
+				// 	continue
+				// }
+				// if x >= numStepsX {
+				// 	break
+				// }
+
+				if canFenceRect(runLength, x, y, field.width, field.height) {
+					return field.perimeter
 				}
 
+				x += 1
 			}
 		}
 	}
 	return -1
+}
+
+func prepareFields(h int, w int) []Field {
+	fields := []Field{}
+	for sizey := 2; sizey <= h; sizey++ {
+		for sizex := 2; sizex <= w; sizex++ {
+			fields = append(fields, Field{sizex, sizey, calcPerimeter(sizex, sizey)})
+		}
+	}
+	return fields
 }
 
 func kMarsh(grid []string) {
@@ -123,6 +159,13 @@ func kMarsh(grid []string) {
 }
 
 func main() {
+	f, perr := os.Create("./cpu.pprof")
+	if perr != nil {
+		log.Fatal(perr)
+	}
+	pprof.StartCPUProfile(f)
+	defer pprof.StopCPUProfile()
+
 	reader := bufio.NewReaderSize(os.Stdin, 16*1024*1024)
 
 	firstMultipleInput := strings.Split(strings.TrimSpace(readLine(reader)), " ")
