@@ -55,7 +55,8 @@ func newRunLength(w, h int) [][]RunLength {
 	return m
 }
 
-func computeRunLength(runLength [][]RunLength, grid []string, w, h int) {
+func computeRunLength(grid []string, w, h int) [][]RunLength {
+	runLength := newRunLength(w, h)
 	for y := 0; y < h; y++ {
 		var count int
 		for x := w - 1; x >= 0; x-- {
@@ -79,6 +80,8 @@ func computeRunLength(runLength [][]RunLength, grid []string, w, h int) {
 			runLength[y][x].cleanY = count
 		}
 	}
+
+	return runLength
 }
 
 func min(a, b int) int {
@@ -88,7 +91,7 @@ func min(a, b int) int {
 	return b
 }
 
-func sortFields(fields []Field) {
+func sortFieldsByPerimeterDescending(fields []Field) {
 	compare := func(i, j int) bool {
 		return (fields[i].perimeter >= fields[j].perimeter)
 	}
@@ -102,10 +105,9 @@ func getMaxPerimeter(grid []string, w, h int) int { // -1 means no rectangle fou
 
 	// prepare time for 500x500 input is below 200ms
 	start := time.Now()
-	fields := prepareFields(h, w)
-	sortFields(fields)
-	runLength := newRunLength(w, h)
-	computeRunLength(runLength, grid, w, h)
+	fields := generateAllPossibleFieldSizes(h, w)
+	sortFieldsByPerimeterDescending(fields)
+	runLength := computeRunLength(grid, w, h)
 	fmt.Println("Precompute time:", time.Since(start))
 
 	for _, field := range fields {
@@ -138,7 +140,7 @@ func getMaxPerimeter(grid []string, w, h int) int { // -1 means no rectangle fou
 	return -1
 }
 
-func prepareFields(h int, w int) []Field {
+func generateAllPossibleFieldSizes(h int, w int) []Field {
 	fields := []Field{}
 	for sizey := 2; sizey <= h; sizey++ {
 		for sizex := 2; sizex <= w; sizex++ {
