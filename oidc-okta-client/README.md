@@ -15,7 +15,7 @@ Steps:
 1. Export CLIENT_ID, CLIENT_SECRET, ISSUER as env variables (you can store them in [.env](./.env) file
 1. `make run`
 1. Browse `localhost:9999/login` and login with your user/password used to register in Okta
-1. Observe profile data like:
+1. Observe the returned token contents like:
     ```yaml
     subject: 00u9w8nj1qLtTeilf5d7
     userinfoprofile:
