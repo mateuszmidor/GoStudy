@@ -16,8 +16,39 @@ Steps:
 1. `make run`
 1. Browse `localhost:9999/login` and login with your user/password used to register in Okta
 1. Observe profile data like:
-    ```json
-    {
-    "email":"m.midor@devopsbay.com","email_verified":true,"family_name":"Midor","given_name":"Mateusz","locale":"en-US","name":"Mateusz Midor","preferred_username":"m.midor@devopsbay.com","sub":"00u9v93yfoI38P9fv5d7","zoneinfo":"America/Los_Angeles"
-    }
+    ```yaml
+    subject: 00u9w8nj1qLtTeilf5d7
+    userinfoprofile:
+        name: Peter Griffin
+        givenname: Peter
+        familyname: Griffin
+        middlename: TheGuy
+        nickname: ""
+        profile: ""
+        picture: ""
+        website: ""
+        gender: ""
+        birthdate: ""
+        zoneinfo: America/Los_Angeles
+        locale: {}
+        updatedat: 0
+        preferredusername: p.griffin@familyguy.com
+    userinfoemail:
+        email: p.griffin@familyguy.com
+        emailverified: true
+    userinfophone:
+        phonenumber: ""
+        phonenumberverified: false
+    address: null
+    claims:
+        email: p.griffin@familyguy.com
+        email_verified: true
+        family_name: Griffin
+        given_name: Peter
+        locale: en_US
+        middle_name: TheGuy
+        name: Peter Griffin
+        preferred_username: p.griffin@familyguy.com
+        sub: 00u9w8nj1qLtTeilf5d7
+        zoneinfo: America/Los_Angeles
     ```
