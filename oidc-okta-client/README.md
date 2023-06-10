@@ -56,5 +56,4 @@ Steps:
 ## Bazel
 
 Bazel setup is here for educational purposes only; you can ignore it.  
-* `bazel run //:gazelle -- update-repos -from_file=go.mod` - generate bazel targerts in app/BUILD.bazel and go dependencies in WORKSPACE.bazel (the "go_repository")
 * `source .env && bazel run //app:app` - run the app
