@@ -12,7 +12,7 @@ Steps:
 1. Obtain CLIENT_ID (like: 0oa3v9n54yf4zbKJ85d7)
 1. Obtain CLIENT_SECRET (like: v4M04a3PLvkvvInaz6o1Q-jzWTPR5mGRITpkqSKo)
 1. Obtain ISSUER (this is your subdomain in Okta, like: https://dev-39423526.okta.com)
-1. Export CLIENT_ID, CLIENT_SECRET, ISSUER as env variables (do it in [.env](./.env) file
+1. Export CLIENT_ID, CLIENT_SECRET, ISSUER as env variables - do it in [.env](./.env) file
 1. `make run`
 1. Browse `localhost:9999/login` and login with your user/password used to register in Okta
 1. Observe the returned token contents, like:
