@@ -1,4 +1,17 @@
 load("@bazel_gazelle//:def.bzl", "gazelle")
 
-# gazelle:prefix github.com/example/project
+# create BUILD.bazel files with go targets. 
+# The below "gazelle:prefix" is important - provides importpath prefix for generated go targets, here the importpath will be: oidc_client/app
+# gazelle:prefix oidc_client
 gazelle(name = "gazelle")
+
+# create deps.bzl file from go.mod with go dependencies 
+gazelle(
+    name = "gazelle-update-repos",
+    args = [
+        "-from_file=go.mod",
+        "-to_macro=deps.bzl%go_dependencies",
+        "-prune",
+    ],
+    command = "update-repos",
+)

@@ -56,4 +56,6 @@ Steps:
 ## Bazel
 
 Bazel setup is here for educational purposes only; you can ignore it.  
+* `bazel run //:gazelle` - generate BUILD.bazel files with go targets
+* `bazel run //:gazelle-update-repos` - generate deps.bzl file with go dependencies
 * `source .env && bazel run //app:app` - run the app
