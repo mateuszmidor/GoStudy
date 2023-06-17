@@ -45,6 +45,9 @@ Steps:
         email_verified: true
         family_name: Griffin
         given_name: Peter
+        groups:
+          - role_viewer
+          - role_editor
         locale: en_US
         middle_name: TheGuy
         name: Peter Griffin

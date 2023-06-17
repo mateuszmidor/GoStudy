@@ -61,7 +61,7 @@ func main() {
 	// including state handling with secure cookie and the possibility to use PKCE.
 	// Prompts can optionally be set to inform the server of
 	// any messages that need to be prompted back to the user.
-	http.Handle("/login", rp.AuthURLHandler(state, provider, rp.WithPromptURLParam("Welcome back!")))
+	http.Handle("/", rp.AuthURLHandler(state, provider, rp.WithPromptURLParam("Welcome back!")))
 
 	// for demonstration purposes the returned userinfo response is written as JSON object onto response
 	marshalUserinfo := func(w http.ResponseWriter, r *http.Request, tokens *oidc.Tokens[*oidc.IDTokenClaims], state string, rp rp.RelyingParty, info *oidc.UserInfo) {
@@ -120,7 +120,7 @@ func main() {
 	//
 	// http.Handle(callbackPath, rp.CodeExchangeHandler(marshalToken, provider))
 
-	lis := fmt.Sprintf("127.0.0.1:%s", port)
+	lis := fmt.Sprintf("localhost:%s", port)
 	logrus.Infof("listening on http://%s/", lis)
 	logrus.Info("press ctrl+c to stop")
 	logrus.Fatal(http.ListenAndServe(lis, nil))
