@@ -6,15 +6,18 @@ Steps:
 1. First create an account in Okta https://developer.okta.com/signup/ ("Access the Okta Developer Edition Service" tile).
 1. Then after logging-in, `Applications` -> `Applications`  -> `Create App Integration` 
 1. Select `OIDC` and then `Web Application`
-1. Set `Sign-in redirect URIs` to `http://localhost:9999/auth/callback` (endpoint served by our client app)
-1. Set `Controlled access` to `Allow everyone in your organization to access`
+1. Set `Sign-in redirect URIs` to `http://localhost:8000/auth/callback` (endpoint served by our client app)
+1. Set `Controlled access` to `Allow everyone in your organization to access` (so you don't have to assign permitted user to the app)
 1. Save
+1. For "groups" claim to be returned in id_token, in the app config page on tab `Sign On`, set `Groups claim filter` regex to `.*`  
+See: https://developer.okta.com/docs/guides/customize-tokens-groups-claim/main/#add-a-groups-claim-for-the-org-authorization-server
+
 1. Obtain CLIENT_ID (like: 0oa3v9n54yf4zbKJ85d7)
 1. Obtain CLIENT_SECRET (like: v4M04a3PLvkvvInaz6o1Q-jzWTPR5mGRITpkqSKo)
 1. Obtain ISSUER (this is your subdomain in Okta, like: https://dev-39423526.okta.com)
 1. Export CLIENT_ID, CLIENT_SECRET, ISSUER as env variables - do it in [.env](./.env) file
 1. `make run`
-1. Browse `localhost:9999/login` and login with your user/password used to register in Okta
+1. Browse `localhost:8000/` and login with your user/password used to register in Okta
 1. Observe the returned token contents, like:
     ```yaml
     subject: 00u9w8nj1qLtTeilf5d7
@@ -46,8 +49,8 @@ Steps:
         family_name: Griffin
         given_name: Peter
         groups:
-          - role_viewer
-          - role_editor
+          - viewer
+          - editor
         locale: en_US
         middle_name: TheGuy
         name: Peter Griffin
