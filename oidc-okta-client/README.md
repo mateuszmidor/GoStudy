@@ -1,8 +1,9 @@
 # OpenID Connect (OIDC) client integration with Okta Identity Provider (IDP)
 
-Client app is basically this: https://github.com/zitadel/oidc/tree/main/example/client.
+OAuth2 + OIDC explained: https://www.youtube.com/watch?v=9LRZXg0NK5k  
+Client app is basically this: https://github.com/zitadel/oidc/tree/main/example/client
 
-Steps:
+## Steps:
 1. First create an account in Okta https://developer.okta.com/signup/ ("Access the Okta Developer Edition Service" tile).
 1. Then after logging-in, `Applications` -> `Applications`  -> `Create App Integration` 
 1. Select `OIDC` and then `Web Application`
@@ -59,6 +60,30 @@ See: https://developer.okta.com/docs/guides/customize-tokens-groups-claim/main/#
         zoneinfo: America/Los_Angeles
     ```
 1. You can also test the Refresh Token endpoint: `localhost:8000/auth/refresh`
+
+## OAuth2 client app credentials
+
+clientID + clientSecret - just another names for user and password, registered in IDP to authorize the client application
+
+## OAuth2 client types
+
+* confidential - client app runs on web server and can safely store clientSecret
+* public - Single Page Application, android native, etc - runs on user device, can be infected by malicius software, can't store clientSecret
+
+## OAuth2 grant types
+
+* code grant - for confidential client apps; use clientSecret and clientID to get code grant, then exchange it for authorization token
+* code grant + PKCE - for public client apps; instead of using clientSecret, client app uses code_verifier and code_challenge
+* device grant - for public client apps without GUI (no browser to show login page), user gets login URL and opens login page on a separate device
+* client credentials - for confidential client apps that authorize themself directly with its secret without the user even knowing (triggered without user action).
+
+## OIDC
+
+* builds on top of OAuth2
+* can use code grant authorization for web server confidential apps
+* client requests additional scopes like profile email phone address
+* IDP returns additional info for requested scopes in id_token (JWT format), attached in addition to auth_token. It may be "thin" token - with only basic user info
+* IDP exposes additional endpoint `/userinfo` for fetching full and most recent information about the user; requires authorization with auth_token
 
 ## Bazel
 

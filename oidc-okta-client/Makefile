@@ -1,4 +1,4 @@
 run: 
-	source .env && go run app/app.go
+	source ./.env && go run app/app.go
 
 .PHONY: run
