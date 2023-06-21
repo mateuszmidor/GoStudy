@@ -58,6 +58,7 @@ See: https://developer.okta.com/docs/guides/customize-tokens-groups-claim/main/#
         sub: 00u9w8nj1qLtTeilf5d7
         zoneinfo: America/Los_Angeles
     ```
+1. You can also test the Refresh Token endpoint: `localhost:8000/auth/refresh`
 
 ## Bazel
 
