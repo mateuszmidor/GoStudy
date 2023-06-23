@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/oauth2"
 	"gopkg.in/yaml.v2"
 
 	"github.com/zitadel/oidc/v2/pkg/client/rp"
@@ -68,8 +69,10 @@ func handleAuthTokens(w http.ResponseWriter, r *http.Request, tokens *oidc.Token
 // request a new access token from IDP by providing refresh token reveived on logging in
 func handleRefreshToken(w http.ResponseWriter, r *http.Request) {
 	// request new access token
-	tmpToken := *authTokens.Token
-	tmpToken.Expiry = time.Now() // force token expiration so the tokenSource always returns new token
+	tmpToken := oauth2.Token{
+		RefreshToken: authTokens.RefreshToken,
+		Expiry:       time.Now(), // force token expiration so the tokenSource always returns new token
+	}
 	tokenSource := makeRelyingParty().OAuthConfig().TokenSource(context.TODO(), &tmpToken)
 	newToken, err := tokenSource.Token()
 	if err != nil {
