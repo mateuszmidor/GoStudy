@@ -85,6 +85,30 @@ clientID + clientSecret - just another names for user and password, registered i
 * IDP returns additional info for requested scopes in id_token (JWT format), attached in addition to auth_token. It may be "thin" token - with only basic user info
 * IDP exposes additional endpoint `/userinfo` for fetching full and most recent information about the user; requires authorization with auth_token
 
+## OAuth2 client app credentials
+
+clientID + clientSecret - just another names for user and password, registered in IDP to authorize the client application
+
+## OAuth2 client types
+
+* confidential - client app runs on web server and can safely store clientSecret
+* public - Single Page Application, android native, etc - runs on user device, can be infected by malicius software, can't store clientSecret
+
+## OAuth2 grant types
+
+* code grant - for confidential client apps; use clientSecret and clientID to get code grant, then exchange it for authorization token
+* code grant + PKCE - for public client apps; instead of using clientSecret, client app uses code_verifier and code_challenge
+* device grant - for public client apps without GUI (no browser to show login page), user gets login URL and opens login page on a separate device
+* client credentials - for confidential client apps that authorize themself directly with its secret without the user even knowing (triggered without user action).
+
+## OIDC
+
+* builds on top of OAuth2
+* can use code grant authorization for web server confidential apps
+* client requests additional scopes like profile email phone address
+* IDP returns additional info for requested scopes in id_token (JWT format), attached in addition to auth_token. It may be "thin" token - with only basic user info
+* IDP exposes additional endpoint `/userinfo` for fetching full and most recent information about the user; requires authorization with auth_token
+
 ## Bazel
 
 Bazel setup is here for educational purposes only; you can ignore it.  
