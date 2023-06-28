@@ -11,6 +11,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+const NET_ADDR = ":9000"
+
 // Server implements pingpong.PingPongServer interface generated from .proto
 type Server struct {
 	pingpong.UnimplementedPingPongServer
@@ -29,7 +31,7 @@ func main() {
 
 func server() {
 	// create TCP listener
-	lis, err := net.Listen("tcp", ":9000")
+	lis, err := net.Listen("tcp", NET_ADDR)
 	if err != nil {
 		log.Fatal("server listen failed: ", err)
 	}
@@ -45,7 +47,7 @@ func server() {
 
 func client() {
 	// dial gRPC server
-	conn, err := grpc.Dial(":9000", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(NET_ADDR, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal("client dial failed: ", err)
 	}

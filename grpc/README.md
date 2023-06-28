@@ -14,7 +14,8 @@ This demo illustrates the usage of gRPC as ping-pong server
 
 ## Install Go plugin
 
-1. Make sure $GOPATH/bin is on your $PATH, then:
+1. make sure `$GOPATH/bin` is on your $PATH
+1. run:
 ```bash
     go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
