@@ -68,6 +68,8 @@ func handleAuthTokens(w http.ResponseWriter, r *http.Request, tokens *oidc.Token
 
 // request a new access token from IDP by providing refresh token reveived on logging in
 func handleRefreshToken(w http.ResponseWriter, r *http.Request) {
+	logrus.Debug("handling refresh token")
+
 	// request new access token
 	tmpToken := oauth2.Token{
 		RefreshToken: authTokens.RefreshToken,
@@ -89,6 +91,8 @@ func handleRefreshToken(w http.ResponseWriter, r *http.Request) {
 
 // print UserInfo for the currently logged-in user
 func handleUserInfo(w http.ResponseWriter, r *http.Request) {
+	logrus.Debug("handling user info")
+
 	// request UserInfo from IDP using the previously obtained access token
 	info, err := rp.Userinfo(authTokens.AccessToken, authTokens.TokenType, authTokens.IDTokenClaims.GetSubject(), makeRelyingParty())
 	if err != nil {
