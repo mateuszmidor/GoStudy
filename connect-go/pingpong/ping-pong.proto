@@ -1,0 +1,11 @@
+syntax = "proto3";
+package pingpong;
+option go_package = "github.com/mateuszmidor/GoStudy/connectgo/pingpong";
+
+service PingPong {
+  rpc RpcPing(Message) returns (Message) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+}
+
+message Message { string body = 1; }
