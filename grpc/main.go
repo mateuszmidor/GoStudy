@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
+	"time"
 
 	"github.com/mateuszmidor/GoStudy/grpc/pingpong"
 	"google.golang.org/grpc"
@@ -20,12 +20,13 @@ type Server struct {
 
 // RpcPing implements pingpong.PingPongServer interface
 func (s *Server) RpcPing(ctx context.Context, msg *pingpong.Message) (*pingpong.Message, error) {
-	fmt.Printf("server received request: %s\n", msg.GetBody())
+	log.Printf("server received request: %s\n", msg.GetBody())
 	return &pingpong.Message{Body: "Pong!"}, nil
 }
 
 func main() {
 	go server()
+	time.Sleep(time.Second) // lousy! but works.
 	client()
 }
 
@@ -59,5 +60,5 @@ func client() {
 	if err != nil {
 		log.Fatal("client call to server failed: ", err)
 	}
-	fmt.Println("client received response:", resp.GetBody())
+	log.Println("client received response:", resp.GetBody())
 }
