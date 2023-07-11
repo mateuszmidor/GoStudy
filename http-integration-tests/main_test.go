@@ -69,7 +69,7 @@ func Test_CustomHttpClient(t *testing.T) {
 		BaseURL("http://api.nbp.pl"),
 	}
 	Test(t, append(steps,
-		Description("Get EUR/PLN exchange rate for 2023-07-06 from api.nbp.pl, custom HTTP client with cookies suppoprt"),
+		// Description("Get EUR/PLN exchange rate for 2023-07-06 from api.nbp.pl, custom HTTP client with cookies suppoprt"),
 		Get("/api/exchangerates/rates/A/EUR/2023-07-06?format=json"),
 		Expect().Status().Equal(http.StatusOK),
 		Expect().Headers("Content-Type").Contains("application/json; charset=utf-8"),
