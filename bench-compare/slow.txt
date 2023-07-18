@@ -1,0 +1,12 @@
+goos: linux
+goarch: amd64
+pkg: github.com/mateuszmidor/GoStudy/bench-compare
+cpu: AMD Ryzen 7 4800H with Radeon Graphics         
+BenchmarkConcat-16    	   10000	      2229 ns/op	    5346 B/op	       2 allocs/op
+BenchmarkConcat-16    	   10000	      2207 ns/op	    5342 B/op	       2 allocs/op
+BenchmarkConcat-16    	   10000	      2084 ns/op	    5345 B/op	       2 allocs/op
+BenchmarkConcat-16    	   10000	      2117 ns/op	    5342 B/op	       2 allocs/op
+BenchmarkConcat-16    	   10000	      2096 ns/op	    5344 B/op	       2 allocs/op
+BenchmarkConcat-16    	   10000	      2060 ns/op	    5347 B/op	       2 allocs/op
+PASS
+ok  	github.com/mateuszmidor/GoStudy/bench-compare	0.139s
