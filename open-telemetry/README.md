@@ -1,11 +1,15 @@
 # open-telemetry
 
 This demo showcases the usage of Open Telemetry in service of tracing an application.
+https://medium.com/jaegertracing/introducing-native-support-for-opentelemetry-in-jaeger-eb661be8183c
 
 ## Run
 
 ```bash
-go run .
+make jaeger-up
+make run
+firefox localhost:16686
+make jaeger-down
 ```
 
 ## Output traces
