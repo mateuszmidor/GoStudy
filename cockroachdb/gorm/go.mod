@@ -1,4 +1,4 @@
-module github.com/mateuszmidor/GoStudy/cockroachdb/src_gorm_edition
+module github.com/mateuszmidor/GoStudy/cockroachdb/gorm
 
 go 1.15
 

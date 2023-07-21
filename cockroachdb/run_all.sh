@@ -7,7 +7,7 @@ function stage() {
     BLUE="\e[36m"
     RESET="\e[0m"
     msg="$1"
-    
+
     echo
     echo -e "$BLUE$msg$RESET"
 }
@@ -20,7 +20,7 @@ function checkPrerequsites() {
 
     command docker version > /dev/null 2>&1
     [[ $? != 0 ]] && echo "You need to install docker to run this example" && exit 1
-    
+
     command docker-compose version > /dev/null 2>&1
     [[ $? != 0 ]] && echo "You need to install docker-compose to run this example" && exit 1
 
@@ -41,7 +41,7 @@ function runCockroachCluster() {
 function runExample() {
     stage "Running example"
 
-    cd src/
+    cd rawsql/
     go run .
     firefox http://localhost:8080
 
