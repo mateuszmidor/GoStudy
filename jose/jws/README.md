@@ -1,0 +1,23 @@
+# JSON Web Signature
+
+Protect message content from being tampered with.
+
+## Run
+
+```bash
+go run .
+```
+
+```json
+input:
+Lorem ipsum dolor sit amet
+
+serialized:
+{"payload":"TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQ","protected":"eyJhbGciOiJQUzUxMiJ9","signature":"BeIOp4RRPfabP2pFhRGciKRQtiqAKXSwII7H1Jn1st1UoQK94e41fiHYWNHM3HDsME6SuFlOOWhdpR7GMsHavx3SlpBEPvP3OFHPHdg_RHHChhxIn6W_gnOShIPAewr-oOud8oLpUvx6FfglKAAzZS5r9CrkxS1lhD04tViQZCa9Iddl2_W_IbsynSKyvIRTp8-MxAUNw6pi_A4RtFOTe4vtQI_4cnYNBj030G6WEufnpdaHOXilWQdv3nw7j6O4BYI2kwZ3zv8BLEMIZH811W7rJehYApHiJiqZMtKKJj30f8rYLJ0qn7JHcuZ1nkA7hbKG0srY7lD26_nt7NRnXA"}
+
+compact serialized:
+eyJhbGciOiJQUzUxMiJ9.TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQ.BeIOp4RRPfabP2pFhRGciKRQtiqAKXSwII7H1Jn1st1UoQK94e41fiHYWNHM3HDsME6SuFlOOWhdpR7GMsHavx3SlpBEPvP3OFHPHdg_RHHChhxIn6W_gnOShIPAewr-oOud8oLpUvx6FfglKAAzZS5r9CrkxS1lhD04tViQZCa9Iddl2_W_IbsynSKyvIRTp8-MxAUNw6pi_A4RtFOTe4vtQI_4cnYNBj030G6WEufnpdaHOXilWQdv3nw7j6O4BYI2kwZ3zv8BLEMIZH811W7rJehYApHiJiqZMtKKJj30f8rYLJ0qn7JHcuZ1nkA7hbKG0srY7lD26_nt7NRnXA
+
+deserialized:
+Lorem ipsum dolor sit amet
+```
