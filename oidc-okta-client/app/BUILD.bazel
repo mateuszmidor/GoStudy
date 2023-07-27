@@ -2,16 +2,22 @@ load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 
 go_library(
     name = "app_lib",
-    srcs = ["app.go"],
+    srcs = [
+        "app.go",
+        "oauth2-shortcomings.go",
+        "zitadel-shortcomings.go",
+    ],
     importpath = "oidc_client/app",
     visibility = ["//visibility:private"],
     deps = [
         "@com_github_google_uuid//:uuid",
         "@com_github_sirupsen_logrus//:logrus",
+        "@com_github_zitadel_oidc_v2//pkg/client",
         "@com_github_zitadel_oidc_v2//pkg/client/rp",
         "@com_github_zitadel_oidc_v2//pkg/http",
         "@com_github_zitadel_oidc_v2//pkg/oidc",
         "@in_gopkg_yaml_v2//:yaml_v2",
+        "@org_golang_x_oauth2//:oauth2",
     ],
 )
 

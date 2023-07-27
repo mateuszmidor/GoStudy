@@ -14,7 +14,7 @@ Client app is basically this: https://github.com/zitadel/oidc/tree/main/example/
 See: https://developer.okta.com/docs/guides/customize-tokens-groups-claim/main/#add-a-groups-claim-for-the-org-authorization-server
 
 1. Obtain CLIENT_ID (like: 0oa3v9n54yf4zbKJ85d7)
-1. Obtain CLIENT_SECRET (like: v4M04a3PLvkvvInaz6o1Q-jzWTPR5mGRITpkqSKo)
+1. Obtain CLIENT_SECRET (like: v4M04a3PLvkvvInaz6o1Q-jzWTPR5mGRITpkqSKo), or use PEM private and public keys - advanced
 1. Obtain ISSUER (this is your subdomain in Okta, like: https://dev-39423526.okta.com)
 1. Export CLIENT_ID, CLIENT_SECRET, ISSUER as env variables - do it in [.env](./.env) file
 1. `make run`
@@ -63,31 +63,8 @@ See: https://developer.okta.com/docs/guides/customize-tokens-groups-claim/main/#
 
 ## OAuth2 client app credentials
 
-clientID + clientSecret - just another names for user and password, registered in IDP to authorize the client application
-
-## OAuth2 client types
-
-* confidential - client app runs on web server and can safely store clientSecret
-* public - Single Page Application, android native, etc - runs on user device, can be infected by malicius software, can't store clientSecret
-
-## OAuth2 grant types
-
-* code grant - for confidential client apps; use clientSecret and clientID to get code grant, then exchange it for authorization token
-* code grant + PKCE - for public client apps; instead of using clientSecret, client app uses code_verifier and code_challenge
-* device grant - for public client apps without GUI (no browser to show login page), user gets login URL and opens login page on a separate device
-* client credentials - for confidential client apps that authorize themself directly with its secret without the user even knowing (triggered without user action).
-
-## OIDC
-
-* builds on top of OAuth2
-* can use code grant authorization for web server confidential apps
-* client requests additional scopes like profile email phone address
-* IDP returns additional info for requested scopes in id_token (JWT format), attached in addition to auth_token. It may be "thin" token - with only basic user info
-* IDP exposes additional endpoint `/userinfo` for fetching full and most recent information about the user; requires authorization with auth_token
-
-## OAuth2 client app credentials
-
-clientID + clientSecret - just another names for user and password, registered in IDP to authorize the client application
+- clientID + clientSecret - just another names for user and password, registered in IDP to authorize the client application
+- clientID + rsaPrivKey + rsaPrivKeyId - authentication with x.509 instead of clientSecret, more secure, public key registered in IDP
 
 ## OAuth2 client types
 
