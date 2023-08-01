@@ -25,7 +25,6 @@ type Address struct {
 type People map[string][]Address
 
 func main() {
-
 	// define resources that our SCIM server can handle. Users is obligatory for Okta - it sends connection test request to /Users
 	resourceTypes := []scim.ResourceType{
 		{
@@ -42,7 +41,7 @@ func main() {
 			Endpoint:    "/Groups",
 			Description: optional.NewString("User Group"),
 			Schema:      schema.CoreGroupSchema(),
-			Handler:     NewInMemoryResourceHandler([]scim.Resource{makeSampleGroup()}),
+			Handler:     NewInMemoryResourceHandler(makeSampleGroups()),
 		},
 	}
 
@@ -72,9 +71,18 @@ func makeSampleUsers() []scim.Resource {
 			"familyName": "Doe",
 			"givenName":  "John",
 		},
-		"emails": []map[string]any{{
-			"value": "john_doe@gmail.com",
-		}},
+		"emails": []map[string]any{
+			{
+				"value":   "john_doe@gmail.com",
+				"type":    "home",
+				"primary": true,
+			},
+			{
+				"value":   "john_doe@acme.com",
+				"type":    "work",
+				"primary": false,
+			},
+		},
 	}
 
 	attribs2 := map[string]any{
@@ -108,9 +116,11 @@ func makeSampleUsers() []scim.Resource {
 }
 
 // for fields reference, see: schema.CoreGroupSchema()
-func makeSampleGroup() scim.Resource {
-	attribs := map[string]interface{}{"displayName": "SampleGroup"}
-	return scim.Resource{ID: "sample-group", Attributes: attribs}
+func makeSampleGroups() []scim.Resource {
+	attribs1 := map[string]interface{}{"displayName": "SampleGroup"}
+	return []scim.Resource{
+		{ID: "sample-group", Attributes: attribs1},
+	}
 }
 
 // logRequest puts incoming http request into logs and hands over request processing to next function
