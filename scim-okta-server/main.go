@@ -3,14 +3,13 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"sync"
 
 	"github.com/elimity-com/scim"
 	"github.com/elimity-com/scim/optional"
 	"github.com/elimity-com/scim/schema"
 )
-
-const address = "0.0.0.0:33000"
 
 type Street struct {
 	Name   string
@@ -25,6 +24,8 @@ type Address struct {
 type People map[string][]Address
 
 func main() {
+	address := "0.0.0.0:" + os.Getenv("PORT")
+
 	// define resources that our SCIM server can handle. Users is obligatory for Okta - it sends connection test request to /Users
 	resourceTypes := []scim.ResourceType{
 		{
@@ -55,7 +56,8 @@ func main() {
 	}
 
 	// configure endpoint for SCIM requests; note that requests passed to server.ServeHTTP MUST NOT be prefixed
-	http.HandleFunc("/scim/", logRequest(http.StripPrefix("/scim", server).ServeHTTP)) // e.g. curl localhost:33000/scim/v2/Users
+	http.HandleFunc("/scim/", logRequest(http.StripPrefix("/scim", server).ServeHTTP))
+	http.HandleFunc("/auth/scim/", logRequest(http.StripPrefix("/auth/scim", server).ServeHTTP))
 
 	// run
 	log.Println("listening at", address)
