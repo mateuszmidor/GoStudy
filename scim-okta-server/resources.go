@@ -6,6 +6,7 @@ import (
 
 	"github.com/elimity-com/scim"
 	scim_errors "github.com/elimity-com/scim/errors"
+	"github.com/mateuszmidor/GoStudy/scim/filter"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
@@ -71,6 +72,13 @@ func (m *InMemoryResourceHandler) GetAll(_ *http.Request, params scim.ListReques
 		}
 		if len(results) == params.Count {
 			break
+		}
+		match, err := filter.EvalExpression(pair.Value.Attributes, params.Filter)
+		if err != nil {
+			return scim.Page{}, scim_errors.ScimErrorBadRequest(err.Error())
+		}
+		if !match {
+			continue
 		}
 
 		results = append(results, pair.Value)
