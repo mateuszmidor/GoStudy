@@ -34,7 +34,7 @@ func main() {
 			Endpoint:    "/Users",
 			Description: optional.NewString("User Account"),
 			Schema:      schema.CoreUserSchema(),
-			Handler:     NewInMemoryResourceHandler(makeSampleUsers()),
+			Handler:     NewInMemoryResourceHandler("user", makeSampleUsers()),
 		},
 		{
 			ID:          optional.NewString("Group"),
@@ -42,7 +42,7 @@ func main() {
 			Endpoint:    "/Groups",
 			Description: optional.NewString("User Group"),
 			Schema:      schema.CoreGroupSchema(),
-			Handler:     NewInMemoryResourceHandler(makeSampleGroups()),
+			Handler:     NewInMemoryResourceHandler("group", makeSampleGroups()),
 		},
 	}
 

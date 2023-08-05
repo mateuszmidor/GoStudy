@@ -12,17 +12,19 @@ import (
 
 // InMemoryResourceHandler is an in-memory implementation of scim.ResourceHandler interface.
 type InMemoryResourceHandler struct {
-	resources *orderedmap.OrderedMap[string, scim.Resource] // keyed by resource ID
+	resourceName string                                        // e.g. "user", "group"
+	resources    *orderedmap.OrderedMap[string, scim.Resource] // keyed by resource ID, orderedmap ensures consistent GetAll results
 }
 
-// NewMockResourceHandler creates a new instance of MockResourceHandler.
-func NewInMemoryResourceHandler(initResources []scim.Resource) *InMemoryResourceHandler {
+// NewInMemoryResourceHandler creates a new instance of MockResourceHandler.
+func NewInMemoryResourceHandler(resourceName string, initResources []scim.Resource) *InMemoryResourceHandler {
 	resources := orderedmap.New[string, scim.Resource]()
 	for _, r := range initResources {
 		resources.Set(r.ID, r)
 	}
 	return &InMemoryResourceHandler{
-		resources: resources,
+		resourceName: resourceName,
+		resources:    resources,
 	}
 }
 
@@ -32,7 +34,7 @@ func (m *InMemoryResourceHandler) Create(_ *http.Request, attributes scim.Resour
 		return scim.Resource{}, scim_errors.ScimErrorUniqueness
 	}
 
-	id := fmt.Sprintf("resource%d", m.resources.Len()+1)
+	id := fmt.Sprintf("%s%d", m.resourceName, m.resources.Len()+1)
 	resource := scim.Resource{
 		ID:         id,
 		Attributes: attributes,
