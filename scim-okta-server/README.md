@@ -1,4 +1,4 @@
-# System for Cross-domain Identity Management (SCIM) server integration with Okta Identity Provider (IDP)
+# System for Cross-domain Identity Management (SCIM 2.0) server integration with Okta Identity Provider (IDP)
   
 SCIM + Okta explained: https://www.youtube.com/watch?v=JmA83cy0uVc  
 Server app is basicaly this: https://github.com/elimity-com/scim
@@ -28,7 +28,7 @@ As Okta only supports SCIM as part of SAML 2.0 integration, we unfortunatelly ne
 1. Select `I'm an Okta customer adding an internal app`
 1. Finish
 1. In `General` tab, check `Enable SCIM provisioning`
-1. In `Provisioning` tab:
+1. In `Provisioning` tab -> `Integration`:
     * `SCIM connector base URL `, input `https://dob-mateusz-scim.loca.lt/scim`
     * `Unique identifier field for users`, input `userName`
     * Select all `Supported provisioning actions` (maybe, unselect Import Groups, if error on Save)
@@ -39,8 +39,8 @@ As Okta only supports SCIM as part of SAML 2.0 integration, we unfortunatelly ne
 ## Run
 
 ```bash
-make macos
-firefox localhost:33000/scim/v2/Users
+make 
+firefox localhost:32000/scim/v2/Users
 ```
 
 ```json
@@ -80,5 +80,29 @@ firefox localhost:33000/scim/v2/Users
 ## Validate 
 
 * the SCIM server implementation can be validated against Okta specification: https://developer.okta.com/docs/guides/scim-provisioning-integration-prepare/main/#customize-the-imported-runscope-test-for-your-scim-integration
-* this scim-okta-server will pass the test 100% when resource filtering is implemented
+* this scim-okta-server has resource filtering implemented and passes the test 100%
 
+## Example pagination
+
+pagination may be used for /scim/Users? and /scim/Groups?:
+* startIndex=10&count=5
+
+## Example filters
+
+filter may be used for /scim/Users? and /scim/Groups?:
+* filter=userName eq "John Doe" # equal
+* filter=not(userName eq "John Doe") # not equal
+* filter=name.familyName co "Do" # contains
+* filetr=userName eq "John Doe" or userName eq "Johny Bravo" # alternative
+* filter=emails[value co "gmail"] # any of the configured emails matches
+
+## Example query
+
+* curl 'http://localhost:32000/scim/Users?startIndex=2&count=1&filter=userName%20eq%20%22John%20Doe%22'
+
+## TODO
+
+Query string params:
+* sortBy
+* orderBy
+* attributes
