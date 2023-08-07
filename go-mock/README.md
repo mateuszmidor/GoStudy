@@ -11,6 +11,7 @@ Tutorial; gomock.Any(), gomock.InOrder() and other useful stuff:
 ```bash
 go get -u github.com/golang/mock/gomock
 go get -u github.com/golang/mock/mockgen
+go install github.com/golang/mock/mockgen # make sure to include go/bin/ in PATH env
 ```
 
 ## Interface of calculator to be mocked (notice the //go:generate)
@@ -28,13 +29,11 @@ type Calculator interface {
 ## Generate mocks - reflect mode (needs the //go:generate)
 
 ```bash
-cd src/
 go generate -v ./...
 ```
 
 ## Generate mocks - source mode (doesnt need the //go:generate)
 
 ```bash
-cd src/
 mockgen -source=calculator.go -destination=mocks/calculator.go -package=mocks
 ```

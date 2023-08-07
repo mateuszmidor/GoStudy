@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/mateuszmidor/GoStudy/go-mock/src/mocks"
+	"github.com/mateuszmidor/GoStudy/go-mock/mocks"
 )
 
 func TestAdd(t *testing.T) {
