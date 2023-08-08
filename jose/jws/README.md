@@ -1,6 +1,7 @@
 # JSON Web Signature
 
-Protect message content from being tampered with.
+Protect message content from being tampered with.  
+https://pkg.go.dev/github.com/go-jose/go-jose/v3@v3.0.0#example-package-JWS  
 
 ## Run
 

@@ -3,8 +3,6 @@ github.com/go-jose/go-jose v2.6.1+incompatible h1:OtK6Y2NdYJDx74rAGMMbrDz4h1yfvZ
 github.com/go-jose/go-jose v2.6.1+incompatible/go.mod h1:coBhWG9DQz8V/JlBMg3LkUGnarUaxjQlWQUUv9Cv7tw=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
-github.com/mateuszmidor/pretty/v2 v2.0.0 h1:E19lttq12fWmrcG1u0Sre/Qmmfct56S1oRgYyJ00UAk=
-github.com/mateuszmidor/pretty/v2 v2.0.0/go.mod h1:h5SUxTNSP0TWItCnY6DIEFVfDz1X8iaY+bmZMuG3X+c=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=

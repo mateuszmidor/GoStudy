@@ -1,6 +1,6 @@
 # JSON Web Encryption
 
-Secure the content with private key encryption and public key decryption.  
+Secure the content with public key encryption and private key decryption.  
 https://pkg.go.dev/github.com/go-jose/go-jose/v3@v3.0.0#example-package-JWE  
 
 ## Run

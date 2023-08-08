@@ -59,5 +59,4 @@ func main() {
 	}
 
 	fmt.Printf("deserialized:\n%s\n", output)
-
 }
