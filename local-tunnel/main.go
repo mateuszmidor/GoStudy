@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 )
 
 const Address = "0.0.0.0:33000"
+
+var counter int
 
 func main() {
 	http.HandleFunc("/", handler)
@@ -15,8 +18,9 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("%+v", r)
-	response := "Hello world!"
+	counter++
+	log.Printf("%d - a request came!", counter)
+	response := fmt.Sprintf("%d - Hello world!", counter)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(response))
 }

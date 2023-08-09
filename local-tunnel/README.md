@@ -1,14 +1,22 @@
 # local tunnel
 
-Should enable access from internet to your local machine:port.  
+Should enable access from internet to your localhost:port, terminating https (so you only need to run simple http server)  
 https://theboroer.github.io/localtunnel-www/  
-Currently, times out with 504. tmobile internet is a problem here?
 
-## Run
+## Run on linux
 
 ```bash
 go run .
-make
-> your url is: https://demo1.loca.lt
+make macos 
+> your url is: https://dob-mateusz-test.loca.lt
 ```
+
+## Run on macos
+
+```bash
+go run .
+make macos  
+> your url is: https://dob-mateusz-test.loca.lt
+```
+
 , and then go to displayed URL and enter public IP to authorize access.
