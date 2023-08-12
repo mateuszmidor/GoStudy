@@ -1,6 +1,6 @@
 # redis cache
 
-Redis shell tutorial: <https://youtu.be/Hbt56gFj998?t=466>
+Redis shell tutorial: <https://youtu.be/Hbt56gFj998?t=466>  
 Example use in GO: <https://github.com/go-redis/redis>
 
 ## Highlights
