@@ -4,6 +4,7 @@ OAuth2 + OIDC explained: https://www.youtube.com/watch?v=9LRZXg0NK5k
 Client app is basically this: https://github.com/zitadel/oidc/tree/main/example/client
 
 ## Steps:
+
 1. First create an account in Okta https://developer.okta.com/signup/ ("Access the Okta Developer Edition Service" tile).
 1. Then after logging-in, `Applications` -> `Applications`  -> `Create App Integration` 
 1. Select `OIDC` and then `Web Application`
