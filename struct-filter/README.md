@@ -1,6 +1,6 @@
 # struct-filter
 
-As of no, it only gets value of give struct at given path, but can be a foundation for an elaborate matcher function.
+As of now, it only gets value of give struct at given path, but can be a foundation for an elaborate matcher function.
 
 ## Run
 
