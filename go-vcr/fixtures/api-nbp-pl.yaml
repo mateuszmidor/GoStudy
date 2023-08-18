@@ -1,0 +1,51 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.nbp.pl
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            User-Agent:
+                - golang
+        url: http://api.nbp.pl/api/exchangerates/rates/A/EUR/2023-07-06?format=json
+        method: GET
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding:
+            - chunked
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '{"table":"A","currency":"euro","code":"EUR","rates":[{"no":"129/A/NBP/2023","effectiveDate":"2023-07-06","mid":4.4754}]}'
+        headers:
+            Cache-Control:
+                - no-cache
+            Content-Type:
+                - application/json; charset=utf-8
+            Date:
+                - Tue, 15 Aug 2023 15:35:43 GMT
+            Etag:
+                - '"eX49OL00ByaY2wP/uTcHYV+sTwDJGyDPINJUWcLvRA8="'
+            Expires:
+                - "-1"
+            Pragma:
+                - no-cache
+            Set-Cookie:
+                - ee3la5eizeiY4Eix=ud5ahSho; path=/
+            Vary:
+                - Accept-Encoding
+        status: 200 OK
+        code: 200
+        duration: 148.256475ms
