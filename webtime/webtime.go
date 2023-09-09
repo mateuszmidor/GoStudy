@@ -1,20 +1,21 @@
 package main
 
-import ("fmt"
-		"os"
-		"regexp"
-		"io/ioutil"
-		"net/http"
+import (
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"regexp"
 )
 
-func extract_time(html string) string {
+func extractTime(html string) string {
 	REGEXP := "[0-9][0-9]:[0-9][0-9]:[0-9][0-9]"
 	r, _ := regexp.Compile(REGEXP)
 	return r.FindString(html)
 }
 
-func exit_on_error(err error) {
-	if (err != nil) {
+func exitOnError(err error) {
+	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		os.Exit(1)
 	}
@@ -22,13 +23,13 @@ func exit_on_error(err error) {
 func main() {
 	TIME_WWW := "https://www.worldtimeserver.com/current_time_in_PL.aspx"
 	resp, err := http.Get(TIME_WWW)
-	exit_on_error(err)
+	exitOnError(err)
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	exit_on_error(err)
+	exitOnError(err)
 
 	html := string(body)
-	time := extract_time(html)
+	time := extractTime(html)
 	fmt.Printf("Time in Poland: %s\n", time)
 }
