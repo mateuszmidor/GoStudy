@@ -1,6 +1,11 @@
 version: v1
 plugins:
-  - plugin: go
+# generate output without go-tags
+  # - plugin: go
+  #   out: .
+  #   opt: paths=source_relative
+#generate output with go-tags
+  - plugin: gotag
     out: .
     opt: paths=source_relative
   - plugin: connect-go

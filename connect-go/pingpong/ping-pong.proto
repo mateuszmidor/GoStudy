@@ -1,5 +1,8 @@
 syntax = "proto3";
 package pingpong;
+
+import "tagger/tagger.proto";
+
 option go_package = "github.com/mateuszmidor/GoStudy/connectgo/pingpong";
 
 service PingPong {
@@ -8,4 +11,6 @@ service PingPong {
   }
 }
 
-message Message { string body = 1; }
+message Message { 
+  string body = 1 [(tagger.tags) = "gorm:\"msgBody\""];
+}

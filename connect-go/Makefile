@@ -1,7 +1,7 @@
-default: proto-to-connect-go
+default: proto
 	go run .
 
-proto-to-connect-go: 
+proto: 
 	buf lint || true # ignore lint warnings
 	buf generate
 
