@@ -23,6 +23,7 @@ var (
 	loginPath         = "/"
 	loginCallbackPath = "/auth/callback"
 	refreshTokenPath  = "/auth/refresh"
+	revokeTokenPath   = "/auth/revoke" // after calling, refreshToken gets invalidated
 	userInfoPath      = "/auth/userinfo"
 )
 var (
@@ -68,6 +69,9 @@ func main() {
 	// register the OAuth2 RefreshToken handler (this is optional, only if you plan to use token refresh flow)
 	http.HandleFunc(refreshTokenPath, handleRefreshToken)
 
+	// register revoke token handler, so the refresh token can be manually invalidated
+	http.HandleFunc(revokeTokenPath, handleRevokeAccessRefreshToken)
+
 	// register UserInfo handler - this prints information about logged in user
 	http.HandleFunc(userInfoPath, handleUserInfo)
 
@@ -96,12 +100,35 @@ func handleRefreshToken(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	fmt.Println("id_token", newToken.Extra("id_token"))
 
 	// store the received tokens for future use
 	authTokens.Token = newToken
 
 	// and redirect to user info page
 	http.Redirect(w, r, userInfoPath, http.StatusSeeOther)
+}
+
+func handleRevokeAccessRefreshToken(w http.ResponseWriter, r *http.Request) {
+	logrus.Debug("handling revoke token")
+
+	var err error
+
+	err = RevokeToken(relyingParty, authTokens.AccessToken, TokenHintAccess)
+	if err != nil {
+		logrus.Error("failed to revoke access token")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = RevokeToken(relyingParty, authTokens.RefreshToken, TokenHintRefresh)
+	if err != nil {
+		logrus.Error("failed to revoke refresh token")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte("tokens revoked successfuly"))
 }
 
 // print UserInfo for the currently logged-in user

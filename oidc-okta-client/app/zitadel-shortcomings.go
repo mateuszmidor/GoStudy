@@ -88,7 +88,6 @@ func CodeExchangeHandler[C oidc.IDClaims](callback rp.CodeExchangeCallback[C], c
 			return
 		}
 
-		logrus.Info("calling CodeExcahnge callback")
 		callback(w, r, tokens, state, client)
 	}
 }
