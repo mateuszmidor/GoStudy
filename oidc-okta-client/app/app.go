@@ -100,7 +100,6 @@ func handleRefreshToken(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("id_token", newToken.Extra("id_token"))
 
 	// store the received tokens for future use
 	authTokens.Token = newToken
