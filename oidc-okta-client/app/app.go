@@ -135,8 +135,7 @@ func handleRevokeAccessRefreshToken(w http.ResponseWriter, r *http.Request) {
 func handleUserInfo(w http.ResponseWriter, r *http.Request) {
 	logrus.Debug("handling user info")
 
-	// request UserInfo from IDP using the previously obtained access token
-	info, err := rp.Userinfo(authTokens.AccessToken, authTokens.TokenType, authTokens.IDTokenClaims.GetSubject(), relyingParty)
+	info, err := getUserInfo()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -220,4 +219,31 @@ func makeRelyingPartyX509KeysAuth() rp.RelyingParty {
 	}
 
 	return relyingParty
+}
+
+// getUserInfo returns data about the authenticated user.
+// There are 2 sources of UserInfo data:
+// 1. authentication token; the UserInfo data may be incomplete, but it works better in case of AzureAD
+// 2. dedicated endpoint in IDP server; supposed to always return full UserInfo, doesn't return user groups for AzureAD (thanks, Microsoft!)
+func getUserInfo() (*oidc.UserInfo, error) {
+	// get UserInfo from dedicated endpoint in IDP
+	// return rp.Userinfo(authTokens.AccessToken, authTokens.TokenType, authTokens.IDTokenClaims.GetSubject(), relyingParty)
+
+	// get UserInfo from authentication token
+	return extractUserInfo(authTokens.IDTokenClaims)
+}
+
+// extractUserInfo makes UserInfo from the OIDC ID token
+func extractUserInfo(claims *oidc.IDTokenClaims) (*oidc.UserInfo, error) {
+	if claims.UserInfoEmail.Email == "" || len(claims.Claims) == 0 {
+		return nil, fmt.Errorf("the OIDC ID token claims are missing Email and Claims")
+	}
+	return &oidc.UserInfo{
+		Subject:         claims.Subject,
+		UserInfoEmail:   claims.UserInfoEmail,
+		UserInfoProfile: claims.UserInfoProfile,
+		UserInfoPhone:   claims.UserInfoPhone,
+		Claims:          claims.Claims,
+		// TODO: copy the rest of data from 'claims' if necessary
+	}, nil
 }
