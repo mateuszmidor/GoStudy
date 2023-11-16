@@ -15,8 +15,8 @@ func main() {
 	slog.Info("hello world!", "field1", 42) // 2023/10/08 07:36:06.049905 main.go:15: [slog-demo] INFO hello world! field1=42
 
 	// output log in text format, enable DEBUG level
-	textTandler := slog.NewTextHandler(os.Stdout, &logOptions)
-	textLogger := slog.New(textTandler)
+	textHandler := slog.NewTextHandler(os.Stdout, &logOptions)
+	textLogger := slog.New(textHandler)
 	slog.SetDefault(textLogger)
 	slog.Debug("hello world!", "field1", 42) // time=2023-10-08T10:18:08.170+02:00 level=DEBUG source=/home/user/SoftwareDevelopment/GoStudy/slog/main.go:22 msg="hello world!" field1=42
 
