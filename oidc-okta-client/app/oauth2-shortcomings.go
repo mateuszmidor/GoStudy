@@ -68,7 +68,7 @@ const TokenHintRefresh tokenHint = "refresh_token"
 // This is a modification of "RevokeToken" from github.com/zitadel/oidc/v2/pkg/client/rp/relying_party.go
 func RevokeToken(rp rp.RelyingParty, token string, hint tokenHint) error {
 	revokeCaller, ok := rp.(oidc_client.RevokeCaller)
-	if !ok && revokeCaller.GetRevokeEndpoint() == "" {
+	if !ok || revokeCaller.GetRevokeEndpoint() == "" {
 		return fmt.Errorf("RelyingParty does not support RevokeCaller")
 	}
 
