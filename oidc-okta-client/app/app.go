@@ -57,7 +57,7 @@ func main() {
 	// including state handling with secure cookie and the possibility to use PKCE.
 	// Prompts can optionally be set to inform the server of
 	// any messages that need to be prompted back to the user.
-	http.Handle(loginPath, rp.AuthURLHandler(stateFunc, relyingParty, rp.WithPromptURLParam("Welcome back!")))
+	http.Handle(loginPath, rp.AuthURLHandler(stateFunc, relyingParty)) // , rp.WithPromptURLParam("Welcome back!") is not supported by AzureAD
 
 	// register the CodeExchangeHandler at the callbackPath
 	// the CodeExchangeHandler handles the auth response, creates the token request and calls the callback function
@@ -223,13 +223,13 @@ func makeRelyingPartyX509KeysAuth() rp.RelyingParty {
 // getUserInfo returns data about the authenticated user.
 // There are 2 sources of UserInfo data:
 // 1. authentication token; the UserInfo data may be incomplete, but it works better in case of AzureAD
-// 2. dedicated endpoint in IDP server; supposed to always return full UserInfo, doesn't return user groups for AzureAD (thanks, Microsoft!)
+// 2. dedicated "UserInfo" endpoint in IDP server; supposed to always return full UserInfo, doesn't return user groups for AzureAD (thanks, Microsoft!)
 func getUserInfo() (*oidc.UserInfo, error) {
-	// get UserInfo from dedicated endpoint in IDP
-	// return rp.Userinfo(authTokens.AccessToken, authTokens.TokenType, authTokens.IDTokenClaims.GetSubject(), relyingParty)
-
 	// get UserInfo from authentication token
-	return extractUserInfo(authTokens.IDTokenClaims)
+	// return extractUserInfo(authTokens.IDTokenClaims) // doesnt return family_name nor given_name for Okta!
+
+	// get UserInfo from dedicated endpoint in IDP
+	return rp.Userinfo(authTokens.AccessToken, authTokens.TokenType, authTokens.IDTokenClaims.GetSubject(), relyingParty) // doesnt return groups for Azure!
 }
 
 // extractUserInfo makes UserInfo from the OIDC ID token
