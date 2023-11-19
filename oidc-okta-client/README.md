@@ -3,7 +3,7 @@
 OAuth2 + OIDC explained: https://www.youtube.com/watch?v=9LRZXg0NK5k  
 Client app is basically this: https://github.com/zitadel/oidc/tree/main/example/client
 
-## Steps:
+## Steps for Okta:
 
 1. First create an account in Okta https://developer.okta.com/signup/ ("Access the Okta Developer Edition Service" tile).
 1. Then after logging-in, `Applications` -> `Applications`  -> `Create App Integration` 
@@ -61,6 +61,25 @@ See: https://developer.okta.com/docs/guides/customize-tokens-groups-claim/main/#
         zoneinfo: America/Los_Angeles
     ```
 1. You can also test the Refresh Token endpoint: `localhost:8000/auth/refresh`
+1. Or Revoke Refresh Token endpoint, so user can no longer refresh: `localhost:8000/auth/revoke` (11.2023: EntraID doesn't support revocation)
+
+## Steps for AzureAD (new name: EntraID)
+
+1. Login to your Azure cloud
+1. Then after logging-in, `Microsoft Entra ID` -> `App registrations` -> `New registration`
+1. Input `Name`
+1. Select `Supported account types` = `Accounts in this organizational directory only (Default Directory only - Single tenant)`
+1. Select `Redirect URI (optional)`: `Platform` = `Web`, input URL = `http://localhost:8000/auth/callback`
+1. Click `Register`
+1. Your ISSUER is `"https://login.microsoftonline.com/<Directory (tenant) ID>/v2.0"`, the CLIENT_ID is `<Application (client) ID>`, eg:
+    * ISSUER: `"https://login.microsoftonline.com/e0ae040b-2d16-41ad-bd29-faaa3ec975b9/v2.0"`
+    * CLIENT_ID: `c86f603c-c425-4832-bc4a-906f492ac77f`
+1. Go to `Certificates & Secrets` -> `New client secret`, click `Add` and save the `Value` field: this is your CLIENT_SECRET
+1. Go to `Token configuration`, then:
+    * `Add optional claim` -> `Token type` = ID, select `family_name` and `given_name`, so that Entra returns these values in OIDC token, click `Add` and agree to `Turn on the Microsoft Graph profile permission (required for claims to appear in token)`
+    * `Add groups claim`, select relevant groups and click `Add`
+1. Go to `API permission`, you should see: `profile` and `User.Read` (both `delegated`)
+1. On first login, you will be asked by Microsoft to allow access for this application ("Żądane uprawnienia") 
 
 ## OAuth2 client app credentials
 
@@ -86,6 +105,11 @@ See: https://developer.okta.com/docs/guides/customize-tokens-groups-claim/main/#
 * client requests additional scopes like profile email phone address
 * IDP returns additional info for requested scopes in id_token (JWT format), attached in addition to auth_token. It may be "thin" token - with only basic user info
 * IDP exposes additional endpoint `/userinfo` for fetching full and most recent information about the user; requires authorization with auth_token
+
+## openid-configuration endpoints
+
+* Okta: https://dev-39423526.okta.com/.well-known/openid-configuration
+* EntraID: https://login.microsoftonline.com/c2ceea60-3945-479c-b6a6-15be438c0c4b/v2.0/.well-known/openid-configuration
 
 ## Bazel
 
