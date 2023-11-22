@@ -15,16 +15,23 @@ https://golangforall.com/en/post/go-docker-delve-remote-debug.html
 1. Attach VS Code to delve in container at port 2345. `launch.json` config for remote debugging:
     ```json
     {
-        "name": "Attach to remote Delve session",
-        "type": "go",
-        "request": "attach",
-        "mode": "remote",
-        "remotePath": "/app/",
-        "port": 2345,
-        "host": "127.0.0.1",
-        "showLog": true,
-        "trace": "log",
-        "logOutput": "rpc"
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Attach to remote Delve session",
+                "type": "go",
+                "request": "attach",
+                "mode": "remote",
+                "substitutePath": [
+                    { "from": "${workspaceFolder}/", "to": "/app/" },
+                ],
+                "port": 2345,
+                "host": "127.0.0.1",
+                "showLog": true,
+                "trace": "log",
+                "logOutput": "rpc"
+            }
+        ]
     }
     ```
-    **Note** the remotePath needs to reflect the folder in which the go application has been compiled for sources and breakpoints to work
+    **Note** for Delve sources and breakpoints to work, the substitutePath must map directory where the source code is on the host to where the `go build` was executed from (in our case `go build` is executed from /app/ folder in docker container)
