@@ -1,4 +1,4 @@
-module github.com/mateuszmidor/GoStudy/testify/src
+module github.com/mateuszmidor/GoStudy/testify
 
 go 1.15
 
