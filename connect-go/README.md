@@ -31,10 +31,11 @@ https://connect.build/docs/go/getting-started/
     go install github.com/srikrsna/protoc-gen-gotag
 ```
 
-## Initialize buf
+## Initialize or update buf
 
 ```bash
-buf mod init # only for starting out a new project with "buf" tool 
+buf mod init # only for starting out a new project with "buf" tool
+buf mod update # update buf.lock
 ```
 
 ## Run
