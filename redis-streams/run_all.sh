@@ -42,7 +42,6 @@ function runRedis() {
 function runExample() {
     stage "Running example"
 
-    cd src/
     go run .
 
     echo "Done"
