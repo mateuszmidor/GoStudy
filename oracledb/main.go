@@ -8,6 +8,19 @@ import (
 	_ "gopkg.in/goracle.v2"
 )
 
+// First install goracle package:
+// go get gopkg.in/goracle.v2,
+// and drivers for OracleDB
+// https://oracle.github.io/odpi/doc/installation.html#linux
+func main() {
+	db := connectDbOrExit()
+	defer db.Close()
+
+	checkConnectionAliveOrExit(db)
+
+	listColorsOrExit(db)
+}
+
 func exitOnError(err error) {
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
@@ -17,7 +30,7 @@ func exitOnError(err error) {
 
 func connectDbOrExit() *sql.DB {
 	// the below oracle db instance lives in AWS Cloud
-	ConnString := "mateusz/SecretPass@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=testdb.cyjughgpwadc.eu-central-1.rds.amazonaws.com)(PORT=1521))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=orcl)))"
+	ConnString := "mateusz/pass@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=orcl)))"
 	db, err := sql.Open("goracle", ConnString)
 	exitOnError(err)
 	return db
@@ -45,17 +58,4 @@ func listColorsOrExit(db *sql.DB) {
 		exitOnError(err)
 		fmt.Println(id, name)
 	}
-}
-
-// First install goracle package:
-// go get gopkg.in/goracle.v2,
-// and drivers for OracleDB
-// https://oracle.github.io/odpi/doc/installation.html#linux
-func main() {
-	db := connectDbOrExit()
-	defer db.Close()
-
-	checkConnectionAliveOrExit(db)
-
-	listColorsOrExit(db)
 }
