@@ -1,0 +1,16 @@
+syntax = "proto3";
+package pingpong7; // name is pretty irrelevant for generated code, but constitutest connect-go RPC path: "/pingpong7.PingPong/RpcPing"
+
+import "tagger/tagger.proto";
+
+// option go_package = "github.com/mateuszmidor/GoStudy/connectgo/gen/pingpong/proto/v2alpha"; // important: this is golang import path for generated package
+
+service PingPong {
+  rpc RpcPing(Message) returns (Message) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+}
+
+message Message { 
+  string body = 1 [(tagger.tags) = "gorm:\"msgBody\""];
+}

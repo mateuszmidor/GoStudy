@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/bufbuild/connect-go"
-	"github.com/mateuszmidor/GoStudy/connectgo/pingpong"
-	"github.com/mateuszmidor/GoStudy/connectgo/pingpong/pingpongconnect"
+	pingpong "github.com/mateuszmidor/GoStudy/connectgo/gen/pingpong/proto/v2alpha"
+	pingpongconnect "github.com/mateuszmidor/GoStudy/connectgo/gen/pingpong/proto/v2alpha/v2alphaconnect"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )

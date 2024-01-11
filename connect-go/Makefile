@@ -3,8 +3,8 @@ default: proto
 
 proto: 
 	buf lint || true # ignore lint warnings
-	buf generate
+	buf generate --template=buf.gen.yaml
+	buf generate --template=buf.gen.tag.yaml
 
 clean:
-	rm pingpong/*.go
-	rm -rf pingpong/pingpongconnect
+	rm -rf gen
