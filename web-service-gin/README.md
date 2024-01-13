@@ -7,7 +7,11 @@ Based on https://go.dev/doc/tutorial/web-service-gin
 ```sh
 # run
 go run .
+```
 
+## Test with curl
+
+```sh
 # list albums
 curl http://localhost:8080/albums
 
@@ -21,3 +25,8 @@ curl http://localhost:8080/albums \
 # get album by ID
 curl http://localhost:8080/albums/2
 ```
+
+## Test with [request.http](./request.http)
+
+1. install VS Code plugin "REST Client"
+1. click "Send Request"
