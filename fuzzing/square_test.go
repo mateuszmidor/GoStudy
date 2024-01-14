@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-// go test -fuzz=Fuzz square_test.go -fuzztime 10s
+// go test -fuzz -fuzztime=10s square_test.go
 func FuzzSquare(f *testing.F) {
 	testcases := []int16{-10000, 0, 10000}
 	for _, tc := range testcases {
