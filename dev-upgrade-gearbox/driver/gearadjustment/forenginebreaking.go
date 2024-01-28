@@ -1,6 +1,6 @@
 package gearadjustment
 
-import "shared/gear"
+import "github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/gear"
 
 // AdjustGearForEngineBreaking calculates optimal gear change for engine breaking
 func AdjustGearForEngineBreaking(isDownSlope, isTrailorAttached bool) gear.Change {

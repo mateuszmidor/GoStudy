@@ -1,9 +1,9 @@
 package soundmodule
 
 import (
-	"shared/events"
-	"shared/sounds"
-	"soundmodule/aggressiveness"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/events"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/sounds"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/soundmodule/aggressiveness"
 )
 
 // SoundModule turns gear box events into sounds

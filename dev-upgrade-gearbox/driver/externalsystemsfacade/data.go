@@ -1,6 +1,6 @@
 package externalsystemsfacade
 
-import "driver/types"
+import "github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/types"
 
 // Data is interface for getting external systems data
 type Data interface {

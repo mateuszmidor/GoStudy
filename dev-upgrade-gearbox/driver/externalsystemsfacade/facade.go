@@ -1,8 +1,8 @@
 package externalsystemsfacade
 
 import (
-	"externalsystems"
-	"driver/types"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/types"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/externalsystems"
 )
 
 // Facade hides ExernalSystems atrocity

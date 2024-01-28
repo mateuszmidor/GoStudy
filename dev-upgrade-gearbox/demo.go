@@ -1,12 +1,13 @@
 package main
 
 import (
-	gearboxdriver "driver"
-	"driver/externalsystemsfacade"
 	"fmt"
-	"shared/gas"
-	"soundmodule"
 	"time"
+
+	gearboxdriver "github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/externalsystemsfacade"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/gas"
+	soundmodule "github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/soundmodule"
 )
 
 type scenario = func() (gas.Value, gearboxdriver.DDrive, soundmodule.SoundModule)

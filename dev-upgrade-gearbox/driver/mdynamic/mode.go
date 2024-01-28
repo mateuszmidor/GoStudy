@@ -1,8 +1,8 @@
 package mdynamic
 
 import (
-	"driver/uślizg"
-	"driver/types"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/types"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/uslizg"
 )
 
 // Mode represents MDynamic mode
@@ -17,5 +17,5 @@ func (m *Mode) Enable() {
 
 // IsGearChangeAllowed does what it says
 func (m *Mode) IsGearChangeAllowed(as types.AngularSpeed) bool {
-	return !m.enabled || !uślizg.IsUślizg(as)
+	return !m.enabled || !uslizg.IsUślizg(as)
 }

@@ -3,7 +3,6 @@ package gearboxdriver
 import (
 	"driver/characteristics"
 	"driver/externalsystemsfacade"
-	"driver/uślizg"
 	"externalsystems"
 	"shared/events"
 	"shared/gas"
@@ -160,7 +159,7 @@ func TestShouldKeepGearWithActualExternalSystemsAndStuff(t *testing.T) {
 	lights := externalsystems.NewLights(nil)
 	ed := externalsystems.NewExternalSystems(
 		1500,
-		uślizg.AngularSpeedForNoUślizg,
+		uslizg.AngularSpeedForNoUślizg,
 		lights,
 	)
 	esFacade := externalsystemsfacade.Facade{

@@ -1,10 +1,10 @@
 package drivingmode
 
 import (
-	"driver/aggressiveness"
-	"shared/gas"
-	"shared/gear"
-	"driver/types"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/aggressiveness"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/types"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/gas"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/gear"
 )
 
 // Stub is unit test helper for those who need drivingmode.Level

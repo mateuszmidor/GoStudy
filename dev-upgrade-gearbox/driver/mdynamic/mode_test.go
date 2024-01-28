@@ -1,7 +1,7 @@
 package mdynamic
 
 import (
-	"driver/uślizg"
+	"driver/uslizg"
 	"testing"
 )
 
@@ -11,11 +11,11 @@ func TestGearChangeShouldBeAllowedWhenNoUślizg(t *testing.T) {
 	mdynamic.Enable()
 
 	// when
-	isGearChangeAllowed := mdynamic.IsGearChangeAllowed(uślizg.AngularSpeedForNoUślizg)
+	isGearChangeAllowed := mdynamic.IsGearChangeAllowed(uslizg.AngularSpeedForNoUślizg)
 
 	// then
 	if !isGearChangeAllowed {
-		t.Errorf("For no uślizg a gear change should be allowed")
+		t.Errorf("For no uslizg a gear change should be allowed")
 	}
 }
 
@@ -25,10 +25,10 @@ func TestGearChangeShouldBeDisallowedWhenUślizg(t *testing.T) {
 	mdynamic.Enable()
 
 	// when
-	isGearChangeAllowed := mdynamic.IsGearChangeAllowed(uślizg.AngularSpeedForUślizg)
+	isGearChangeAllowed := mdynamic.IsGearChangeAllowed(uslizg.AngularSpeedForUślizg)
 
 	// then
 	if isGearChangeAllowed {
-		t.Errorf("For uślizg a gear change should be disallowed")
+		t.Errorf("For uslizg a gear change should be disallowed")
 	}
 }

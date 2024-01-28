@@ -1,9 +1,9 @@
 package gearadjustment
 
 import (
-	"driver/drivingmode"
-	"shared/gas"
-	"shared/gear"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/drivingmode"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/gas"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/gear"
 )
 
 // AdjustForKickDown calculates optimal gear change for current given DriveMode

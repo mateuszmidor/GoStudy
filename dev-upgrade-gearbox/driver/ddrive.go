@@ -1,15 +1,15 @@
 package gearboxdriver
 
 import (
-	"driver/aggressiveness"
-	"driver/characteristics"
-	"driver/drivingmode"
-	"driver/externalsystemsfacade"
-	"driver/gearadjustment"
-	"driver/mdynamic"
-	"shared/events"
-	"shared/gas"
-	"shared/gear"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/aggressiveness"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/characteristics"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/drivingmode"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/externalsystemsfacade"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/gearadjustment"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/mdynamic"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/events"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/gas"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/gear"
 )
 
 // DDrive exhibits gear adjustment functionality for D-Drive mode
@@ -39,7 +39,7 @@ func (d *DDrive) HandleGas(gas gas.Value) (totalChange gear.Change, eventList ev
 		return
 	}
 
-	// Check for mdynamic mode in uślizg
+	// Check for mdynamic mode in uslizg
 	if d.mDynamicPreventsGearChange() {
 		return
 	}

@@ -1,8 +1,7 @@
 package externalsystemsfacade
 
 import (
-	"driver/uślizg"
-	"driver/types"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/types"
 )
 
 // Stub is unit test helper for those who need externalsystemsfacade.Data
@@ -26,9 +25,9 @@ func (s Stub) SetTrailor() Stub {
 	return s
 }
 
-// SetUślizg setter
-func (s Stub) SetUślizg() Stub {
-	s.AngularSpeed = uślizg.AngularSpeedForUślizg
+// SetUslizg setter
+func (s Stub) SetUslizg(angularSpeedForUślizg float64) Stub {
+	s.AngularSpeed = angularSpeedForUślizg
 	return s
 }
 

@@ -1,8 +1,8 @@
 package gearadjustment
 
 import (
-	"shared/gear"
-	"driver/types"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/driver/types"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/gear"
 )
 
 // AdjustForOptimalRPM calculates optimal gear change for current RPM

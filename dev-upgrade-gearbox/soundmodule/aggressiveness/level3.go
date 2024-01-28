@@ -1,8 +1,8 @@
 package aggressiveness
 
 import (
-	"shared/events"
-	"shared/sounds"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/events"
+	"github.com/mateuszmidor/GoStudy/dev-upgrade-gearbox/shared/sounds"
 )
 
 // GetSoundsForEventsLevel3 returns
