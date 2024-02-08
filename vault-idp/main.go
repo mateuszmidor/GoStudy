@@ -76,7 +76,7 @@ func main() {
 	}
 	fmt.Printf("%+v\n", *res.Auth)
 
-	// crate OIDC client app
+	// create OIDC client app
 	clientReq := schema.OidcWriteClientRequest{
 		RedirectUris:   []string{"http://localhost:8000/auth/callback"},
 		Assignments:    []string{"allow_all"},
@@ -89,10 +89,19 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// create scopes
+	emailScope := schema.OidcWriteScopeRequest{
+		Description: "email",
+		Template:    `{"email": "mat@acme.com" }`,
+	}
+	_, err = client.Identity.OidcWriteScope(ctx, "email", emailScope)
+	if err != nil {
+		log.Fatal(err)
+	}
 	// create OIDC provider
 	providerReq := schema.OidcWriteProviderRequest{
 		AllowedClientIds: []string{"*"},
-		// ScopesSupported: []string,
+		ScopesSupported:  []string{"email"},
 	}
 	_, err = client.Identity.OidcWriteProvider(ctx, providerName, providerReq)
 	if err != nil {
