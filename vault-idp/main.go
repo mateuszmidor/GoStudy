@@ -65,16 +65,35 @@ func main() {
 	vals.Add("token_max_ttl", "60")
 	vals.Add("token_explicit_max_ttl", "60")
 	opts := vault.WithCustomQueryParameters(vals)
-	_, err = client.Auth.UserpassWriteUser(ctx, userName, req, opts)
+	rsp, err := client.Auth.UserpassWriteUser(ctx, userName, req, opts)
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Printf("UserpassWriteUser resp: %+v\n", rsp)
 
 	res, err := client.Auth.UserpassLogin(ctx, userName, schema.UserpassLoginRequest{Password: userPass}, opts)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%+v\n", *res.Auth)
+	fmt.Printf("UserpassLogin resp: %+v\n", *res.Auth)
+	entityID := res.Auth.EntityID
+	entity, err := client.Identity.EntityReadById(ctx, entityID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("EntityReadById resp: %+v\n", entity)
+	interfaceMap := make(map[string]interface{})
+	if entity.Auth != nil && entity.Auth.Metadata != nil {
+		for key, value := range entity.Auth.Metadata {
+			interfaceMap[key] = value
+		}
+	}
+	interfaceMap["email"] = "Mateusz.midor@acme.com"
+	interfaceMap["givenname"] = "Mateusz"
+	updateEntityReq := schema.EntityUpdateByIdRequest{
+		Metadata: interfaceMap,
+	}
+	client.Identity.EntityUpdateById(ctx, entityID, updateEntityReq)
 
 	// create OIDC client app
 	clientReq := schema.OidcWriteClientRequest{
@@ -92,16 +111,24 @@ func main() {
 	// create scopes
 	emailScope := schema.OidcWriteScopeRequest{
 		Description: "email",
-		Template:    `{"email": "mat@acme.com" }`,
+		Template:    `{"email": {{identity.entity.metadata.email}}, "givenname": {{identity.entity.metadata.givenname}}}`,
+	}
+	userinfoprofileScope := schema.OidcWriteScopeRequest{
+		Description: "userinfoprofile",
+		Template:    `{"givenname": {{identity.entity.metadata.givenname}}}`,
 	}
 	_, err = client.Identity.OidcWriteScope(ctx, "email", emailScope)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = client.Identity.OidcWriteScope(ctx, "givenname", userinfoprofileScope)
 	if err != nil {
 		log.Fatal(err)
 	}
 	// create OIDC provider
 	providerReq := schema.OidcWriteProviderRequest{
 		AllowedClientIds: []string{"*"},
-		ScopesSupported:  []string{"email"},
+		ScopesSupported:  []string{"email", "givenname", "givenname"},
 	}
 	_, err = client.Identity.OidcWriteProvider(ctx, providerName, providerReq)
 	if err != nil {
