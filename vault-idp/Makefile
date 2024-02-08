@@ -1,4 +1,4 @@
-default:
+vault:
 	docker run \
 		-d \
 		--rm \
@@ -9,8 +9,10 @@ default:
 		-v `pwd`/storage:/vault/storage \
 		-v `pwd`/config:/vault/config \
 		hashicorp/vault:latest
-	sleep 3
-	docker exec -e 'VAULT_ADDR=http://127.0.0.1:8200' -it my-vault sh -c 'vault login root-token && vault auth enable userpass'
+	while true; do docker exec -e 'VAULT_ADDR=http://127.0.0.1:8200' -it my-vault sh -c 'sleep 1; vault login root-token && vault auth enable userpass'  && exit; echo "connecting to Vault..."; done;
+
+idp:
+	go run .
 
 exec:
 	docker exec -e 'VAULT_ADDR=http://127.0.0.1:8200' -it my-vault sh 
