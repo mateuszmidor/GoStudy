@@ -48,7 +48,14 @@ func main() {
 	_, err = setUserMetadata(ctx, client, res.Auth.EntityID, metadata)
 	logFatalOnError(err)
 
-	// create scopes
+	// create user groups
+	entityIDs := []string{res.Auth.EntityID}
+	_, err = createGroup(ctx, client, "users", entityIDs)
+	logFatalOnError(err)
+	_, err = createGroup(ctx, client, "admins", entityIDs)
+	logFatalOnError(err)
+
+	// create OIDC scopes
 	emailTemplate := `{"email": {{identity.entity.metadata.email}}}`
 	_, err = createScope(ctx, client, "email", "email", emailTemplate)
 	logFatalOnError(err)
@@ -58,9 +65,12 @@ func main() {
 	familynameTemplate := `{"familyname": {{identity.entity.metadata.familyname}}}`
 	_, err = createScope(ctx, client, "familyname", "familyname", familynameTemplate)
 	logFatalOnError(err)
+	groupsTemplate := `{"groups": {{identity.entity.groups.names}}}`
+	_, err = createScope(ctx, client, "groups", "groups", groupsTemplate)
+	logFatalOnError(err)
 
 	// create OIDC provider
-	scopes := []string{"email", "givenname", "familyname"}
+	scopes := []string{"email", "givenname", "familyname", "groups"}
 	_, err = createOIDCProvider(ctx, client, scopes)
 	logFatalOnError(err)
 
@@ -79,6 +89,16 @@ func main() {
 	provider, err := client.Identity.OidcReadProvider(ctx, providerName)
 	logFatalOnError(err)
 	fmt.Println("IssuerURL:", provider.Data["issuer"])
+}
+
+func createGroup(ctx context.Context, client *vault.Client, name string, entityIDs []string) (*vault.Response[map[string]interface{}], error) {
+	groupReq := schema.GroupCreateRequest{
+		Name:            name,
+		MemberEntityIds: entityIDs,
+		Type:            "internal",
+	}
+	gres, err := client.Identity.GroupCreate(ctx, groupReq)
+	return gres, err
 }
 
 func logFatalOnError(err error) {
