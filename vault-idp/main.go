@@ -25,143 +25,118 @@ func main() {
 		vault.WithAddress("http://127.0.0.1:8200"),
 		vault.WithRequestTimeout(30*time.Second),
 	)
-	if err != nil {
-		log.Fatal(err)
-	}
+	logFatalOnError(err)
 
-	// authenticate with a root token (insecure)
-	if err := client.SetToken("root-token"); err != nil {
-		log.Fatal(err)
-	}
+	// authenticate the client with a root token (insecure), so it can create users and OIDC providers
+	err = client.SetToken("root-token")
+	logFatalOnError(err)
 
-	// // create/get user
-	// ereq := schema.EntityCreateRequest{
-	// 	Name: userName,
-	// }
-	// entity, err := client.Identity.EntityCreate(ctx, ereq)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// if entity == nil {
-	// 	entity, err = client.Identity.EntityReadByName(ctx, userName)
-	// }
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	// create new user
+	_, err = createUser(ctx, client, userName, userPass)
+	logFatalOnError(err)
 
-	// secReq := schema.MountsEnableSecretsEngineRequest{
-	// 	Type: "passthrough",
-	// }
-	// _, err = client.System.MountsEnableSecretsEngine(ctx, "auth", secReq)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	// login user to get user information
+	res, err := loginUser(ctx, client, userName, userPass)
+	logFatalOnError(err)
 
-	req := schema.UserpassWriteUserRequest{
-		Password: userPass,
+	// setup user metadata
+	metadata := map[string]any{
+		"email":      "JOHN.doe@acme.com",
+		"givenname":  "John",
+		"familyname": "Doe",
 	}
-	vals := url.Values{}
-	vals.Add("token_ttl", "60")
-	vals.Add("token_max_ttl", "60")
-	vals.Add("token_explicit_max_ttl", "60")
-	opts := vault.WithCustomQueryParameters(vals)
-	rsp, err := client.Auth.UserpassWriteUser(ctx, userName, req, opts)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("UserpassWriteUser resp: %+v\n", rsp)
+	_, err = setUserMetadata(ctx, client, res.Auth.EntityID, metadata)
+	logFatalOnError(err)
 
-	res, err := client.Auth.UserpassLogin(ctx, userName, schema.UserpassLoginRequest{Password: userPass}, opts)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("UserpassLogin resp: %+v\n", *res.Auth)
-	entityID := res.Auth.EntityID
-	entity, err := client.Identity.EntityReadById(ctx, entityID)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("EntityReadById resp: %+v\n", entity)
-	interfaceMap := make(map[string]interface{})
-	if entity.Auth != nil && entity.Auth.Metadata != nil {
-		for key, value := range entity.Auth.Metadata {
-			interfaceMap[key] = value
-		}
-	}
-	interfaceMap["email"] = "Mateusz.midor@acme.com"
-	interfaceMap["givenname"] = "Mateusz"
-	updateEntityReq := schema.EntityUpdateByIdRequest{
-		Metadata: interfaceMap,
-	}
-	client.Identity.EntityUpdateById(ctx, entityID, updateEntityReq)
+	// create scopes
+	emailTemplate := `{"email": {{identity.entity.metadata.email}}}`
+	_, err = createScope(ctx, client, "email", "email", emailTemplate)
+	logFatalOnError(err)
+	givennameTemplate := `{"givenname": {{identity.entity.metadata.givenname}}}`
+	_, err = createScope(ctx, client, "givenname", "givenname", givennameTemplate)
+	logFatalOnError(err)
+	familynameTemplate := `{"familyname": {{identity.entity.metadata.familyname}}}`
+	_, err = createScope(ctx, client, "familyname", "familyname", familynameTemplate)
+	logFatalOnError(err)
+
+	// create OIDC provider
+	scopes := []string{"email", "givenname", "familyname"}
+	_, err = createOIDCProvider(ctx, client, scopes)
+	logFatalOnError(err)
 
 	// create OIDC client app
+	redirectURL := "http://localhost:8000/auth/callback"
+	_, err = createAppIntegration(ctx, client, webappName, redirectURL)
+	logFatalOnError(err)
+
+	// print OIDC client app credentials to use
+	mywebapp, err := client.Identity.OidcReadClient(ctx, webappName)
+	logFatalOnError(err)
+	fmt.Println("ClientID:", mywebapp.Data["client_id"])
+	fmt.Println("ClientSecret:", mywebapp.Data["client_secret"])
+
+	// print OIDC issuer URL to use
+	provider, err := client.Identity.OidcReadProvider(ctx, providerName)
+	logFatalOnError(err)
+	fmt.Println("IssuerURL:", provider.Data["issuer"])
+}
+
+func logFatalOnError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func createOIDCProvider(ctx context.Context, client *vault.Client, scopes []string) (*vault.Response[map[string]interface{}], error) {
+	providerReq := schema.OidcWriteProviderRequest{
+		AllowedClientIds: []string{"*"},
+		ScopesSupported:  scopes,
+	}
+	return client.Identity.OidcWriteProvider(ctx, providerName, providerReq)
+}
+
+func createAppIntegration(ctx context.Context, client *vault.Client, name, redirectURL string) (*vault.Response[map[string]interface{}], error) {
 	clientReq := schema.OidcWriteClientRequest{
-		RedirectUris:   []string{"http://localhost:8000/auth/callback"},
+		RedirectUris:   []string{redirectURL},
 		Assignments:    []string{"allow_all"},
 		Key:            "default",
 		IdTokenTtl:     300,
 		AccessTokenTtl: 3600,
 	}
-	_, err = client.Identity.OidcWriteClient(ctx, webappName, clientReq)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return client.Identity.OidcWriteClient(ctx, name, clientReq)
+}
 
-	// create scopes
-	emailScope := schema.OidcWriteScopeRequest{
-		Description: "email",
-		Template:    `{"email": {{identity.entity.metadata.email}}, "givenname": {{identity.entity.metadata.givenname}}}`,
-	}
-	userinfoprofileScope := schema.OidcWriteScopeRequest{
-		Description: "userinfoprofile",
-		Template:    `{"givenname": {{identity.entity.metadata.givenname}}}`,
-	}
-	_, err = client.Identity.OidcWriteScope(ctx, "email", emailScope)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_, err = client.Identity.OidcWriteScope(ctx, "givenname", userinfoprofileScope)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// create OIDC provider
-	providerReq := schema.OidcWriteProviderRequest{
-		AllowedClientIds: []string{"*"},
-		ScopesSupported:  []string{"email", "givenname", "givenname"},
-	}
-	_, err = client.Identity.OidcWriteProvider(ctx, providerName, providerReq)
-	if err != nil {
-		log.Fatal(err)
-	}
+func setUserMetadata(ctx context.Context, client *vault.Client, entityID string, metadata map[string]any) (*vault.Response[map[string]interface{}], error) {
+	// just overwrite with new metadata
+	updateEntityReq := schema.EntityUpdateByIdRequest{Metadata: metadata}
+	return client.Identity.EntityUpdateById(ctx, entityID, updateEntityReq)
+}
 
-	// print oidc client app credentials to use
-	mywebapp, err := client.Identity.OidcReadClient(ctx, webappName)
+func loginUser(ctx context.Context, client *vault.Client, name, pass string) (*vault.Response[map[string]interface{}], error) {
+	res, err := client.Auth.UserpassLogin(ctx, userName, schema.UserpassLoginRequest{Password: userPass})
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	fmt.Println("ClientID:", mywebapp.Data["client_id"])
-	fmt.Println("ClientSecret:", mywebapp.Data["client_secret"])
+	fmt.Printf("UserpassLogin resp: %+v\n", *res.Auth)
+	return res, nil
+}
 
-	// print oidc issuer URL to use
-	provider, err := client.Identity.OidcReadProvider(ctx, providerName)
-	if err != nil {
-		log.Fatal(err)
+func createUser(ctx context.Context, client *vault.Client, name, pass string) (*vault.Response[map[string]interface{}], error) {
+	vals := url.Values{}
+	vals.Add("token_ttl", "60")
+	vals.Add("token_max_ttl", "60")
+	vals.Add("token_explicit_max_ttl", "60")
+	opts := vault.WithCustomQueryParameters(vals)
+	req := schema.UserpassWriteUserRequest{Password: pass}
+	rsp, err := client.Auth.UserpassWriteUser(ctx, name, req, opts)
+	fmt.Printf("UserpassWriteUser resp: %+v\n", rsp)
+	return rsp, err
+}
+
+func createScope(ctx context.Context, client *vault.Client, name, description, template string) (*vault.Response[map[string]interface{}], error) {
+	scopeReq := schema.OidcWriteScopeRequest{
+		Description: description,
+		Template:    template,
 	}
-	fmt.Println("IssuerURL:", provider.Data["issuer"])
-
-	// add ALIAS. is this needed?
-	// fmt.Printf("%+v\n", entity)
-	// entityID := entity.Data["id"].(string)
-	// fmt.Println("entityID:", entityID)
-	// areq := schema.EntityCreateAliasRequest{
-	// 	CanonicalId: entityID,
-	// 	// Id:            entityID,
-	// 	MountAccessor: "auth_userpass_97588e92",
-	// 	Name:          name,
-	// }
-	// _, err = client.Identity.EntityCreateAlias(ctx, areq)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	return client.Identity.OidcWriteScope(ctx, name, scopeReq)
 }
