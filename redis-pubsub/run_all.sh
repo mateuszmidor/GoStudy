@@ -9,7 +9,7 @@ function stage() {
     BLUE="\e[36m"
     RESET="\e[0m"
     msg="$1"
-    
+
     echo
     echo -e "$BLUE$msg$RESET"
 }
@@ -22,7 +22,7 @@ function checkPrerequsites() {
 
     command docker version > /dev/null 2>&1
     [[ $? != 0 ]] && echo "You need to install docker to run this example" && exit 1
-    
+
     echo "Done"
 }
 
@@ -34,7 +34,7 @@ function runRedis() {
         --rm \
         --name $IMAGE_NAME \
         -p $REDIS_PORT:$REDIS_PORT \
-        redis:latest 
+        redis:latest
 
     echo "Done"
 }
@@ -42,7 +42,6 @@ function runRedis() {
 function runExample() {
     stage "Running example"
 
-    cd src/
     go run .
 
     echo "Done"
