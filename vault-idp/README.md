@@ -7,7 +7,7 @@ This example shows how to use Vault as Identity Provider (IDP) with OIDC (OpenID
 ## Run Vault with `userpass` engine enabled
 
 ```bash
-make vaut # run vault container and enable userpass secret engine - for user/pass authentication.
+make vault # run vault container and enable userpass secret engine - for user/pass authentication.
 firefox localhost:8200 # login with token: root-token
 make stop # kill vault container
 ```

@@ -14,6 +14,9 @@ vault:
 idp:
 	go run .
 
+userpass: # for primary-id
+	while true; do docker exec -e 'VAULT_ADDR=http://127.0.0.1:8200' -it localstack-vault-1 sh -c 'sleep 1; vault login dev-root-token && vault auth enable userpass'  && exit; echo "connecting to Vault..."; done;
+
 exec:
 	docker exec -e 'VAULT_ADDR=http://127.0.0.1:8200' -it my-vault sh 
 
