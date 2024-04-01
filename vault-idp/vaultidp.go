@@ -54,7 +54,7 @@ func createScope(ctx context.Context, client *vault.Client, name, description, t
 	return client.Identity.OidcWriteScope(ctx, name, scopeReq)
 }
 
-func createOIDCProvider(ctx context.Context, client *vault.Client, issuer string, scopes []string) (*vault.Response[map[string]interface{}], error) {
+func createOIDCProvider(ctx context.Context, client *vault.Client, providerName string, issuer string, scopes []string) (*vault.Response[map[string]interface{}], error) {
 	providerReq := schema.OidcWriteProviderRequest{
 		AllowedClientIds: []string{"*"},
 		ScopesSupported:  scopes,

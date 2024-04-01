@@ -57,19 +57,20 @@ func main() {
 	emailTemplate := `{"email": {{identity.entity.metadata.email}}}`
 	_, err = createScope(ctx, client, "email", "email", emailTemplate)
 	logFatalOnError(err)
-	givennameTemplate := `{"givenname": {{identity.entity.metadata.givenname}}}`
-	_, err = createScope(ctx, client, "givenname", "givenname", givennameTemplate)
-	logFatalOnError(err)
-	familynameTemplate := `{"familyname": {{identity.entity.metadata.familyname}}}`
-	_, err = createScope(ctx, client, "familyname", "familyname", familynameTemplate)
+	profileTemplate := `
+	{
+		"given_name": {{identity.entity.metadata.givenname}},
+		"family_name": {{identity.entity.metadata.familyname}}
+	}`
+	_, err = createScope(ctx, client, "profile", "profile", profileTemplate)
 	logFatalOnError(err)
 	groupsTemplate := `{"groups": {{identity.entity.groups.names}}}`
 	_, err = createScope(ctx, client, "groups", "groups", groupsTemplate)
 	logFatalOnError(err)
 
 	// create OIDC provider
-	scopes := []string{"email", "givenname", "familyname", "groups"}
-	_, err = createOIDCProvider(ctx, client, "", scopes)
+	scopes := []string{"email", "profile", "groups"}
+	_, err = createOIDCProvider(ctx, client, providerName, "", scopes)
 	logFatalOnError(err)
 
 	// create OIDC client app
