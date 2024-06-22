@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/vault-client-go"
+	"github.com/hashicorp/vault-client-go/schema"
 )
 
 var userName = "user"
@@ -39,38 +40,11 @@ func main() {
 
 	// setup user metadata
 	metadata := map[string]any{
-		"email":      "JOHN.doe@acme.com",
+		"email":      "john.doe@acme.com",
 		"givenname":  "John",
 		"familyname": "Doe",
 	}
 	_, err = setUserMetadata(ctx, client, res.Auth.EntityID, metadata)
-	logFatalOnError(err)
-
-	// create user groups
-	entityIDs := []string{res.Auth.EntityID}
-	_, err = createGroup(ctx, client, "users", entityIDs)
-	logFatalOnError(err)
-	_, err = createGroup(ctx, client, "admins", entityIDs)
-	logFatalOnError(err)
-
-	// create OIDC scopes
-	emailTemplate := `{"email": {{identity.entity.metadata.email}}}`
-	_, err = createScope(ctx, client, "email", "email", emailTemplate)
-	logFatalOnError(err)
-	profileTemplate := `
-	{
-		"given_name": {{identity.entity.metadata.givenname}},
-		"family_name": {{identity.entity.metadata.familyname}}
-	}`
-	_, err = createScope(ctx, client, "profile", "profile", profileTemplate)
-	logFatalOnError(err)
-	groupsTemplate := `{"groups": {{identity.entity.groups.names}}}`
-	_, err = createScope(ctx, client, "groups", "groups", groupsTemplate)
-	logFatalOnError(err)
-
-	// create OIDC provider
-	scopes := []string{"email", "profile", "groups"}
-	_, err = createOIDCProvider(ctx, client, providerName, "", scopes)
 	logFatalOnError(err)
 
 	// create OIDC client app
@@ -78,7 +52,28 @@ func main() {
 	_, err = createAppIntegration(ctx, client, webappName, redirectURL)
 	logFatalOnError(err)
 
-	// print OIDC client app credentials to use
+	// create scopes
+	emailTemplate := `{"email": {{identity.entity.metadata.email}}, "givenname": {{identity.entity.metadata.givenname}}}`
+	_, err = createScope(ctx, client, "email", "email", emailTemplate)
+	logFatalOnError(err)
+	givennameTemplate := `{"givenname": {{identity.entity.metadata.givenname}}}`
+	_, err = createScope(ctx, client, "givenname", "givenname", givennameTemplate)
+	logFatalOnError(err)
+	familynameTemplate := `{"familyname": {{identity.entity.metadata.familyname}}}`
+	_, err = createScope(ctx, client, "familyname", "givenname", familynameTemplate)
+	logFatalOnError(err)
+
+	// create OIDC provider
+	providerReq := schema.OidcWriteProviderRequest{
+		AllowedClientIds: []string{"*"},
+		ScopesSupported:  []string{"email", "givenname", "familyname"},
+	}
+	_, err = client.Identity.OidcWriteProvider(ctx, providerName, providerReq)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// print oidc client app credentials to use
 	mywebapp, err := client.Identity.OidcReadClient(ctx, webappName)
 	logFatalOnError(err)
 	fmt.Println("ClientID:", mywebapp.Data["client_id"])
