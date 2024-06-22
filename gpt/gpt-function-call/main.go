@@ -22,7 +22,7 @@ type GPTRequest struct {
 	MaxTokens      int       `json:"max_tokens,omitempty"`      // [1..+oo], default: ?; max tokens generated for answer before the generation is hard-cut
 	Temperature    float32   `json:"temperature,omitempty"`     // [0.0..2.0], default: 0 (auto-select); use high for creativity and randomness
 	Tools          []Tool    `json:"tools,omitmepty"`           // list of functions available for the model to call
-	ToolChoice     string    `json:"tool_choice"`               // [none,auto]
+	ToolChoice     string    `json:"tool_choice"`               // [none,auto], default: auto, none forces GPT to use no tools (functions)
 }
 
 type Format struct {
