@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM golang:1.21 as BUILDER
+FROM golang:1.22 as BUILDER
 RUN CGO_ENABLED=0 go install -ldflags="-extldflags=-static" github.com/go-delve/delve/cmd/dlv@latest
 
 FROM alpine

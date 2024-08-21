@@ -1,4 +1,4 @@
-TAG=mateuszmidor/delve:1.21
+TAG=mateuszmidor/delve:1.22
 
 default:
 	docker build . -t ${TAG}
