@@ -39,6 +39,42 @@ func Test_Simple(t *testing.T) {
 	)
 }
 
+func Test_SelectorExample(t *testing.T) {
+	// Expected response:
+	// [
+	// 	{
+	// 	  "table":"A",
+	// 	  "no":"129/A/NBP/2023",
+	// 	  "effectiveDate":"2023-07-06",
+	// 	  "rates":[
+	// 		{
+	// 		  "currency":"bat (Tajlandia)",
+	// 		  "code":"THB",
+	// 		  "mid":0.1178
+	// 		},
+	// 		{
+	// 		  "currency":"dolar amerykański",
+	// 		  "code":"USD",
+	// 		  "mid":4.0997
+	// 		},
+	// 		{
+	// 		  "currency":"dolar australijski",
+	// 		  "code":"AUD",
+	// 		  "mid":2.6482
+	// 		}
+	// 	}
+	// ]
+
+	Test(t,
+		Description("Get entire A table for 2023-07-06 from api.nbp.pl and select USD rate"),
+		Get("https://api.nbp.pl/api/exchangerates/tables/A/2023-07-06?format=json"),
+		Expect().Status().Equal(http.StatusOK),
+		Expect().Headers("Content-Type").Contains("application/json; charset=utf-8"),
+		Expect().Body().JSON().JQ(".[0].table").Equal("A"),
+		Expect().Body().JSON().JQ(".[0].rates[] | select(.code == \"USD\").currency").Equal("dolar amerykański"),
+	)
+}
+
 func Test_CustomHttpClient(t *testing.T) {
 	// Expected response:
 	// {
