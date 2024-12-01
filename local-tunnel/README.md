@@ -20,3 +20,10 @@ make macos
 ```
 
 , and then go to displayed URL and enter public IP to authorize access.
+
+## Easier done with serveo.net 
+
+```sh
+ssh -R 80:localhost:33000 serveo.net 
+> Forwarding HTTP traffic from https://ff5aa8fe6c01e1817282f053c38637c0.serveo.net
+```
