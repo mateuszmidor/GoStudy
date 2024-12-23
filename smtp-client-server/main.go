@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	from    = "sender@example.com"
-	to      = "recipient@example.com"
+	from    = "kontakt@mateuszmidor.com"
+	to      = "3demaniac@gmail.com"
 	subject = "Welcome to Our Service"
 	body    = "Welcome to our service! We're excited to have you on board."
 )
@@ -36,7 +36,7 @@ func main() {
 		Port:   port,
 		UseTLS: *useTLS,
 	}
-	auth := AuthNone()
+	auth := AuthNone() // AuthLoginUserPass("kontakt@mateuszmidor.com", "LamerkaKontakt1")
 
 	err = SendEmail(context.Background(), from, to, subject, body, server, auth)
 
