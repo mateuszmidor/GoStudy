@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create User Credentials</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Create User Credentials</h1>
+    <button id="createButton">Create</button>
+
+    <script>
+        console.log("init");
+        document.getElementById('createButton').addEventListener('click', function () {
+        console.log("onClick");
+        const challengeFromServer = new TextEncoder().encode("challengeFromServer").buffer;
+        const publicKey = {
+            challenge: challengeFromServer,
+            rp: { id: "localhost", name: "gostudy fido2" },
+            user: {
+                id: new Uint8Array([79, 252, 83, 72, 214, 7, 89, 26]),
+                name: "testuser",
+                displayName: "Test User",
+            },
+            pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+        };
+
+        navigator.credentials.create({ publicKey }).then((publicKeyCredential) => {
+            const response = publicKeyCredential.response;
+
+            // Access attestationObject ArrayBuffer
+            const attestationObj = response.attestationObject;
+            console.log("Attestation Object:", new Uint8Array(attestationObj));
+            
+            // Access client JSON
+            const clientJSON = response.clientDataJSON;
+            console.log("Client Data JSON:", new TextDecoder().decode(clientJSON));
+            
+            // Return authenticator data ArrayBuffer
+            const authenticatorData = response.getAuthenticatorData();
+            console.log("Authenticator Data:", new Uint8Array(authenticatorData));
+            
+            // Return public key ArrayBuffer
+            const pk = response.getPublicKey();
+            console.log("Public Key:", new Uint8Array(pk));
+            
+            // Return public key algorithm identifier
+            const pkAlgo = response.getPublicKeyAlgorithm();
+            console.log("Public Key Algorithm:", pkAlgo);
+            
+            // Return permissible transports array
+            const transports = response.getTransports();
+            console.log("Transports:", transports);
+        });
+    });
+    </script>
+</body>
+
+</html>
