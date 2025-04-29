@@ -20,7 +20,7 @@ type User struct {
 type Datastore struct {
 }
 
-var lonelyUser = &User{Name: "lonely-user", DisplayName: "lonely-user@example.com", ID: []byte(string(rune(1)))}
+var lonelyUser = &User{Name: "lonely-user", DisplayName: "lonely-user@example.com", ID: []byte(string("ab"))}
 var session = &webauthn.SessionData{}
 
 func (u *User) AddCredential(credential webauthn.Credential) {
@@ -42,6 +42,9 @@ func (u *User) UpdateCredential(credential webauthn.Credential) {
 }
 
 func (u *User) WebAuthnID() []byte {
+	// result := make([]byte, base64.RawStdEncoding.EncodedLen(len(u.ID)))
+	// base64.RawStdEncoding.Encode(result, u.ID)
+	// return result
 	return u.ID
 }
 
@@ -58,11 +61,13 @@ func (u *User) WebAuthnCredentials() []webauthn.Credential {
 }
 
 func (d *Datastore) GetUser() *User {
-	return lonelyUser
+	ret := *lonelyUser
+	return &ret
 }
 
 func (d *Datastore) SaveUser(user *User) {
-	lonelyUser = user
+	printAsJSON("SaveUser:", user)
+	*lonelyUser = *user
 }
 
 func (d *Datastore) GetSession() *webauthn.SessionData {
@@ -72,7 +77,7 @@ func (d *Datastore) GetSession() *webauthn.SessionData {
 func (d *Datastore) SaveSession(s *webauthn.SessionData) {
 	// challenge returned from browser is base64 encoded without trailing '=' padding chars:
 	// https://developer.mozilla.org/en-US/docs/Web/API/AuthenticatorResponse/clientDataJSON#challenge
-	encodedChallenge := base64.StdEncoding.EncodeToString([]byte(s.Challenge))
+	encodedChallenge := base64.URLEncoding.EncodeToString([]byte(s.Challenge))
 	encodedChallenge = strings.TrimRight(encodedChallenge, "=")
 	s.Challenge = encodedChallenge
 	session = s

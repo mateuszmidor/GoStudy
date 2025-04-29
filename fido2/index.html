@@ -56,11 +56,10 @@
             console.log("origChallenge", options.publicKey.challenge)
             console.log("encodedChallenge", publicKeyCredentialCreationOptions.challenge)
             credential = await navigator.credentials.create({ publicKey: publicKeyCredentialCreationOptions })
-
-
-            // finish registration
             console.log("credential:", credential)
             console.log(new TextDecoder().decode(credential.response.clientDataJSON))
+
+            // finish registration
             const finishRsp = await fetch(`/webauthn/finish-registration`, {
                 method: "POST",
                 body: JSON.stringify(credential)
@@ -71,27 +70,32 @@
 
         async function login() {
             console.log("login");
+
+            // begin login
             const beginRsp = await fetch(`/webauthn/begin-login`, { method: 'POST' });
             const options = await beginRsp.json();
             console.log("options from server:",options)
             const publicKeyCredentialRequestOptions = {
                 challenge: Uint8Array.from(options.publicKey.challenge, c => c.charCodeAt(0)),
-                rpId:  options.publicKey.rpId,
+                // rpId:  options.publicKey.rpId,
                 timeout:  options.publicKey.timeout,
-                allowCredentials: [{
-                    id: Uint8Array.from(options.publicKey.allowCredentials[0].id, c => c.charCodeAt(0)),
-                    type: options.publicKey.allowCredentials[0].type,
-                    transports: options.publicKey.allowCredentials[0].transports,
-                }],
+                // allowCredentials: [{
+                //     id: Uint8Array.from(options.publicKey.allowCredentials[0].id, c => c.charCodeAt(0)),
+                //     type: options.publicKey.allowCredentials[0].type,
+                //     transports: options.publicKey.allowCredentials[0].transports,
+                // }],
             }
-            const credential = await navigator.credentials.get({publicKey: publicKeyCredentialRequestOptions}); 
+            const assertion = await navigator.credentials.get({publicKey: publicKeyCredentialRequestOptions}); 
+            console.log("assertion:", assertion)
+            console.log("userHandle:", new TextDecoder().decode(assertion.response.userHandle))
 
-            const response = await fetch(`/webauthn/finish-login`, {
+            // finish login
+            const finishRsp = await fetch(`/webauthn/finish-login`, {
                 method: "POST",
-                body: JSON.stringify(credential)
+                body: JSON.stringify(assertion)
             });
 
-            console.log(await response.text());
+            console.log("finish-login response:",await finishRsp.text());
         }
 
         async function authenticate () {

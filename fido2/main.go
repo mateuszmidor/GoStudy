@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -81,7 +82,6 @@ func BeginRegistration(w http.ResponseWriter, r *http.Request) {
 
 	// store the sessionData values
 	datastore.SaveSession(session)
-	fmt.Printf("Session Data: %+v\n", session)
 
 	JSONResponse(w, options, http.StatusOK) // return the options generated
 	// options.publicKey contain our registration options
@@ -140,10 +140,12 @@ func BeginLogin(w http.ResponseWriter, r *http.Request) {
 func FinishLogin(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("FinishLogin")
 
-	user := datastore.GetUser() // Get the user
+	user := datastore.GetUser()     // Get the user
+	user.ID = base64encode(user.ID) // webAuthn compares the user.ID with base64-encoded userID received from browser some reason
 
 	// Get the session data stored from the function above
 	session := datastore.GetSession()
+	session.UserID = base64encode(session.UserID) // msut match use.ID so need to base64encode
 
 	credential, err := webAuthn.FinishLogin(user, *session, r)
 	if err != nil {
@@ -169,4 +171,11 @@ func JSONResponse(w http.ResponseWriter, val interface{}, statusCode int) {
 	if err := json.NewEncoder(w).Encode(val); err != nil {
 		http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
 	}
+}
+
+func base64encode(input []byte) []byte {
+	output := make([]byte, base64.RawStdEncoding.EncodedLen(len(input)))
+	fmt.Println("encoding", string(input), "->", string(output))
+	base64.RawStdEncoding.Encode(output, input)
+	return output
 }
