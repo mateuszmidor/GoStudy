@@ -12,6 +12,22 @@ webauthn consists of registration flow and login flow. Eventually the server rec
 - https://github.com/go-webauthn/webauthn?
 - https://webauthn.guide/
 
+## how it works
+
+### user registration
+
+1. frontend asks backend to begin-registration and receives registration options to be used with webauthn
+1. frontend uses navigator.credentials.create to trigger webauthn form asking user to select authenticator
+1. selected authenticator generates private and public key; private key is stored on device, public key is sent back to fronted wrapped as Credentials, and back to backend
+1. backend receives the Credentials and stores them with the user
+
+### user log in
+
+1. frontend asks backend to begin user login and receives login options to be used with webauthn
+1. frontend uses navigator.credentials.get to trigger webauthn form asking user to select authenticator eligible for provided login options
+1. selected authenticator signs options.challenge string, which is sent back to frontend and then to backend
+1. backend checks with Public Key if the signature was created using associated Private Key
+
 ## steps
 
 webauthn requires HTTPS to even start working, so we generate keys to run TLS HTTP server:
