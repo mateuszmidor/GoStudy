@@ -44,11 +44,10 @@
                     displayName: options.publicKey.user.displayName,
                 },
                 pubKeyCredParams:options.publicKey.pubKeyCredParams,
-                // authenticatorSelection: {
-                //      authenticatorAttachment: "platform",
-                // },
+                authenticatorSelection: {
+                     authenticatorAttachment: options.publicKey.authenticatorSelection.authenticatorAttachment,
+                },
                 timeout: 30000,
-                // attestation: "direct"
             };
             console.log(publicKeyCredentialCreationOptions)
             console.log("origChallenge", options.publicKey.challenge)
@@ -75,13 +74,7 @@
             console.log("options from server:",options)
             const publicKeyCredentialRequestOptions = {
                 challenge: Uint8Array.from(options.publicKey.challenge, c => c.charCodeAt(0)),
-                // rpId:  options.publicKey.rpId,
                 timeout:  options.publicKey.timeout,
-                // allowCredentials: [{
-                //     id: Uint8Array.from(options.publicKey.allowCredentials[0].id, c => c.charCodeAt(0)),
-                //     type: options.publicKey.allowCredentials[0].type,
-                //     transports: options.publicKey.allowCredentials[0].transports,
-                // }],
             }
             const assertion = await navigator.credentials.get({publicKey: publicKeyCredentialRequestOptions}); 
             console.log("assertion:", assertion)

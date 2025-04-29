@@ -99,7 +99,6 @@ func BeginLogin(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("BeginLogin")
 
 	user := datastore.GetUser() // Find the user
-
 	options, session, err := webAuthn.BeginLogin(user)
 	if err != nil {
 		fmt.Printf("Failed to BeginLogin: %+v\n", err)
