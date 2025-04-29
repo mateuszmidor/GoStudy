@@ -20,13 +20,11 @@
 </head>
 
 <body>
-    <button id="createButton">Create</button>
     <button id="registerButton">Register</button>
     <button id="loginButton">Log in</button>
 
     <script>
         console.log("init");
-        document.getElementById('createButton').addEventListener('click', authenticate);
         document.getElementById('registerButton').addEventListener('click', register);
         document.getElementById('loginButton').addEventListener('click', login);
 
@@ -87,7 +85,6 @@
             }
             const assertion = await navigator.credentials.get({publicKey: publicKeyCredentialRequestOptions}); 
             console.log("assertion:", assertion)
-            console.log("userHandle:", new TextDecoder().decode(assertion.response.userHandle))
 
             // finish login
             const finishRsp = await fetch(`/webauthn/finish-login`, {
@@ -96,100 +93,6 @@
             });
 
             console.log("finish-login response:",await finishRsp.text());
-        }
-
-        async function authenticate () {
-            console.log("onClick");
-            const challengeFromServer = new TextEncoder().encode("challengeFromServer").buffer;
-            const publicKey = {
-                challenge: challengeFromServer,
-                rp: { id: "localhost", name: "gostudy fido2" },
-                user: {
-                    id: new Uint8Array([79, 252, 83, 72, 214, 7, 89, 26]),
-                    name: "testuser",
-                    displayName: "Test User",
-                },
-                pubKeyCredParams: [{ type: "public-key", alg: -7 }],
-            };
-            console.log(publicKey)
-            // rsp = await navigator.credentials.create({ publicKey }).then(handleCreateCredentialsResponse);
-            rsp = await navigator.credentials.create({ publicKey })
-            handleCreateCredentialsResponse(rsp);
-        }
-
-        function handleCreateCredentialsResponse(publicKeyCredential) {
-            const response = publicKeyCredential.response;
-
-            console.log("PublicKeyCredential:", publicKeyCredential);
-
-            // attestationObject
-            const attestationObj = response.attestationObject;
-            console.log("Attestation Object:", new Uint8Array(attestationObj));
-
-            // ID
-            console.log("ID:", publicKeyCredential.id);
-
-            // RawID
-            const rawID = new TextDecoder().decode(publicKeyCredential.rawId)
-            console.log("Raw ID:", rawID);
-
-            // Type
-            console.log("Type:", publicKeyCredential.type);
-
-            // authenticator data
-            const authenticatorData = new TextDecoder().decode(response.getAuthenticatorData());
-            console.log("Authenticator Data:", authenticatorData);
-            
-            // public key ArrayBuffer
-            const pk = new TextDecoder().decode(response.getPublicKey());
-            console.log("Public Key:",pk);
-            
-            // public key algorithm identifier
-            const pkAlgo = response.getPublicKeyAlgorithm();
-            console.log("Public Key Algorithm:", pkAlgo);
-            
-            response.getAuthenticatorData
-            // permissible transports array
-            const transports = response.getTransports();
-            console.log("Transports:", transports);
-
-            // Access client JSON
-            const clientJSON = new TextDecoder().decode(response.clientDataJSON);
-            console.log("Client Data JSON:", clientJSON);
-
-            // Convert the publicKeyCredential to a JSON object
-            const credentialData = {
-                id: publicKeyCredential.id,
-                rawId: rawID,
-                type: publicKeyCredential.type,
-                authenticatorData: authenticatorData,
-                publicKey: pk,
-                publicKeyAlgorithm: pkAlgo,
-                transports: transports,
-                response: {
-                    attestationObject:  new TextDecoder().decode(response.attestationObject),
-                    clientDataJSON: clientJSON
-                }
-            };
-
-            // Send the JSON object to the /auth endpoint using a POST request
-            fetch('/auth', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(credentialData)
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('Success: HTTP Status', response.status);
-                } else {
-                    console.error('Error: HTTP Status', response.status);
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
         }
     </script>
 </body>

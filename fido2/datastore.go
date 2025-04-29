@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/go-webauthn/webauthn/webauthn"
 )
@@ -42,9 +40,6 @@ func (u *User) UpdateCredential(credential webauthn.Credential) {
 }
 
 func (u *User) WebAuthnID() []byte {
-	// result := make([]byte, base64.RawStdEncoding.EncodedLen(len(u.ID)))
-	// base64.RawStdEncoding.Encode(result, u.ID)
-	// return result
 	return u.ID
 }
 
@@ -57,7 +52,9 @@ func (u *User) WebAuthnDisplayName() string {
 }
 
 func (u *User) WebAuthnCredentials() []webauthn.Credential {
-	return u.Credentials
+	credentialsCopy := make([]webauthn.Credential, len(u.Credentials))
+	copy(credentialsCopy, u.Credentials)
+	return credentialsCopy
 }
 
 func (d *Datastore) GetUser() *User {
@@ -71,16 +68,12 @@ func (d *Datastore) SaveUser(user *User) {
 }
 
 func (d *Datastore) GetSession() *webauthn.SessionData {
-	return session
+	ret := *session
+	return &ret
 }
 
 func (d *Datastore) SaveSession(s *webauthn.SessionData) {
-	// challenge returned from browser is base64 encoded without trailing '=' padding chars:
-	// https://developer.mozilla.org/en-US/docs/Web/API/AuthenticatorResponse/clientDataJSON#challenge
-	encodedChallenge := base64.URLEncoding.EncodeToString([]byte(s.Challenge))
-	encodedChallenge = strings.TrimRight(encodedChallenge, "=")
-	s.Challenge = encodedChallenge
-	session = s
+	*session = *s
 	printAsJSON("SaveSession:", s)
 }
 
