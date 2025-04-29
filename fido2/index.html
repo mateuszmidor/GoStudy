@@ -21,63 +21,70 @@
 
 <body>
     <button id="createButton">Create</button>
-
     <button id="registerButton">Register</button>
-
     <button id="loginButton">Log in</button>
 
     <script>
         console.log("init");
         document.getElementById('createButton').addEventListener('click', authenticate);
         document.getElementById('registerButton').addEventListener('click', register);
-        document.getElementById('loginButton').addEventListener('login', login);
+        document.getElementById('loginButton').addEventListener('click', login);
 
-         async function register() {
+        async function register() {
             console.log("register");
 
             // begin registration
-            const beginRsp =  await fetch(`/webauthn/begin-registration`);
-            const rspObj = await beginRsp.json();
+            const beginRsp = await fetch(`/webauthn/begin-registration`, { method: 'POST' });
+            const options = await beginRsp.json();
+            console.log("options from server:",options)
             const publicKeyCredentialCreationOptions = {
-                challenge: Uint8Array.from(rspObj.publicKey.challenge, c => c.charCodeAt(0)),
-                // challenge: new TextEncoder().encode(rspObj.publicKey.challenge),
-                rp: rspObj.publicKey.rp,
+                challenge: Uint8Array.from(options.publicKey.challenge, c => c.charCodeAt(0)),
+                rp: options.publicKey.rp,
                 user: {
-                    id:Uint8Array.from(rspObj.publicKey.user.id, c => c.charCodeAt(0)) ,
-                    name: rspObj.publicKey.user.name,
-                    displayName: rspObj.publicKey.user.displayName,
+                    id:Uint8Array.from(options.publicKey.user.id, c => c.charCodeAt(0)) ,
+                    name: options.publicKey.user.name,
+                    displayName: options.publicKey.user.displayName,
                 },
-                pubKeyCredParams: [{alg: -7, type: "public-key"}],//rspObj.publicKey.pubKeyCredParams,
+                pubKeyCredParams:options.publicKey.pubKeyCredParams,
                 // authenticatorSelection: {
                 //      authenticatorAttachment: "platform",
                 // },
-                timeout: 60000,
-                attestation: "direct"
+                timeout: 30000,
+                // attestation: "direct"
             };
             console.log(publicKeyCredentialCreationOptions)
-            console.log("origChallenge", rspObj.publicKey.challenge)
+            console.log("origChallenge", options.publicKey.challenge)
             console.log("encodedChallenge", publicKeyCredentialCreationOptions.challenge)
-            rspCreate = await navigator.credentials.create({ publicKey: publicKeyCredentialCreationOptions })
+            credential = await navigator.credentials.create({ publicKey: publicKeyCredentialCreationOptions })
 
 
             // finish registration
-            console.log(rspCreate)
-            console.log(new TextDecoder().decode(rspCreate.response.clientDataJSON))
-            const response = await fetch(`/webauthn/finish-registration`, {
+            console.log("credential:", credential)
+            console.log(new TextDecoder().decode(credential.response.clientDataJSON))
+            const finishRsp = await fetch(`/webauthn/finish-registration`, {
                 method: "POST",
-                body: JSON.stringify(rspCreate)
+                body: JSON.stringify(credential)
             });
 
-            console.log( await response.text());
+            console.log("finish-registration response:", await finishRsp.text());
         }
 
         async function login() {
-            const res = await fetch(`/webauthn/begin-login`);
-            const options = await res.json();
-
-            const credential = await navigator.credentials.get({
-                publicKey: options.publicKey
-            }); 
+            console.log("login");
+            const beginRsp = await fetch(`/webauthn/begin-login`, { method: 'POST' });
+            const options = await beginRsp.json();
+            console.log("options from server:",options)
+            const publicKeyCredentialRequestOptions = {
+                challenge: Uint8Array.from(options.publicKey.challenge, c => c.charCodeAt(0)),
+                rpId:  options.publicKey.rpId,
+                timeout:  options.publicKey.timeout,
+                allowCredentials: [{
+                    id: Uint8Array.from(options.publicKey.allowCredentials[0].id, c => c.charCodeAt(0)),
+                    type: options.publicKey.allowCredentials[0].type,
+                    transports: options.publicKey.allowCredentials[0].transports,
+                }],
+            }
+            const credential = await navigator.credentials.get({publicKey: publicKeyCredentialRequestOptions}); 
 
             const response = await fetch(`/webauthn/finish-login`, {
                 method: "POST",

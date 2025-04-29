@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -23,19 +24,21 @@ var lonelyUser = &User{Name: "lonely-user", DisplayName: "lonely-user@example.co
 var session = &webauthn.SessionData{}
 
 func (u *User) AddCredential(credential webauthn.Credential) {
+	printAsJSON("AddCredential:", credential)
 	u.Credentials = append(u.Credentials, credential)
 }
 
-func (u *User) UpdateCredential(updatedCredential webauthn.Credential) {
-	for i, credential := range u.Credentials {
-		if string(credential.ID) == string(updatedCredential.ID) {
-			u.Credentials[i] = updatedCredential
+func (u *User) UpdateCredential(credential webauthn.Credential) {
+	printAsJSON("UpdateCredential:", credential)
+	for i, c := range u.Credentials {
+		if string(c.ID) == string(credential.ID) {
+			u.Credentials[i] = credential
 			return
 		}
 	}
 	// If credential not found, print a warning and append it as a new credential
-	fmt.Printf("Warning: Credential not found, appending as new credential [id=%v]\n", string(updatedCredential.ID))
-	u.AddCredential(updatedCredential)
+	fmt.Printf("Warning: Credential not found, appending as new credential [id=%v]\n", string(credential.ID))
+	u.AddCredential(credential)
 }
 
 func (u *User) WebAuthnID() []byte {
@@ -67,8 +70,21 @@ func (d *Datastore) GetSession() *webauthn.SessionData {
 }
 
 func (d *Datastore) SaveSession(s *webauthn.SessionData) {
-	encodedChallenge := base64.StdEncoding.EncodeToString([]byte(s.Challenge)) // challenge returned from browser is base64 encoded and compared with session as such
-	encodedChallenge = strings.TrimRight(encodedChallenge, "=")                // remove the padding "=" characters to match what is returned from the browser
+	// challenge returned from browser is base64 encoded without trailing '=' padding chars:
+	// https://developer.mozilla.org/en-US/docs/Web/API/AuthenticatorResponse/clientDataJSON#challenge
+	encodedChallenge := base64.StdEncoding.EncodeToString([]byte(s.Challenge))
+	encodedChallenge = strings.TrimRight(encodedChallenge, "=")
 	s.Challenge = encodedChallenge
 	session = s
+	printAsJSON("SaveSession:", s)
+}
+
+func printAsJSON(header string, v interface{}) {
+	jsonData, err := json.MarshalIndent(v, "", "    ")
+	if err != nil {
+		fmt.Printf("Error marshalling to JSON: %v\n", err)
+		return
+	}
+	fmt.Println(header)
+	fmt.Println(string(jsonData))
 }

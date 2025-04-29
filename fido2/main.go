@@ -10,7 +10,6 @@ import (
 
 var (
 	webAuthn  *webauthn.WebAuthn
-	err       error
 	datastore = &Datastore{}
 )
 
@@ -21,6 +20,7 @@ func main() {
 		RPOrigins:     []string{"https://localhost:8888"}, // The origin URLs allowed for WebAuthn requests
 	}
 
+	var err error
 	if webAuthn, err = webauthn.New(wconfig); err != nil {
 		fmt.Println(err)
 		return
@@ -33,7 +33,7 @@ func main() {
 
 	// my code
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "create.html")
+		http.ServeFile(w, r, "index.html")
 	})
 
 	http.HandleFunc("/auth", func(w http.ResponseWriter, r *http.Request) {
@@ -64,8 +64,6 @@ func main() {
 	if err := http.ListenAndServeTLS(":8888", "./localhost/cert.pem", "./localhost/key.pem", nil); err != nil {
 		fmt.Println("Failed to start server:", err)
 	}
-
-	// u := webauthn.User{}
 }
 
 func BeginRegistration(w http.ResponseWriter, r *http.Request) {
@@ -76,6 +74,7 @@ func BeginRegistration(w http.ResponseWriter, r *http.Request) {
 
 	// handle errors if present
 	if err != nil {
+		fmt.Printf("Failed to BeginRegistration%+v\n", err)
 		JSONResponse(w, err, http.StatusInternalServerError)
 		return
 	}
@@ -104,7 +103,7 @@ func FinishRegistration(w http.ResponseWriter, r *http.Request) {
 
 	// Handle Error and return.
 	if err != nil {
-		fmt.Printf("%+v\n", err)
+		fmt.Printf("Failed to FinishRegistration: %+v\n", err)
 		JSONResponse(w, err, http.StatusInternalServerError)
 		return
 	}
@@ -125,8 +124,8 @@ func BeginLogin(w http.ResponseWriter, r *http.Request) {
 
 	options, session, err := webAuthn.BeginLogin(user)
 	if err != nil {
-		// Handle Error and return.
-
+		fmt.Printf("Failed to BeginLogin: %+v\n", err)
+		JSONResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -148,8 +147,8 @@ func FinishLogin(w http.ResponseWriter, r *http.Request) {
 
 	credential, err := webAuthn.FinishLogin(user, *session, r)
 	if err != nil {
-		// Handle Error and return.
-
+		fmt.Printf("Failed to FinishLogin: %+v\n", err)
+		JSONResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 
