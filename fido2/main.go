@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -76,7 +75,7 @@ func FinishRegistration(w http.ResponseWriter, r *http.Request) {
 
 	// challenge returned from browser is url base64 encoded without trailing '=' padding chars, so need to base64encode the session challenge to make them comparable in webAuthn.FinishRegistration
 	// https://developer.mozilla.org/en-US/docs/Web/API/AuthenticatorResponse/clientDataJSON#challenge
-	session.Challenge = base64encodeString(session.Challenge)
+	// session.Challenge = base64encodeString(session.Challenge)
 	credential, err := webAuthn.FinishRegistration(user, *session, r)
 
 	// Handle errors
@@ -118,14 +117,14 @@ func BeginLogin(w http.ResponseWriter, r *http.Request) {
 func FinishLogin(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("FinishLogin")
 
-	user := datastore.GetUser()          // Get the user
-	originalUserID := user.ID            // remember the ID
-	user.ID = base64encodeBytes(user.ID) // webAuthn compares the user.ID with base64-encoded userID received from browser, so base64encode to make them comparable in webAuthn.FinishLogin
+	user := datastore.GetUser() // Get the user
+	// originalUserID := user.ID            // remember the ID
+	// user.ID = base64encodeBytes(user.ID) // webAuthn compares the user.ID with base64-encoded userID received from browser, so base64encode to make them comparable in webAuthn.FinishLogin
 
 	// Get the session data stored from BeginLogin
 	session := datastore.GetSession()
-	session.UserID = base64encodeBytes(session.UserID)        // must match user.ID so need to base64encode
-	session.Challenge = base64encodeString(session.Challenge) // webAuthn.FinishLogin compares the base64encodedchallenge, so base64encode here
+	// session.UserID = base64encodeBytes(session.UserID)        // must match user.ID so need to base64encode
+	// session.Challenge = base64encodeString(session.Challenge) // webAuthn.FinishLogin compares the base64encodedchallenge, so base64encode here
 
 	credential, err := webAuthn.FinishLogin(user, *session, r)
 	if err != nil {
@@ -140,7 +139,7 @@ func FinishLogin(w http.ResponseWriter, r *http.Request) {
 
 	// If login was successful, update the credential object
 	user.UpdateCredential(*credential)
-	user.ID = originalUserID // restore the non-base64encoded ID
+	// user.ID = originalUserID // restore the non-base64encoded ID
 	datastore.SaveUser(user)
 
 	JSONResponse(w, "Login Success", http.StatusOK)
@@ -157,10 +156,11 @@ func JSONResponse(w http.ResponseWriter, val interface{}, statusCode int) {
 }
 
 func base64encodeBytes(input []byte) []byte {
-	output := make([]byte, base64.RawStdEncoding.EncodedLen(len(input)))
-	base64.RawStdEncoding.Encode(output, input)
-	fmt.Println("encoding", string(input), "->", string(output))
-	return output
+	// output := make([]byte, base64.RawStdEncoding.EncodedLen(len(input)))
+	// base64.RawStdEncoding.Encode(output, input)
+	// fmt.Println("encoding", string(input), "->", string(output))
+	// return output
+	return input
 }
 
 func base64encodeString(input string) string {

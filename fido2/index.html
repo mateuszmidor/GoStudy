@@ -39,7 +39,7 @@
                 challenge: base64urlToUint8Array(options.publicKey.challenge),//Uint8Array.from(options.publicKey.challenge, c => c.charCodeAt(0)),
                 rp: options.publicKey.rp,
                 user: {
-                    id:Uint8Array.from(options.publicKey.user.id, c => c.charCodeAt(0)) ,
+                    id: base64urlToUint8Array(options.publicKey.user.id),// Uint8Array.from(options.publicKey.user.id, c => c.charCodeAt(0)) ,
                     name: options.publicKey.user.name,
                     displayName: options.publicKey.user.displayName,
                 },
