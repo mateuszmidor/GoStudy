@@ -164,7 +164,8 @@ func base64encodeBytes(input []byte) []byte {
 }
 
 func base64encodeString(input string) string {
-	output := base64.RawStdEncoding.EncodeToString([]byte(input))
-	fmt.Println("encoding", input, "->", output)
-	return output
+	// output := base64.RawURLEncoding.EncodeToString([]byte(input))
+	// fmt.Println("encoding", input, "->", output)
+	// return output
+	return input
 }

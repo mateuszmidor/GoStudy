@@ -18,7 +18,7 @@ type User struct {
 type Datastore struct {
 }
 
-var lonelyUser = &User{Name: "lonely-user", DisplayName: "lonely-user@example.com", ID: []byte(string("ab"))}
+var lonelyUser = &User{Name: "fido2-user", DisplayName: "fido2-user@example.com", ID: []byte{1}}
 var session = &webauthn.SessionData{}
 
 func (u *User) AddCredential(credential webauthn.Credential) {
