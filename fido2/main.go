@@ -154,18 +154,3 @@ func JSONResponse(w http.ResponseWriter, val interface{}, statusCode int) {
 		http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
 	}
 }
-
-func base64encodeBytes(input []byte) []byte {
-	// output := make([]byte, base64.RawStdEncoding.EncodedLen(len(input)))
-	// base64.RawStdEncoding.Encode(output, input)
-	// fmt.Println("encoding", string(input), "->", string(output))
-	// return output
-	return input
-}
-
-func base64encodeString(input string) string {
-	// output := base64.RawURLEncoding.EncodeToString([]byte(input))
-	// fmt.Println("encoding", input, "->", output)
-	// return output
-	return input
-}
