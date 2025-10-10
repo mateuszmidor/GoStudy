@@ -9,6 +9,11 @@ import (
 	"github.com/hashicorp/vault-client-go/schema"
 )
 
+type ScopeExample struct {
+	Description string `json:"description"`
+	Template    string `json:"template"`
+}
+
 func createUser(ctx context.Context, client *vault.Client, name, pass string) (*vault.Response[map[string]interface{}], error) {
 	vals := url.Values{}
 	vals.Add("token_ttl", "60")
@@ -52,6 +57,14 @@ func createScope(ctx context.Context, client *vault.Client, name, description, t
 		Template:    template,
 	}
 	return client.Identity.OidcWriteScope(ctx, name, scopeReq)
+}
+
+func readScope(ctx context.Context, client *vault.Client, name string) (*vault.Response[map[string]interface{}], error) {
+	return client.Identity.OidcReadScope(ctx, name)
+}
+
+func listScopes(ctx context.Context, client *vault.Client) (*vault.Response[schema.StandardListResponse], error) {
+	return client.Identity.OidcListScopes(ctx)
 }
 
 func createOIDCProvider(ctx context.Context, client *vault.Client, providerName string, issuer string, scopes []string) (*vault.Response[map[string]interface{}], error) {
