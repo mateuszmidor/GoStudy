@@ -37,6 +37,13 @@ func (lru *LRU) Get(key KeyType) *ValueType {
 }
 
 func (lru *LRU) Put(key KeyType, val ValueType) {
+	// such key already exists
+	if el, ok := lru.items[key]; ok {
+		el.Value.(*CacheEntry).Val = val
+		lru.tracking.MoveToFront(el)
+		return
+	}
+
 	// cache size limit reached; we need to kick out someone first
 	if len(lru.items) == lru.maxSize {
 		lruElement := lru.tracking.Back()          // find least recently used element

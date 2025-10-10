@@ -52,3 +52,19 @@ func TestLRU_RecentGetPreventsEviction(t *testing.T) {
 	assert.NotNil(t, lru.Get("1"), "expected '1' to remain in cache")
 	assert.NotNil(t, lru.Get("3"), "expected '3' to be present")
 }
+
+func TestPutSameKeyTwice_SizeIsOne(t *testing.T) {
+	// given
+	lru := NewLRU(2)
+
+	// when
+	lru.Put("key", "val1")
+	lru.Put("key", "val2")
+
+	// then
+	assert.Equal(t, 1, lru.Size(), "Size() should be 1 after adding value under the same key twice")
+	assert.Equal(t, 1, lru.tracking.Len(), "num of tracked elements should be 1")
+	val := lru.Get("key")
+	assert.NotNil(t, val, "Value should be present for 'key'")
+	assert.Equal(t, "val2", *val, "Value should be updated to the most recent one")
+}
