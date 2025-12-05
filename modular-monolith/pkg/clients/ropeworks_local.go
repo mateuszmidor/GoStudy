@@ -1,0 +1,20 @@
+package clients
+
+import "github.com/mateuszmidor/GoStudy/modular-monolith/internal/modules/ropeworks"
+
+// RopeworksLocal implements the Ropeworks interface and wraps a ropeworks.Ropeworks instance
+type RopeworksLocal struct {
+	r *ropeworks.Ropeworks
+}
+
+func NewRopeworksLocal() *RopeworksLocal {
+	return &RopeworksLocal{r: ropeworks.NewRopeworks()}
+}
+
+func (rl *RopeworksLocal) GetRopes(count int) []ropeworks.Rope {
+	return rl.r.GetRopes(count)
+}
+
+func (rl *RopeworksLocal) Run() {
+	rl.r.Run()
+}
