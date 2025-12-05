@@ -1,6 +1,10 @@
 package clients
 
-import "github.com/mateuszmidor/GoStudy/modular-monolith/internal/modules/ropeworks"
+import (
+	"log"
+
+	"github.com/mateuszmidor/GoStudy/modular-monolith/internal/modules/ropeworks"
+)
 
 // RopeworksLocal implements the Ropeworks interface and wraps a ropeworks.Ropeworks instance
 type RopeworksLocal struct {
@@ -8,6 +12,7 @@ type RopeworksLocal struct {
 }
 
 func NewRopeworksLocal() *RopeworksLocal {
+	log.Println("NewRopeworksLocal client")
 	return &RopeworksLocal{r: ropeworks.NewRopeworks()}
 }
 

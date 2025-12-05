@@ -4,6 +4,5 @@ import "github.com/mateuszmidor/GoStudy/modular-monolith/internal/modules/sawmil
 
 type Sawmill interface {
 	Run()
-	GetBeams(count int) []sawmill.Beam
 	GetPlanks(count int) []sawmill.Plank
 }
