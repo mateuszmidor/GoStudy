@@ -8,6 +8,6 @@ import (
 )
 
 func main() {
-	log.Println("running sailworks svc at", configs.SailworksAddr)
+	log.Println("running SailworksGRPC svc at", configs.SailworksAddr)
 	log.Fatal(sailworks.RunSailworksSvc(configs.SailworksAddr))
 }

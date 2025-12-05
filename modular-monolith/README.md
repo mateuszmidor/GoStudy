@@ -38,40 +38,37 @@ Modules
 ```sh
     make run
 
-2025/12/05 21:18:25 running sailworks svc at :9000
-2025/12/05 21:18:25 NewSawmillLocal client
-2025/12/05 21:18:25 NewRopeworksLocal client
-2025/12/05 21:18:25 NewSailworksGrpc client: :9000
-2025/12/05 21:18:25 received 1 beam
-2025/12/05 21:18:25 received 1 beam
-2025/12/05 21:18:25 received 1 rope
-2025/12/05 21:18:25 received 1 rope
-2025/12/05 21:18:25 received 1 rope
-2025/12/05 21:18:25 received 1 plank
-2025/12/05 21:18:25 received 1 plank
-2025/12/05 21:18:25 received 1 plank
-2025/12/05 21:18:25 received 1 plank
-2025/12/05 21:18:25 received 1 plank
-2025/12/05 21:18:25 server received request far new sails: 2
-2025/12/05 21:18:25 received 1 sail
-2025/12/05 21:18:26 received 1 sail
-2025/12/05 21:18:26 received 1 beam
-2025/12/05 21:18:26 received 1 rope
-2025/12/05 21:18:26 received 1 plank
-2025/12/05 21:18:26 received 1 rope
-2025/12/05 21:18:26 received 1 rope
-2025/12/05 21:18:26 received 1 plank
-2025/12/05 21:18:26 received 1 plank
-2025/12/05 21:18:26 received 1 plank
-2025/12/05 21:18:26 received 1 plank
-2025/12/05 21:18:27 received 1 rope
-2025/12/05 21:18:27 received 1 plank
-2025/12/05 21:18:27 received 1 plank
-2025/12/05 21:18:27 received 1 plank
-2025/12/05 21:18:27 received 1 plank
-2025/12/05 21:18:27 received 1 rope
-2025/12/05 21:18:27 received 1 plank
-2025/12/05 21:18:27 received 1 rope
-2025/12/05 21:18:27 collected 15 planks, 3 beams, 9 ropes, 2 sails
-2025/12/05 21:18:27 ship built successfuly
+    2025/12/05 21:48:29 running SailworksGRPC svc at :9001
+    2025/12/05 21:48:29 NewSawmillLocal client
+    2025/12/05 21:48:29 NewRopeworksLocal client
+    2025/12/05 21:48:29 NewSailworksGrpc client: :9001
+    2025/12/05 21:48:29 received 1 plank
+    2025/12/05 21:48:29 received 1 plank
+    2025/12/05 21:48:29 received 1 plank
+    2025/12/05 21:48:29 received 1 plank
+    2025/12/05 21:48:29 received 1 plank
+    2025/12/05 21:48:29 received 1 rope
+    2025/12/05 21:48:29 received 1 rope
+    2025/12/05 21:48:29 received 1 rope
+    2025/12/05 21:48:29 server received GetSails request: 2
+    2025/12/05 21:48:29 received 1 sail
+    2025/12/05 21:48:30 received 1 sail
+    2025/12/05 21:48:30 received 1 plank
+    2025/12/05 21:48:30 received 1 plank
+    2025/12/05 21:48:30 received 1 plank
+    2025/12/05 21:48:30 received 1 rope
+    2025/12/05 21:48:30 received 1 rope
+    2025/12/05 21:48:30 received 1 rope
+    2025/12/05 21:48:30 received 1 plank
+    2025/12/05 21:48:30 received 1 plank
+    2025/12/05 21:48:31 received 1 plank
+    2025/12/05 21:48:31 received 1 rope
+    2025/12/05 21:48:31 received 1 rope
+    2025/12/05 21:48:31 received 1 plank
+    2025/12/05 21:48:31 received 1 rope
+    2025/12/05 21:48:31 received 1 plank
+    2025/12/05 21:48:31 received 1 plank
+    2025/12/05 21:48:31 received 1 plank
+    2025/12/05 21:48:31 collected 15 planks, 9 ropes, 2 sails
+    2025/12/05 21:48:31 ship built successfuly
 ```
