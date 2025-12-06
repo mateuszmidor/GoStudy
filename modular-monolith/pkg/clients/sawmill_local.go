@@ -20,6 +20,6 @@ func (sl *SawmillLocal) Run() {
 	sl.s.Run()
 }
 
-func (sl *SawmillLocal) GetPlanks(count int) []sawmill.Plank {
-	return sl.s.GetPlanks(count)
+func (sl *SawmillLocal) GetPlanks(count int) ([]Plank, error) {
+	return make([]Plank, len(sl.s.GetPlanks(count))), nil
 }

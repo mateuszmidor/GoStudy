@@ -12,9 +12,7 @@ import (
 	"golang.org/x/net/http2/h2c"
 )
 
-const NET_ADDR = ":9000"
-
-// SailWorksSvc implements sailworksconnect.UnimplementedSailworksServiceHandler interface generated from .proto
+// SailWorksSvc implements sailworksconnect.SailworksServiceHandler interface generated from .proto
 type SailWorksSvc struct {
 	sailworksconnect.UnimplementedSailworksServiceHandler
 	_sailworks *Sailworks

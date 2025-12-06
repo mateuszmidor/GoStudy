@@ -1,8 +1,10 @@
 package clients
 
-import "github.com/mateuszmidor/GoStudy/modular-monolith/internal/modules/sawmill"
+// Plank belongs to the public interface of Sawmill.
+type Plank struct{}
 
+// Sawmill is the public interface of sawmill module.
 type Sawmill interface {
 	Run()
-	GetPlanks(count int) []sawmill.Plank
+	GetPlanks(count int) ([]Plank, error)
 }

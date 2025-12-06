@@ -1,7 +1,8 @@
 package clients
 
-import "github.com/mateuszmidor/GoStudy/modular-monolith/internal/modules/sailworks"
+// Sail belongs to the public interface of Sailworks.
+type Sail struct{}
 
 type Sailworks interface {
-	GetSails(count int) ([]sailworks.Sail, error)
+	GetSails(count int) ([]Sail, error)
 }

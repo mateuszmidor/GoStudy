@@ -16,8 +16,8 @@ func NewSailworksLocal() *SailworksLocal {
 	return &SailworksLocal{s: sailworks.NewSailworks()}
 }
 
-func (sl *SailworksLocal) GetSails(count int) ([]sailworks.Sail, error) {
-	return sl.s.GetSails(count), nil
+func (sl *SailworksLocal) GetSails(count int) ([]Sail, error) {
+	return make([]Sail, len(sl.s.GetSails(count))), nil
 }
 
 func (sl *SailworksLocal) Run() {

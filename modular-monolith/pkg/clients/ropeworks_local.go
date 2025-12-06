@@ -16,8 +16,8 @@ func NewRopeworksLocal() *RopeworksLocal {
 	return &RopeworksLocal{r: ropeworks.NewRopeworks()}
 }
 
-func (rl *RopeworksLocal) GetRopes(count int) []ropeworks.Rope {
-	return rl.r.GetRopes(count)
+func (rl *RopeworksLocal) GetRopes(count int) ([]Rope, error) {
+	return make([]Rope, len(rl.r.GetRopes(count))), nil
 }
 
 func (rl *RopeworksLocal) Run() {
