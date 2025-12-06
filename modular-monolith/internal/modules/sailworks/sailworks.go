@@ -21,7 +21,7 @@ func NewSailworks() *Sailworks {
 func (s *Sailworks) Run() {
 	go func() {
 		for {
-			for i := 0; i < numSailsPerSecond; i++ {
+			for range numSailsPerSecond {
 				s.sails <- &Sail{}
 			}
 			time.Sleep(time.Second)
@@ -31,7 +31,7 @@ func (s *Sailworks) Run() {
 
 func (s *Sailworks) GetSails(count int) []Sail {
 	result := make([]Sail, 0, count)
-	for i := 0; i < count; i++ {
+	for range count {
 		sail := <-s.sails
 		result = append(result, *sail)
 		log.Println("received 1 sail")

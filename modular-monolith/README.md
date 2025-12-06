@@ -1,9 +1,12 @@
 # modular-monolith
 
-Modules
+This project models a shipyard, made of departments (implemented as modules).  
+Q: how to define public interfaces for modules without initial workload on defining translation domain objects<->api objects.
+
+## Modules
 - sawmill (local module)
 - ropeworks (local module)
-- sailworks (local module and grpc service)
+- sailworks (initially local module, now extracted to separate grpc service)
 
 ## Install protobuf compiler (protoc)
 
