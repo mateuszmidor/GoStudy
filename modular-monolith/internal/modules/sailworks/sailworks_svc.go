@@ -22,7 +22,8 @@ func RunSailworksSvc(addr string) error {
 	s := NewSailworks()
 	s.Run()
 	mux := http.NewServeMux()
-	mux.Handle(sailworksconnect.NewSailworksServiceHandler(&SailWorksSvc{_sailworks: s}))
+	svc := &SailWorksSvc{_sailworks: s}
+	mux.Handle(sailworksconnect.NewSailworksServiceHandler(svc))
 	return http.ListenAndServe(addr, h2c.NewHandler(mux, &http2.Server{}))
 }
 
