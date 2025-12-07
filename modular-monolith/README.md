@@ -1,14 +1,22 @@
 # modular-monolith
 
-This project models a shipyard, made of departments (implemented as modules).  
-Q: how to define public interfaces for modules without initial workload on defining translation domain objects<->api objects.
+This project models a shipyard as a modular monolith:
+- the monolith is made of departments (implemented as modules)
+- every module is implemented as a private(internal) package, but exposes a public API
+- this imposes initial effort of having private domain objects being translated to public API objects
+  -  how to avoid it?
 
 ## Modules
+
 - sawmill (local module)
 - ropeworks (local module)
-- sailworks (initially local module, now extracted to separate grpc service)
+- sailworks (initially local module, now extracted as a separate grpc service)
 
-## Install protobuf compiler (protoc)
+## Prerequisites
+
+GRPC is used for communication with sailworks module, thus GRPC tooling for Go must be installed.
+
+### Install protobuf compiler (protoc)
 
 1. download the protoc for x64 archive: https://github.com/protocolbufpfers/protobuf/releases
 1. then make it available as terminal command (add it to PATH)
@@ -18,7 +26,7 @@ Q: how to define public interfaces for modules without initial workload on defin
     > /home/user/bin/protoc
 ```
 
-## Install remaining tools
+### Install remaining tools
 
 1. make sure `$GOPATH/bin` is on your $PATH
 1. run:
