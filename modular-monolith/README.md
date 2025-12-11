@@ -3,6 +3,7 @@
 This project models a shipyard as a modular monolith:
 - the monolith is made of departments (implemented as modules)
 - every module is implemented as a private(internal) package, but exposes a public API
+  - internal guarantees that other modules don't reference the internals but only use the public API
 - this imposes initial effort of having private domain objects being translated to public API objects
   -  how to avoid it?
 
