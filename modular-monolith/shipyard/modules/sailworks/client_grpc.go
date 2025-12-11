@@ -8,22 +8,22 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/bufbuild/connect-go"
-	sailworksgrpc "github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/api/gen/sailworks/v1"
-	sailworksconnect "github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/api/gen/sailworks/v1/sailworksv1connect"
+	sailworksgrpc "github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks/grpc/gen/sailworks/v1"
+	sailworksconnect "github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks/grpc/gen/sailworks/v1/sailworksv1connect"
 )
 
-// SailworksGrpc implements the Sailworks interface and exposes SailWorksSvc over Grpc
-type SailworksGrpc struct {
+// APIGrpc implements the sailworks module API as GRPC client.
+type APIGrpc struct {
 	client sailworksconnect.SailworksServiceClient
 }
 
-func NewGrpcClient(addr string) *SailworksGrpc {
+func NewSailworksGRPC(addr string) *APIGrpc {
 	log.Println("NewSailworksGrpc client:", addr)
 	client := sailworksconnect.NewSailworksServiceClient(http.DefaultClient, "http://"+addr)
-	return &SailworksGrpc{client: client}
+	return &APIGrpc{client: client}
 }
 
-func (sg *SailworksGrpc) GetSails(count int) ([]Sail, error) {
+func (sg *APIGrpc) GetSails(count int) ([]Sail, error) {
 	msg := sailworksgrpc.GetSailsRequest{Count: int32(count)}
 	req := connect.NewRequest(&msg)
 	rsp, err := sg.client.GetSails(context.Background(), req)
@@ -33,6 +33,6 @@ func (sg *SailworksGrpc) GetSails(count int) ([]Sail, error) {
 	return make([]Sail, len(rsp.Msg.Sails)), nil
 }
 
-func (sl *SailworksGrpc) Run() {
+func (sl *APIGrpc) Run() {
 	// nothing to do as Sailworks should be running as a separate process
 }

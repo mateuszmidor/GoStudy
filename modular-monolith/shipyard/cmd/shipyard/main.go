@@ -15,7 +15,7 @@ func main() {
 	sawmillAPI.Run()
 	ropeworksAPI := ropeworks.NewLocalAPI()
 	ropeworksAPI.Run()
-	sailworksAPI := sailworks.NewGrpcClient(configs.SailworksAddr)
+	sailworksAPI := sailworks.NewSailworksGRPC(configs.SailworksAddr)
 	sailworksAPI.Run()
 	buildShip(sawmillAPI, ropeworksAPI, sailworksAPI)
 }

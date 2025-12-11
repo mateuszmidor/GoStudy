@@ -8,7 +8,7 @@ import (
 	context "context"
 	errors "errors"
 	connect_go "github.com/bufbuild/connect-go"
-	v1 "github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/api/gen/sailworks/v1"
+	v1 "github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks/grpc/gen/sailworks/v1"
 	http "net/http"
 	strings "strings"
 )

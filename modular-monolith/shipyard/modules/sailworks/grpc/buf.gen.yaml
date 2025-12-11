@@ -3,7 +3,7 @@ version: v1
 managed:
   enabled: true
   go_package_prefix:
-    default: github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/api/gen
+    default: github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks/grpc/gen
     except:
       - buf.build/srikrsna/protoc-gen-gotag
 plugins:

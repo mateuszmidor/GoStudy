@@ -6,15 +6,15 @@ import (
 	"net/http"
 
 	"github.com/bufbuild/connect-go"
-	sailworksgrpc "github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/api/gen/sailworks/v1"
-	sailworksconnect "github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/api/gen/sailworks/v1/sailworksv1connect"
+	sailworksgrpc "github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks/grpc/gen/sailworks/v1"
+	sailworksconnect "github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks/grpc/gen/sailworks/v1/sailworksv1connect"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks/internal"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )
 
-// SailworksSvc implements sailworksconnect.UnimplementedSailworksServiceHandler interface generated from .proto
-type SailworksSvc struct {
+// SailworksService implements sailworksconnect.UnimplementedSailworksServiceHandler interface generated from .proto
+type SailworksService struct {
 	sailworksconnect.UnimplementedSailworksServiceHandler
 	sailworks *internal.Sailworks
 }
@@ -23,12 +23,12 @@ func RunSailworksGrpcSvc(addr string) error {
 	s := internal.NewSailworks()
 	s.Run()
 	mux := http.NewServeMux()
-	mux.Handle(sailworksconnect.NewSailworksServiceHandler(&SailworksSvc{sailworks: s}))
+	mux.Handle(sailworksconnect.NewSailworksServiceHandler(&SailworksService{sailworks: s}))
 	return http.ListenAndServe(addr, h2c.NewHandler(mux, &http2.Server{}))
 }
 
 // GetSails implements sailworksconnect.GetSails interface
-func (s *SailworksSvc) GetSails(_ context.Context, r *connect.Request[sailworksgrpc.GetSailsRequest]) (*connect.Response[sailworksgrpc.GetSailsResponse], error) {
+func (s *SailworksService) GetSails(_ context.Context, r *connect.Request[sailworksgrpc.GetSailsRequest]) (*connect.Response[sailworksgrpc.GetSailsResponse], error) {
 	log.Printf("server received GetSails request: %d", r.Msg.GetCount())
 	_sails := s.sailworks.GetSails(int(r.Msg.Count))
 	sails := make([]*sailworksgrpc.Sail, len(_sails))

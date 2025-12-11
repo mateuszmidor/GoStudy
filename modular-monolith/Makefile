@@ -1,10 +1,10 @@
 default: proto
 
 proto:
-	cd shipyard/api/ && buf lint && buf generate --template=buf.gen.yaml && buf generate --template=buf.gen.tag.yaml
+	cd shipyard/modules/sailworks/grpc/ && buf lint && buf generate --template=buf.gen.yaml && buf generate --template=buf.gen.tag.yaml
 
 clean:
-	rm -rf shipyard/api/gen/
+	rm -rf shipyard/modules/sailworks/grpc/gen
 
 run: proto
 	# run sailworks svc in background
