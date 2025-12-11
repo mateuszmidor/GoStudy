@@ -1,0 +1,14 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Shipyard - Components
+
+Container_Boundary(Shipyard, "Shipyard") {
+    Component(ropeworks, "Ropeworks", "Module", "produces ropes")
+    Component(sawmill, "Sawmill", "Module", "produces planks")
+}
+Container(Sailworks, "Sailworks", "GRPC service", "produces sails")
+Rel_Neighbor(Shipyard, Sailworks, "Uses", "grpc")
+@enduml

@@ -13,6 +13,9 @@ This project models a shipyard as a modular monolith:
 - ropeworks (local module)
 - sailworks (initially local module, now extracted as a separate grpc service)
 
+![Architecture Diagram](./docs/C4_Component.png)
+
+
 ## Prerequisites
 
 GRPC is used for communication with sailworks module, thus GRPC tooling for Go must be installed.
