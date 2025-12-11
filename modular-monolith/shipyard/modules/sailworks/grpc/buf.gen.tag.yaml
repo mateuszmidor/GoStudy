@@ -1,8 +1,0 @@
-# add tags
-version: v1
-plugins:
-  - plugin: gotag
-    out: .
-    opt:
-      - paths=source_relative
-      - outdir=gen

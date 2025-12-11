@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/mateuszmidor/GoStudy/modular-monolith/configs"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/sailworks"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/ropeworks"
-	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sawmill"
 	"golang.org/x/sync/errgroup"
 )
