@@ -1,6 +1,6 @@
 package sawmill
 
-// Plank is a part of the sawmill public API.
+// Plank is a part of the sawmill module public API.
 type Plank struct{}
 
 // API of the sawmill module.

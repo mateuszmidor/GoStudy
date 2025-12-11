@@ -1,6 +1,6 @@
 package sailworks
 
-// Sail is a part of the ropeworks public API.
+// Sail is a part of the sailworks module public API.
 type Sail struct{}
 
 // API of the sailworks module.

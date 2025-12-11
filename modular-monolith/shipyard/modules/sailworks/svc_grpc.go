@@ -13,24 +13,24 @@ import (
 	"golang.org/x/net/http2/h2c"
 )
 
-// SailWorksSvc implements sailworksconnect.UnimplementedSailworksServiceHandler interface generated from .proto
-type SailWorksSvc struct {
+// SailworksSvc implements sailworksconnect.UnimplementedSailworksServiceHandler interface generated from .proto
+type SailworksSvc struct {
 	sailworksconnect.UnimplementedSailworksServiceHandler
-	_sailworks *internal.Sailworks
+	sailworks *internal.Sailworks
 }
 
 func RunSailworksGrpcSvc(addr string) error {
 	s := internal.NewSailworks()
 	s.Run()
 	mux := http.NewServeMux()
-	mux.Handle(sailworksconnect.NewSailworksServiceHandler(&SailWorksSvc{_sailworks: s}))
+	mux.Handle(sailworksconnect.NewSailworksServiceHandler(&SailworksSvc{sailworks: s}))
 	return http.ListenAndServe(addr, h2c.NewHandler(mux, &http2.Server{}))
 }
 
 // GetSails implements sailworksconnect.GetSails interface
-func (s *SailWorksSvc) GetSails(_ context.Context, r *connect.Request[sailworksgrpc.GetSailsRequest]) (*connect.Response[sailworksgrpc.GetSailsResponse], error) {
+func (s *SailworksSvc) GetSails(_ context.Context, r *connect.Request[sailworksgrpc.GetSailsRequest]) (*connect.Response[sailworksgrpc.GetSailsResponse], error) {
 	log.Printf("server received GetSails request: %d", r.Msg.GetCount())
-	_sails := s._sailworks.GetSails(int(r.Msg.Count))
+	_sails := s.sailworks.GetSails(int(r.Msg.Count))
 	sails := make([]*sailworksgrpc.Sail, len(_sails))
 	rsp := sailworksgrpc.GetSailsResponse{Sails: sails}
 	return connect.NewResponse(&rsp), nil
