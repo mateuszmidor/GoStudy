@@ -52,38 +52,38 @@ GRPC is used for communication with sawmill module, thus GRPC tooling for Go mus
 ## Run
 
 ```sh
-    make run
-
-    2025/12/05 21:48:29 running SawmillGrpcSvc at :9001
-    2025/12/05 21:48:29 NewSawmillGrpc client: :9001
-    2025/12/05 21:48:29 NewRopeworksLocal client
-    2025/12/05 21:48:29 NewMastworksLocal client
-    2025/12/05 21:48:29 NewSailworksLocal client
-    2025/12/05 21:48:29 received 1 rope
-    2025/12/05 21:48:29 received 1 rope
-    2025/12/05 21:48:29 received 1 rope
-    2025/12/05 21:48:29 received 1 sail
-    2025/12/05 21:48:29 server received GetBeams request: 3
-    2025/12/05 21:48:29 received 1 beam
-    2025/12/05 21:48:29 received 1 beam
-    2025/12/05 21:48:29 received 1 beam
-    2025/12/05 21:48:29 received 3 beams for mast
-    2025/12/05 21:48:29 received 1 mast
-    2025/12/05 21:48:30 received 1 sail
-    2025/12/05 21:48:30 server received GetBeams request: 3
-    2025/12/05 21:48:30 received 1 beam
-    2025/12/05 21:48:30 received 1 beam
-    2025/12/05 21:48:30 received 1 beam
-    2025/12/05 21:48:30 received 3 beams for mast
-    2025/12/05 21:48:30 received 1 mast
-    2025/12/05 21:48:30 received 1 rope
-    2025/12/05 21:48:30 received 1 rope
-    2025/12/05 21:48:30 received 1 rope
-    2025/12/05 21:48:31 received 1 sail
-    2025/12/05 21:48:31 received 1 sail
-    2025/12/05 21:48:31 received 1 rope
-    2025/12/05 21:48:31 received 1 rope
-    2025/12/05 21:48:31 received 1 rope
-    2025/12/05 21:48:31 collected 9 ropes, 2 masts, 4 sails
-    2025/12/05 21:48:31 ship built successfuly
+  make run
+```
+```log
+  2025/12/12 16:15:26 NewSawmillGrpc client: :9001
+  2025/12/12 16:15:26 NewRopeworksLocal client
+  2025/12/12 16:15:26 NewMastworksLocal client
+  2025/12/12 16:15:26 NewSailworksLocal client
+  2025/12/12 16:15:26 Sailworks produced 1 sail
+  2025/12/12 16:15:26 Sailworks produced 1 sail
+  2025/12/12 16:15:26 Ropeworks produced 1 rope
+  2025/12/12 16:15:26 Ropeworks produced 1 rope
+  2025/12/12 16:15:26 Ropeworks produced 1 rope
+  2025/12/12 16:15:26 SawmillService received GetBeams request: 3
+  2025/12/12 16:15:26 Sawmill produced 1 beam
+  2025/12/12 16:15:26 Sawmill produced 1 beam
+  2025/12/12 16:15:26 Sawmill produced 1 beam
+  2025/12/12 16:15:26 Mastworks received 3 beams for making a mast
+  2025/12/12 16:15:26 Mastworks produced 1 mast
+  2025/12/12 16:15:26 SawmillService received GetBeams request: 3
+  2025/12/12 16:15:26 Sawmill produced 1 beam
+  2025/12/12 16:15:26 Sawmill produced 1 beam
+  2025/12/12 16:15:26 Sawmill produced 1 beam
+  2025/12/12 16:15:26 Mastworks received 3 beams for making a mast
+  2025/12/12 16:15:27 Sailworks produced 1 sail
+  2025/12/12 16:15:27 Sailworks produced 1 sail
+  2025/12/12 16:15:27 Ropeworks produced 1 rope
+  2025/12/12 16:15:27 Ropeworks produced 1 rope
+  2025/12/12 16:15:27 Ropeworks produced 1 rope
+  2025/12/12 16:15:27 Mastworks produced 1 mast
+  2025/12/12 16:15:28 Ropeworks produced 1 rope
+  2025/12/12 16:15:28 Ropeworks produced 1 rope
+  2025/12/12 16:15:28 Ropeworks produced 1 rope
+  2025/12/12 16:15:28 collected 9 ropes, 2 masts, 4 sails
+  2025/12/12 16:15:28 ### ship built successfuly ###
 ```
