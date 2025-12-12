@@ -43,3 +43,4 @@ func (s *Sawmill) GetPlanks(count int) []Plank {
 	}
 	return result
 }
+

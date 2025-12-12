@@ -8,8 +8,9 @@ title Shipyard - Components
 Container_Boundary(Shipyard, "Shipyard") {
     Component(ropeworks, "Ropeworks", "Module", "produces ropes")
     Component(mastworks, "Mastworks", "Module", "produces masts")
-    Component(sawmill, "Sawmill", "Module", "produces planks")
 }
+Container(Sawmill, "Sawmill", "Container", "produces planks")
 Container(Sailworks, "Sailworks", "Container", "produces sails")
-Rel_Neighbor(Shipyard, Sailworks, "Uses", "grpc")
+Rel_D(Shipyard, Sawmill, "Uses", "grpc")
+Rel_D(Shipyard, Sailworks, "Uses", "grpc")
 @enduml

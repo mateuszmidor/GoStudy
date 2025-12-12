@@ -5,14 +5,14 @@ import (
 
 	"github.com/mateuszmidor/GoStudy/modular-monolith/configs"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/sailworks"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/sawmill"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/mastworks"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/ropeworks"
-	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sawmill"
 	"golang.org/x/sync/errgroup"
 )
 
 func main() {
-	sawmillAPI := sawmill.NewLocalAPI()
+	sawmillAPI := sawmill.NewSawmillGRPC(configs.SawmillAddr)
 	sawmillAPI.Run()
 	ropeworksAPI := ropeworks.NewLocalAPI()
 	ropeworksAPI.Run()

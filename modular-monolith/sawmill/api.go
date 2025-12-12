@@ -8,3 +8,4 @@ type API interface {
 	Run()
 	GetPlanks(count int) ([]Plank, error)
 }
+
