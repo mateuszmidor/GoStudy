@@ -5,6 +5,7 @@ import (
 
 	"github.com/mateuszmidor/GoStudy/modular-monolith/configs"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/sailworks"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/mastworks"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/ropeworks"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sawmill"
 	"golang.org/x/sync/errgroup"
@@ -15,14 +16,17 @@ func main() {
 	sawmillAPI.Run()
 	ropeworksAPI := ropeworks.NewLocalAPI()
 	ropeworksAPI.Run()
+	mastworksAPI := mastworks.NewLocalAPI()
+	mastworksAPI.Run()
 	sailworksAPI := sailworks.NewSailworksGRPC(configs.SailworksAddr)
 	sailworksAPI.Run()
-	buildShip(sawmillAPI, ropeworksAPI, sailworksAPI)
+	buildShip(sawmillAPI, ropeworksAPI, mastworksAPI, sailworksAPI)
 }
 
-func buildShip(_sawmill sawmill.API, _ropeworks ropeworks.API, _sailworks sailworks.API) {
+func buildShip(_sawmill sawmill.API, _ropeworks ropeworks.API, _mastworks mastworks.API, _sailworks sailworks.API) {
 	planks := []sawmill.Plank{}
 	ropes := []ropeworks.Rope{}
+	masts := []mastworks.Mast{}
 	sails := []sailworks.Sail{}
 
 	g := errgroup.Group{}
@@ -37,13 +41,17 @@ func buildShip(_sawmill sawmill.API, _ropeworks ropeworks.API, _sailworks sailwo
 		return err
 	})
 	g.Go(func() error {
+		masts = _mastworks.GetMasts(2)
+		return nil
+	})
+	g.Go(func() error {
 		var err error
-		sails, err = _sailworks.GetSails(2)
+		sails, err = _sailworks.GetSails(4)
 		return err
 	})
 	if err := g.Wait(); err != nil {
 		log.Fatalf("buildShip failed: %+v", err)
 	}
-	log.Println("collected", len(planks), "planks,", len(ropes), "ropes,", len(sails), "sails")
+	log.Println("collected", len(planks), "planks,", len(ropes), "ropes,", len(masts), "masts,", len(sails), "sails")
 	log.Println("### ship built successfuly ###")
 }

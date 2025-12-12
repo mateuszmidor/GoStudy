@@ -11,6 +11,7 @@ This project models a shipyard as a modular monolith:
 
 - sawmill (local module)
 - ropeworks (local module)
+- mastworks (local module)
 - sailworks (initially local module, now extracted as a separate grpc service)
 
 ![Architecture Diagram](./docs/C4_Component.png)
