@@ -10,6 +10,6 @@ Container_Boundary(shipyard, "Shipyard") {
     Component(mastworks, "Mastworks", "Module", "produces masts")
     Component(sailworks, "Sailworks", "Module", "produces sails")
 }
-Container(sawmill, "Sawmill", "Container", "produces planks")
+Container(sawmill, "Sawmill", "Container", "produces beams")
 Rel(mastworks, sawmill, "Uses", "grpc")
 @enduml

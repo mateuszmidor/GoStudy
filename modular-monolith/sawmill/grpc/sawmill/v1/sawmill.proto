@@ -1,13 +1,13 @@
 syntax = "proto3";
-package sawmill.v1; // name is pretty irrelevant for generated code, but constitutes connect-go RPC path: "/sawmill.v1.SawmillService/GetPlanks"
+package sawmill.v1; // name is pretty irrelevant for generated code, but constitutes connect-go RPC path: "/sawmill.v1.SawmillService/GetBeams"
 
 // import "tagger/tagger.proto";
 
 service SawmillService {
-  rpc GetPlanks(GetPlanksRequest) returns (GetPlanksResponse) {}
+  rpc GetBeams(GetBeamsRequest) returns (GetBeamsResponse) {}
 }
 
-message Plank {}
-message GetPlanksRequest { int32 count = 1; }
-message GetPlanksResponse { repeated Plank planks = 1; }
+message Beam {}
+message GetBeamsRequest { int32 count = 1; }
+message GetBeamsResponse { repeated Beam beams = 1; }
 

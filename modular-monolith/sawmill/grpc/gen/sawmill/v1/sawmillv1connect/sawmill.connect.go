@@ -33,14 +33,13 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// SawmillServiceGetPlanksProcedure is the fully-qualified name of the SawmillService's GetPlanks
-	// RPC.
-	SawmillServiceGetPlanksProcedure = "/sawmill.v1.SawmillService/GetPlanks"
+	// SawmillServiceGetBeamsProcedure is the fully-qualified name of the SawmillService's GetBeams RPC.
+	SawmillServiceGetBeamsProcedure = "/sawmill.v1.SawmillService/GetBeams"
 )
 
 // SawmillServiceClient is a client for the sawmill.v1.SawmillService service.
 type SawmillServiceClient interface {
-	GetPlanks(context.Context, *connect_go.Request[v1.GetPlanksRequest]) (*connect_go.Response[v1.GetPlanksResponse], error)
+	GetBeams(context.Context, *connect_go.Request[v1.GetBeamsRequest]) (*connect_go.Response[v1.GetBeamsResponse], error)
 }
 
 // NewSawmillServiceClient constructs a client for the sawmill.v1.SawmillService service. By
@@ -53,9 +52,9 @@ type SawmillServiceClient interface {
 func NewSawmillServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) SawmillServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &sawmillServiceClient{
-		getPlanks: connect_go.NewClient[v1.GetPlanksRequest, v1.GetPlanksResponse](
+		getBeams: connect_go.NewClient[v1.GetBeamsRequest, v1.GetBeamsResponse](
 			httpClient,
-			baseURL+SawmillServiceGetPlanksProcedure,
+			baseURL+SawmillServiceGetBeamsProcedure,
 			opts...,
 		),
 	}
@@ -63,17 +62,17 @@ func NewSawmillServiceClient(httpClient connect_go.HTTPClient, baseURL string, o
 
 // sawmillServiceClient implements SawmillServiceClient.
 type sawmillServiceClient struct {
-	getPlanks *connect_go.Client[v1.GetPlanksRequest, v1.GetPlanksResponse]
+	getBeams *connect_go.Client[v1.GetBeamsRequest, v1.GetBeamsResponse]
 }
 
-// GetPlanks calls sawmill.v1.SawmillService.GetPlanks.
-func (c *sawmillServiceClient) GetPlanks(ctx context.Context, req *connect_go.Request[v1.GetPlanksRequest]) (*connect_go.Response[v1.GetPlanksResponse], error) {
-	return c.getPlanks.CallUnary(ctx, req)
+// GetBeams calls sawmill.v1.SawmillService.GetBeams.
+func (c *sawmillServiceClient) GetBeams(ctx context.Context, req *connect_go.Request[v1.GetBeamsRequest]) (*connect_go.Response[v1.GetBeamsResponse], error) {
+	return c.getBeams.CallUnary(ctx, req)
 }
 
 // SawmillServiceHandler is an implementation of the sawmill.v1.SawmillService service.
 type SawmillServiceHandler interface {
-	GetPlanks(context.Context, *connect_go.Request[v1.GetPlanksRequest]) (*connect_go.Response[v1.GetPlanksResponse], error)
+	GetBeams(context.Context, *connect_go.Request[v1.GetBeamsRequest]) (*connect_go.Response[v1.GetBeamsResponse], error)
 }
 
 // NewSawmillServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -82,15 +81,15 @@ type SawmillServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewSawmillServiceHandler(svc SawmillServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
-	sawmillServiceGetPlanksHandler := connect_go.NewUnaryHandler(
-		SawmillServiceGetPlanksProcedure,
-		svc.GetPlanks,
+	sawmillServiceGetBeamsHandler := connect_go.NewUnaryHandler(
+		SawmillServiceGetBeamsProcedure,
+		svc.GetBeams,
 		opts...,
 	)
 	return "/sawmill.v1.SawmillService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case SawmillServiceGetPlanksProcedure:
-			sawmillServiceGetPlanksHandler.ServeHTTP(w, r)
+		case SawmillServiceGetBeamsProcedure:
+			sawmillServiceGetBeamsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -100,6 +99,6 @@ func NewSawmillServiceHandler(svc SawmillServiceHandler, opts ...connect_go.Hand
 // UnimplementedSawmillServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedSawmillServiceHandler struct{}
 
-func (UnimplementedSawmillServiceHandler) GetPlanks(context.Context, *connect_go.Request[v1.GetPlanksRequest]) (*connect_go.Response[v1.GetPlanksResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("sawmill.v1.SawmillService.GetPlanks is not implemented"))
+func (UnimplementedSawmillServiceHandler) GetBeams(context.Context, *connect_go.Request[v1.GetBeamsRequest]) (*connect_go.Response[v1.GetBeamsResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("sawmill.v1.SawmillService.GetBeams is not implemented"))
 }

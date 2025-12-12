@@ -1,11 +1,11 @@
 package sawmill
 
-// Plank is a part of the sawmill module public API.
-type Plank struct{}
+// Beam is a part of the sawmill module public API.
+type Beam struct{}
 
 // API of the sawmill module.
 type API interface {
 	Run()
-	GetPlanks(count int) ([]Plank, error)
+	GetBeams(count int) ([]Beam, error)
 }
 

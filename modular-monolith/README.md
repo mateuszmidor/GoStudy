@@ -54,37 +54,36 @@ GRPC is used for communication with sawmill module, thus GRPC tooling for Go mus
 ```sh
     make run
 
-    2025/12/05 21:48:29 running SawmillGrpcSvc at :9002
-    2025/12/05 21:48:29 NewSawmillGrpc client: :9002
+    2025/12/05 21:48:29 running SawmillGrpcSvc at :9001
+    2025/12/05 21:48:29 NewSawmillGrpc client: :9001
     2025/12/05 21:48:29 NewRopeworksLocal client
+    2025/12/05 21:48:29 NewMastworksLocal client
     2025/12/05 21:48:29 NewSailworksLocal client
-    2025/12/05 21:48:29 received 1 plank
-    2025/12/05 21:48:29 received 1 plank
-    2025/12/05 21:48:29 received 1 plank
-    2025/12/05 21:48:29 received 1 plank
-    2025/12/05 21:48:29 received 1 plank
     2025/12/05 21:48:29 received 1 rope
     2025/12/05 21:48:29 received 1 rope
     2025/12/05 21:48:29 received 1 rope
-    2025/12/05 21:48:29 server received GetPlanks request: 15
     2025/12/05 21:48:29 received 1 sail
+    2025/12/05 21:48:29 server received GetBeams request: 3
+    2025/12/05 21:48:29 received 1 beam
+    2025/12/05 21:48:29 received 1 beam
+    2025/12/05 21:48:29 received 1 beam
+    2025/12/05 21:48:29 received 3 beams for mast
+    2025/12/05 21:48:29 received 1 mast
     2025/12/05 21:48:30 received 1 sail
-    2025/12/05 21:48:30 received 1 plank
-    2025/12/05 21:48:30 received 1 plank
-    2025/12/05 21:48:30 received 1 plank
+    2025/12/05 21:48:30 server received GetBeams request: 3
+    2025/12/05 21:48:30 received 1 beam
+    2025/12/05 21:48:30 received 1 beam
+    2025/12/05 21:48:30 received 1 beam
+    2025/12/05 21:48:30 received 3 beams for mast
+    2025/12/05 21:48:30 received 1 mast
     2025/12/05 21:48:30 received 1 rope
     2025/12/05 21:48:30 received 1 rope
     2025/12/05 21:48:30 received 1 rope
-    2025/12/05 21:48:30 received 1 plank
-    2025/12/05 21:48:30 received 1 plank
-    2025/12/05 21:48:31 received 1 plank
+    2025/12/05 21:48:31 received 1 sail
+    2025/12/05 21:48:31 received 1 sail
     2025/12/05 21:48:31 received 1 rope
     2025/12/05 21:48:31 received 1 rope
-    2025/12/05 21:48:31 received 1 plank
     2025/12/05 21:48:31 received 1 rope
-    2025/12/05 21:48:31 received 1 plank
-    2025/12/05 21:48:31 received 1 plank
-    2025/12/05 21:48:31 received 1 plank
-    2025/12/05 21:48:31 collected 15 planks, 9 ropes, 2 masts, 4 sails
+    2025/12/05 21:48:31 collected 9 ropes, 2 masts, 4 sails
     2025/12/05 21:48:31 ship built successfuly
 ```

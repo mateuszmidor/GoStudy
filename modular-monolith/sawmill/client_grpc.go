@@ -23,14 +23,14 @@ func NewSawmillGRPC(addr string) *APIGrpc {
 	return &APIGrpc{client: client}
 }
 
-func (sg *APIGrpc) GetPlanks(count int) ([]Plank, error) {
-	msg := sawmillgrpc.GetPlanksRequest{Count: int32(count)}
+func (sg *APIGrpc) GetBeams(count int) ([]Beam, error) {
+	msg := sawmillgrpc.GetBeamsRequest{Count: int32(count)}
 	req := connect.NewRequest(&msg)
-	rsp, err := sg.client.GetPlanks(context.Background(), req)
+	rsp, err := sg.client.GetBeams(context.Background(), req)
 	if err != nil {
-		return nil, errors.Wrap(err, "SawmillGrpc GetPlanks failed")
+		return nil, errors.Wrap(err, "SawmillGrpc GetBeams failed")
 	}
-	return make([]Plank, len(rsp.Msg.Planks)), nil
+	return make([]Beam, len(rsp.Msg.Beams)), nil
 }
 
 func (sg *APIGrpc) Run() {

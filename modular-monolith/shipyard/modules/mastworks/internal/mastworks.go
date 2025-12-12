@@ -17,7 +17,7 @@ type Mastworks struct {
 }
 
 const numMastsPerSecond = 1
-const planksPerMast = 3
+const beamsPerMast = 3
 
 func NewMastworks(sawmillAPI sawmill.API) *Mastworks {
 	return &Mastworks{
@@ -40,13 +40,13 @@ func (m *Mastworks) Run() {
 func (m *Mastworks) GetMasts(count int) []Mast {
 	result := make([]Mast, 0, count)
 	for i := 0; i < count; i++ {
-		// Request planks from sawmill for each mast
-		planks, err := m.sawmillAPI.GetPlanks(planksPerMast)
+		// Request beams from sawmill for each mast
+		beams, err := m.sawmillAPI.GetBeams(beamsPerMast)
 		if err != nil {
-			log.Printf("failed to get planks for mast: %v", err)
+			log.Printf("failed to get beams for mast: %v", err)
 			continue
 		}
-		log.Printf("received %d planks for mast", len(planks))
+		log.Printf("received %d beams for mast", len(beams))
 
 		mast := <-m.masts
 		result = append(result, *mast)

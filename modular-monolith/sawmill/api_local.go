@@ -20,7 +20,7 @@ func (sl *APILocal) Run() {
 	sl.s.Run()
 }
 
-func (sl *APILocal) GetPlanks(count int) ([]Plank, error) {
-	return make([]Plank, len(sl.s.GetPlanks(count))), nil
+func (sl *APILocal) GetBeams(count int) ([]Beam, error) {
+	return make([]Beam, len(sl.s.GetBeams(count))), nil
 }
 
