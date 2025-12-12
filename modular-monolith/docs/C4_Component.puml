@@ -5,11 +5,11 @@ LAYOUT_WITH_LEGEND()
 
 title Shipyard - Components
 
-Container_Boundary(Shipyard, "Shipyard") {
+Container_Boundary(shipyard, "Shipyard") {
     Component(ropeworks, "Ropeworks", "Module", "produces ropes")
     Component(mastworks, "Mastworks", "Module", "produces masts")
     Component(sailworks, "Sailworks", "Module", "produces sails")
 }
-Container(Sawmill, "Sawmill", "Container", "produces planks")
-Rel_Neighbor(Shipyard, Sawmill, "Uses", "grpc")
+Container(sawmill, "Sawmill", "Container", "produces planks")
+Rel(mastworks, sawmill, "Uses", "grpc")
 @enduml

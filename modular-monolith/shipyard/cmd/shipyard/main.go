@@ -14,27 +14,22 @@ import (
 func main() {
 	sawmillAPI := sawmill.NewSawmillGRPC(configs.SawmillAddr)
 	sawmillAPI.Run()
+
 	ropeworksAPI := ropeworks.NewLocalAPI()
 	ropeworksAPI.Run()
-	mastworksAPI := mastworks.NewLocalAPI()
+	mastworksAPI := mastworks.NewLocalAPI(sawmillAPI)
 	mastworksAPI.Run()
 	sailworksAPI := sailworks.NewLocalAPI()
 	sailworksAPI.Run()
-	buildShip(sawmillAPI, ropeworksAPI, mastworksAPI, sailworksAPI)
+	buildShip(ropeworksAPI, mastworksAPI, sailworksAPI)
 }
 
-func buildShip(_sawmill sawmill.API, _ropeworks ropeworks.API, _mastworks mastworks.API, _sailworks sailworks.API) {
-	planks := []sawmill.Plank{}
+func buildShip(_ropeworks ropeworks.API, _mastworks mastworks.API, _sailworks sailworks.API) {
 	ropes := []ropeworks.Rope{}
 	masts := []mastworks.Mast{}
 	sails := []sailworks.Sail{}
 
 	g := errgroup.Group{}
-	g.Go(func() error {
-		var err error
-		planks, err = _sawmill.GetPlanks(15)
-		return err
-	})
 	g.Go(func() error {
 		var err error
 		ropes, err = _ropeworks.GetRopes(9)
@@ -52,6 +47,6 @@ func buildShip(_sawmill sawmill.API, _ropeworks ropeworks.API, _mastworks mastwo
 	if err := g.Wait(); err != nil {
 		log.Fatalf("buildShip failed: %+v", err)
 	}
-	log.Println("collected", len(planks), "planks,", len(ropes), "ropes,", len(masts), "masts,", len(sails), "sails")
+	log.Println("collected", len(ropes), "ropes,", len(masts), "masts,", len(sails), "sails")
 	log.Println("### ship built successfuly ###")
 }

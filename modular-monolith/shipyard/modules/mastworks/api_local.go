@@ -3,6 +3,7 @@ package mastworks
 import (
 	"log"
 
+	"github.com/mateuszmidor/GoStudy/modular-monolith/sawmill"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/mastworks/internal"
 )
 
@@ -11,9 +12,9 @@ type APILocal struct {
 	m *internal.Mastworks
 }
 
-func NewLocalAPI() *APILocal {
+func NewLocalAPI(sawmillAPI sawmill.API) *APILocal {
 	log.Println("NewMastworksLocal client")
-	return &APILocal{m: internal.NewMastworks()}
+	return &APILocal{m: internal.NewMastworks(sawmillAPI)}
 }
 
 func (ml *APILocal) GetMasts(count int) []Mast {
