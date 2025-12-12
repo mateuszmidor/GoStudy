@@ -9,17 +9,17 @@ This project models a shipyard as a modular monolith:
 
 ## Modules
 
-- sawmill (local module)
+- sawmill (extracted as a separate grpc service)
 - ropeworks (local module)
 - mastworks (local module)
-- sailworks (initially local module, now extracted as a separate grpc service)
+- sailworks (local module)
 
 ![Architecture Diagram](./docs/C4_Component.png)
 
 
 ## Prerequisites
 
-GRPC is used for communication with sailworks module, thus GRPC tooling for Go must be installed.
+GRPC is used for communication with sawmill module, thus GRPC tooling for Go must be installed.
 
 ### Install protobuf compiler (protoc)
 
@@ -54,10 +54,10 @@ GRPC is used for communication with sailworks module, thus GRPC tooling for Go m
 ```sh
     make run
 
-    2025/12/05 21:48:29 running SailworksGRPC svc at :9001
-    2025/12/05 21:48:29 NewSawmillLocal client
+    2025/12/05 21:48:29 running SawmillGrpcSvc at :9002
+    2025/12/05 21:48:29 NewSawmillGrpc client: :9002
     2025/12/05 21:48:29 NewRopeworksLocal client
-    2025/12/05 21:48:29 NewSailworksGrpc client: :9001
+    2025/12/05 21:48:29 NewSailworksLocal client
     2025/12/05 21:48:29 received 1 plank
     2025/12/05 21:48:29 received 1 plank
     2025/12/05 21:48:29 received 1 plank
@@ -66,7 +66,7 @@ GRPC is used for communication with sailworks module, thus GRPC tooling for Go m
     2025/12/05 21:48:29 received 1 rope
     2025/12/05 21:48:29 received 1 rope
     2025/12/05 21:48:29 received 1 rope
-    2025/12/05 21:48:29 server received GetSails request: 2
+    2025/12/05 21:48:29 server received GetPlanks request: 15
     2025/12/05 21:48:29 received 1 sail
     2025/12/05 21:48:30 received 1 sail
     2025/12/05 21:48:30 received 1 plank
@@ -85,6 +85,6 @@ GRPC is used for communication with sailworks module, thus GRPC tooling for Go m
     2025/12/05 21:48:31 received 1 plank
     2025/12/05 21:48:31 received 1 plank
     2025/12/05 21:48:31 received 1 plank
-    2025/12/05 21:48:31 collected 15 planks, 9 ropes, 2 sails
+    2025/12/05 21:48:31 collected 15 planks, 9 ropes, 2 masts, 4 sails
     2025/12/05 21:48:31 ship built successfuly
 ```

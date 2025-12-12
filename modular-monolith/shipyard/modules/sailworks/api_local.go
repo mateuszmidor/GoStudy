@@ -3,7 +3,7 @@ package sailworks
 import (
 	"log"
 
-	"github.com/mateuszmidor/GoStudy/modular-monolith/sailworks/internal"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks/internal"
 )
 
 // APILocal implements the sailworks module API.
@@ -11,7 +11,7 @@ type APILocal struct {
 	s *internal.Sailworks
 }
 
-func NewSailworksLocal() *APILocal {
+func NewLocalAPI() *APILocal {
 	log.Println("NewSailworksLocal client")
 	return &APILocal{s: internal.NewSailworks()}
 }
@@ -23,3 +23,4 @@ func (sl *APILocal) GetSails(count int) ([]Sail, error) {
 func (sl *APILocal) Run() {
 	sl.s.Run()
 }
+

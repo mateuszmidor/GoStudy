@@ -13,7 +13,7 @@ type Sailworks struct {
 	sails chan *Sail
 }
 
-const numSailsPerSecond = 1
+const numSailsPerSecond = 2
 
 func NewSailworks() *Sailworks {
 	return &Sailworks{
@@ -41,3 +41,4 @@ func (s *Sailworks) GetSails(count int) []Sail {
 	}
 	return result
 }
+

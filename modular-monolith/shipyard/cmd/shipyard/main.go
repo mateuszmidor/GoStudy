@@ -4,10 +4,10 @@ import (
 	"log"
 
 	"github.com/mateuszmidor/GoStudy/modular-monolith/configs"
-	"github.com/mateuszmidor/GoStudy/modular-monolith/sailworks"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/sawmill"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/mastworks"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/ropeworks"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -18,7 +18,7 @@ func main() {
 	ropeworksAPI.Run()
 	mastworksAPI := mastworks.NewLocalAPI()
 	mastworksAPI.Run()
-	sailworksAPI := sailworks.NewSailworksGRPC(configs.SailworksAddr)
+	sailworksAPI := sailworks.NewLocalAPI()
 	sailworksAPI.Run()
 	buildShip(sawmillAPI, ropeworksAPI, mastworksAPI, sailworksAPI)
 }
