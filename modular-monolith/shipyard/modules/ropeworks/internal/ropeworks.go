@@ -37,7 +37,7 @@ func (r *Ropeworks) GetRopes(count int) []Rope {
 	for i := 0; i < count; i++ {
 		rope := <-r.ropes
 		result = append(result, *rope)
-		log.Println("received 1 rope")
+		log.Println("Ropeworks produced 1 rope")
 	}
 	return result
 }

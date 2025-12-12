@@ -36,4 +36,3 @@ func (sg *APIGrpc) GetBeams(count int) ([]Beam, error) {
 func (sg *APIGrpc) Run() {
 	// nothing to do as Sawmill should be running as a separate process
 }
-

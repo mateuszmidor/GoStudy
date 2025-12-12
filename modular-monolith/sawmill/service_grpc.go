@@ -29,10 +29,9 @@ func RunSawmillGrpcSvc(addr string) error {
 
 // GetBeams implements sawmillconnect.GetBeams interface
 func (s *SawmillService) GetBeams(_ context.Context, r *connect.Request[sawmillgrpc.GetBeamsRequest]) (*connect.Response[sawmillgrpc.GetBeamsResponse], error) {
-	log.Printf("server received GetBeams request: %d", r.Msg.GetCount())
+	log.Printf("SawmillService received GetBeams request: %d", r.Msg.GetCount())
 	_beams := s.sawmill.GetBeams(int(r.Msg.Count))
 	beams := make([]*sawmillgrpc.Beam, len(_beams))
 	rsp := sawmillgrpc.GetBeamsResponse{Beams: beams}
 	return connect.NewResponse(&rsp), nil
 }
-

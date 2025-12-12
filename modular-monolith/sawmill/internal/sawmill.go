@@ -38,8 +38,7 @@ func (s *Sawmill) GetBeams(count int) []Beam {
 	for i := 0; i < count; i++ {
 		b := <-s.beams
 		result = append(result, *b)
-		log.Println("received 1 beam")
+		log.Println("Sawmill produced 1 beam")
 	}
 	return result
 }
-

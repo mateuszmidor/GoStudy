@@ -43,14 +43,14 @@ func (m *Mastworks) GetMasts(count int) []Mast {
 		// Request beams from sawmill for each mast
 		beams, err := m.sawmillAPI.GetBeams(beamsPerMast)
 		if err != nil {
-			log.Printf("failed to get beams for mast: %v", err)
+			log.Printf("Mastworks failed to get beams for mast: %v", err)
 			continue
 		}
-		log.Printf("received %d beams for mast", len(beams))
+		log.Printf("Mastworks received %d beams for making a mast", len(beams))
 
 		mast := <-m.masts
 		result = append(result, *mast)
-		log.Println("received 1 mast")
+		log.Println("Mastworks produced 1 mast")
 	}
 	return result
 }

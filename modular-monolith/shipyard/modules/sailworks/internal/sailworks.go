@@ -37,8 +37,7 @@ func (s *Sailworks) GetSails(count int) []Sail {
 	for i := 0; i < count; i++ {
 		sail := <-s.sails
 		result = append(result, *sail)
-		log.Println("received 1 sail")
+		log.Println("Sailworks produced 1 sail")
 	}
 	return result
 }
-
