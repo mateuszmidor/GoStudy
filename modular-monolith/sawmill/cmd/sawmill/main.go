@@ -9,6 +9,5 @@ import (
 
 func main() {
 	log.Println("running SawmillGrpcSvc at", configs.SawmillAddr)
-	log.Fatal(sawmill.RunSawmillGrpcSvc(configs.SawmillAddr))
+	log.Fatal(sawmill.RunGrpcService(configs.SawmillAddr))
 }
-

@@ -18,7 +18,7 @@ type SawmillService struct {
 	sawmill API
 }
 
-func RunSawmillGrpcSvc(addr string) error {
+func RunGrpcService(addr string) error {
 	sawmill := NewAPI()
 	sawmill.Run()
 	mux := http.NewServeMux()
