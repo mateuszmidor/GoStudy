@@ -6,20 +6,20 @@ import (
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/ropeworks/internal"
 )
 
-// APILocal implements the ropeworks module API.
-type APILocal struct {
+// APIImpl implements the ropeworks module API.
+type APIImpl struct {
 	r *internal.Ropeworks
 }
 
-func NewLocalAPI() *APILocal {
+func NewAPI() *APIImpl {
 	log.Println("NewRopeworksLocal client")
-	return &APILocal{r: internal.NewRopeworks()}
+	return &APIImpl{r: internal.NewRopeworks()}
 }
 
-func (rl *APILocal) GetRopes(count int) ([]Rope, error) {
+func (rl *APIImpl) GetRopes(count int) ([]Rope, error) {
 	return make([]Rope, len(rl.r.GetRopes(count))), nil
 }
 
-func (rl *APILocal) Run() {
+func (rl *APIImpl) Run() {
 	rl.r.Run()
 }

@@ -5,7 +5,5 @@ type Sail struct{}
 
 // API of the sailworks module.
 type API interface {
-	Run()
 	GetSails(count int) ([]Sail, error)
 }
-

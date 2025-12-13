@@ -5,7 +5,5 @@ type Beam struct{}
 
 // API of the sawmill module.
 type API interface {
-	Run()
 	GetBeams(count int) ([]Beam, error)
 }
-

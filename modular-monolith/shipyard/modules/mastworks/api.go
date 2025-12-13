@@ -5,5 +5,5 @@ type Mast struct{}
 
 // API of the mastworks module.
 type API interface {
-	GetMasts(count int) []Mast
+	GetMasts(count int) ([]Mast, error)
 }

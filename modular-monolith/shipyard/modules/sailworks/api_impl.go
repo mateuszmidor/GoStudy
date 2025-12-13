@@ -6,21 +6,20 @@ import (
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks/internal"
 )
 
-// APILocal implements the sailworks module API.
-type APILocal struct {
+// APIImpl implements the sailworks module API.
+type APIImpl struct {
 	s *internal.Sailworks
 }
 
-func NewLocalAPI() *APILocal {
+func NewAPI() *APIImpl {
 	log.Println("NewSailworksLocal client")
-	return &APILocal{s: internal.NewSailworks()}
+	return &APIImpl{s: internal.NewSailworks()}
 }
 
-func (sl *APILocal) GetSails(count int) ([]Sail, error) {
+func (sl *APIImpl) GetSails(count int) ([]Sail, error) {
 	return make([]Sail, len(sl.s.GetSails(count))), nil
 }
 
-func (sl *APILocal) Run() {
+func (sl *APIImpl) Run() {
 	sl.s.Run()
 }
-

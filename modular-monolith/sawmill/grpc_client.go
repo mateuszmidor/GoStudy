@@ -12,18 +12,18 @@ import (
 	sawmillconnect "github.com/mateuszmidor/GoStudy/modular-monolith/sawmill/grpc/gen/sawmill/v1/sawmillv1connect"
 )
 
-// APIGrpc implements the sawmill module API as GRPC client.
-type APIGrpc struct {
+// GrpcClient implements the sawmill module API as GRPC client.
+type GrpcClient struct {
 	client sawmillconnect.SawmillServiceClient
 }
 
-func NewSawmillGRPC(addr string) *APIGrpc {
-	log.Println("NewSawmillGrpc client:", addr)
+func NewGrpcClient(addr string) *GrpcClient {
+	log.Println("NewGRPCAPI sawmill client:", addr)
 	client := sawmillconnect.NewSawmillServiceClient(http.DefaultClient, "http://"+addr)
-	return &APIGrpc{client: client}
+	return &GrpcClient{client: client}
 }
 
-func (sg *APIGrpc) GetBeams(count int) ([]Beam, error) {
+func (sg *GrpcClient) GetBeams(count int) ([]Beam, error) {
 	msg := sawmillgrpc.GetBeamsRequest{Count: int32(count)}
 	req := connect.NewRequest(&msg)
 	rsp, err := sg.client.GetBeams(context.Background(), req)
@@ -31,8 +31,4 @@ func (sg *APIGrpc) GetBeams(count int) ([]Beam, error) {
 		return nil, errors.Wrap(err, "SawmillGrpc GetBeams failed")
 	}
 	return make([]Beam, len(rsp.Msg.Beams)), nil
-}
-
-func (sg *APIGrpc) Run() {
-	// nothing to do as Sawmill should be running as a separate process
 }

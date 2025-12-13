@@ -12,15 +12,18 @@ import (
 )
 
 func main() {
-	sawmillAPI := sawmill.NewSawmillGRPC(configs.SawmillAddr)
-	sawmillAPI.Run()
+	// initialize external service client
+	sawmillAPI := sawmill.NewGrpcClient(configs.SawmillAddr)
 
-	ropeworksAPI := ropeworks.NewLocalAPI()
+	// initialize local modules
+	ropeworksAPI := ropeworks.NewAPI()
 	ropeworksAPI.Run()
-	mastworksAPI := mastworks.NewLocalAPI(sawmillAPI)
+	mastworksAPI := mastworks.NewAPI(sawmillAPI)
 	mastworksAPI.Run()
-	sailworksAPI := sailworks.NewLocalAPI()
+	sailworksAPI := sailworks.NewAPI()
 	sailworksAPI.Run()
+
+	// execute the use case
 	buildShip(ropeworksAPI, mastworksAPI, sailworksAPI)
 }
 
@@ -29,6 +32,7 @@ func buildShip(_ropeworks ropeworks.API, _mastworks mastworks.API, _sailworks sa
 	masts := []mastworks.Mast{}
 	sails := []sailworks.Sail{}
 
+	// request resources
 	g := errgroup.Group{}
 	g.Go(func() error {
 		var err error
@@ -36,17 +40,22 @@ func buildShip(_ropeworks ropeworks.API, _mastworks mastworks.API, _sailworks sa
 		return err
 	})
 	g.Go(func() error {
-		masts = _mastworks.GetMasts(2)
-		return nil
+		var err error
+		masts, err = _mastworks.GetMasts(2)
+		return err
 	})
 	g.Go(func() error {
 		var err error
 		sails, err = _sailworks.GetSails(4)
 		return err
 	})
+
+	// wait till are resources are collected
 	if err := g.Wait(); err != nil {
 		log.Fatalf("buildShip failed: %+v", err)
 	}
+
+	// success
 	log.Println("collected", len(ropes), "ropes,", len(masts), "masts,", len(sails), "sails")
 	log.Println("### ship built successfuly ###")
 }
