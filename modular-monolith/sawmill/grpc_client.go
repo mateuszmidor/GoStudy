@@ -8,8 +8,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/bufbuild/connect-go"
-	sawmillgrpc "github.com/mateuszmidor/GoStudy/modular-monolith/sawmill/grpc/gen/sawmill/v1"
-	sawmillconnect "github.com/mateuszmidor/GoStudy/modular-monolith/sawmill/grpc/gen/sawmill/v1/sawmillv1connect"
+	sawmillgrpc "github.com/mateuszmidor/GoStudy/modular-monolith/sawmill/api/grpc/gen/sawmill/v1"
+	sawmillconnect "github.com/mateuszmidor/GoStudy/modular-monolith/sawmill/api/grpc/gen/sawmill/v1/sawmillv1connect"
 )
 
 // GrpcClient implements the sawmill module API as GRPC client.

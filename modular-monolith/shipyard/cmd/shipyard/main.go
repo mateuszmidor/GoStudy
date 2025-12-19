@@ -2,12 +2,14 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/mateuszmidor/GoStudy/modular-monolith/configs"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/sawmill"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/mastworks"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/ropeworks"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -22,6 +24,16 @@ func main() {
 	mastworksAPI.Run()
 	sailworksAPI := sailworks.NewAPI()
 	sailworksAPI.Run()
+
+	messagebus.MessageBus.Subscribe(ropeworksAPI.Handle)
+
+	go func() {
+		for {
+			lunchBreak := &messagebus.LunchBreakStarted{Duration: time.Minute * 30}
+			messagebus.MessageBus.Publish(lunchBreak)
+			time.Sleep(time.Second)
+		}
+	}()
 
 	// execute the use case
 	buildShip(ropeworksAPI, mastworksAPI, sailworksAPI)

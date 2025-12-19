@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/ropeworks/internal"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
 )
 
 // APIImpl implements the ropeworks module API.
@@ -22,4 +23,14 @@ func (rl *APIImpl) GetRopes(count int) ([]Rope, error) {
 
 func (rl *APIImpl) Run() {
 	rl.r.Run()
+}
+
+// Handle messages coming from other modules/main program
+func (a *APIImpl) Handle(msg messagebus.Message) {
+	switch v := msg.(type) {
+	case *messagebus.LunchBreakStarted:
+		log.Println("ropeworks handles LunchBreakStarted event:", v.Duration)
+	default:
+		log.Println("ropeworks handles unknown message")
+	}
 }

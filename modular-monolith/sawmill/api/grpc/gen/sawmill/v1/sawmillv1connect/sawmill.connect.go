@@ -8,7 +8,7 @@ import (
 	context "context"
 	errors "errors"
 	connect_go "github.com/bufbuild/connect-go"
-	v1 "github.com/mateuszmidor/GoStudy/modular-monolith/sawmill/grpc/gen/sawmill/v1"
+	v1 "github.com/mateuszmidor/GoStudy/modular-monolith/sawmill/api/grpc/gen/sawmill/v1"
 	http "net/http"
 	strings "strings"
 )

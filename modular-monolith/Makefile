@@ -1,10 +1,10 @@
 default: proto
 
 proto:
-	cd sawmill/grpc/ && buf lint && buf generate --template=buf.gen.yaml && buf generate --template=buf.gen.tag.yaml
+	cd sawmill/api/grpc/ && buf lint && buf generate --template=buf.gen.yaml && buf generate --template=buf.gen.tag.yaml
 
 clean:
-	rm -rf sawmill/grpc/gen
+	rm -rf sawmill/api/grpc/gen
 
 vet:
 	go vet ./...
