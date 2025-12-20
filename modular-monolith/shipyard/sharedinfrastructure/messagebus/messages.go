@@ -1,10 +1,9 @@
 package messagebus
 
-import "time"
-
 type Message interface {
 }
 
-type LunchBreakStarted struct {
-	Duration time.Duration
+type ProductCreated struct {
+	Name     string
+	Quantity uint
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/mateuszmidor/GoStudy/modular-monolith/sawmill"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
 )
 
 // Mast as Domain Object.
@@ -14,23 +15,29 @@ type Mast struct{}
 type Mastworks struct {
 	masts      chan *Mast
 	sawmillAPI sawmill.API
+	messageBus messagebus.Bus
 }
 
 const numMastsPerSecond = 1
 const beamsPerMast = 3
 
-func NewMastworks(sawmillAPI sawmill.API) *Mastworks {
+func NewMastworks(sawmillAPI sawmill.API, bus messagebus.Bus) *Mastworks {
 	return &Mastworks{
 		masts:      make(chan *Mast, 100),
 		sawmillAPI: sawmillAPI,
+		messageBus: bus,
 	}
 }
 
 func (m *Mastworks) Run() {
 	go func() {
 		for {
-			for i := 0; i < numMastsPerSecond; i++ {
+			for range numMastsPerSecond {
 				m.masts <- &Mast{}
+				m.messageBus.Publish(&messagebus.ProductCreated{
+					Name:     "mast",
+					Quantity: 1,
+				})
 			}
 			time.Sleep(time.Second)
 		}
@@ -50,7 +57,6 @@ func (m *Mastworks) GetMasts(count int) []Mast {
 
 		mast := <-m.masts
 		result = append(result, *mast)
-		log.Println("Mastworks produced 1 mast")
 	}
 	return result
 }

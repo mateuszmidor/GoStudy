@@ -1,8 +1,9 @@
 package internal
 
 import (
-	"log"
 	"time"
+
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
 )
 
 // Sail as Domain Object.
@@ -10,14 +11,16 @@ type Sail struct{}
 
 // Sailworks as Domain Service.
 type Sailworks struct {
-	sails chan *Sail
+	sails      chan *Sail
+	messageBus messagebus.Bus
 }
 
 const numSailsPerSecond = 2
 
-func NewSailworks() *Sailworks {
+func NewSailworks(bus messagebus.Bus) *Sailworks {
 	return &Sailworks{
-		sails: make(chan *Sail, 100),
+		sails:      make(chan *Sail, 100),
+		messageBus: bus,
 	}
 }
 
@@ -26,6 +29,10 @@ func (s *Sailworks) Run() {
 		for {
 			for i := 0; i < numSailsPerSecond; i++ {
 				s.sails <- &Sail{}
+				s.messageBus.Publish(&messagebus.ProductCreated{
+					Name:     "sail",
+					Quantity: 1,
+				})
 			}
 			time.Sleep(time.Second)
 		}
@@ -37,7 +44,6 @@ func (s *Sailworks) GetSails(count int) []Sail {
 	for i := 0; i < count; i++ {
 		sail := <-s.sails
 		result = append(result, *sail)
-		log.Println("Sailworks produced 1 sail")
 	}
 	return result
 }

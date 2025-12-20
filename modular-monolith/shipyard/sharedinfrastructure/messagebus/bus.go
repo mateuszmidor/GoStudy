@@ -2,6 +2,13 @@ package messagebus
 
 type Subscriber func(msg Message)
 
+// Bus interface for dependency injection
+type Bus interface {
+	Publish(msg Message)
+	Subscribe(sub Subscriber)
+}
+
+// messageBus implements Bus
 type messageBus struct {
 	messages    chan Message
 	subscribers []Subscriber

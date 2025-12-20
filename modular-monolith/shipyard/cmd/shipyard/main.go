@@ -2,11 +2,11 @@ package main
 
 import (
 	"log"
-	"time"
 
 	"github.com/mateuszmidor/GoStudy/modular-monolith/configs"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/sawmill"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/mastworks"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/reporter"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/ropeworks"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
@@ -18,22 +18,14 @@ func main() {
 	sawmillAPI := sawmill.NewGrpcClient(configs.SawmillAddr)
 
 	// initialize local modules
-	ropeworksAPI := ropeworks.NewAPI()
+	ropeworksAPI := ropeworks.NewAPI(messagebus.MessageBus)
 	ropeworksAPI.Run()
-	mastworksAPI := mastworks.NewAPI(sawmillAPI)
+	mastworksAPI := mastworks.NewAPI(sawmillAPI, messagebus.MessageBus)
 	mastworksAPI.Run()
-	sailworksAPI := sailworks.NewAPI()
+	sailworksAPI := sailworks.NewAPI(messagebus.MessageBus)
 	sailworksAPI.Run()
-
-	messagebus.MessageBus.Subscribe(ropeworksAPI.Handle)
-
-	go func() {
-		for {
-			lunchBreak := &messagebus.LunchBreakStarted{Duration: time.Minute * 30}
-			messagebus.MessageBus.Publish(lunchBreak)
-			time.Sleep(time.Second)
-		}
-	}()
+	reporterAPI := reporter.NewAPI()
+	messagebus.MessageBus.Subscribe(reporterAPI.Handle)
 
 	// execute the use case
 	buildShip(ropeworksAPI, mastworksAPI, sailworksAPI)

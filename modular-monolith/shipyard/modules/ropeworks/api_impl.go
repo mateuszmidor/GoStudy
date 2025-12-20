@@ -12,9 +12,9 @@ type APIImpl struct {
 	r *internal.Ropeworks
 }
 
-func NewAPI() *APIImpl {
+func NewAPI(bus messagebus.Bus) *APIImpl {
 	log.Println("NewRopeworksLocal client")
-	return &APIImpl{r: internal.NewRopeworks()}
+	return &APIImpl{r: internal.NewRopeworks(bus)}
 }
 
 func (rl *APIImpl) GetRopes(count int) ([]Rope, error) {
@@ -23,14 +23,4 @@ func (rl *APIImpl) GetRopes(count int) ([]Rope, error) {
 
 func (rl *APIImpl) Run() {
 	rl.r.Run()
-}
-
-// Handle messages coming from other modules/main program
-func (a *APIImpl) Handle(msg messagebus.Message) {
-	switch v := msg.(type) {
-	case *messagebus.LunchBreakStarted:
-		log.Println("ropeworks handles LunchBreakStarted event:", v.Duration)
-	default:
-		log.Println("ropeworks handles unknown message")
-	}
 }
