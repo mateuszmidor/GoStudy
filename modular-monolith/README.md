@@ -9,10 +9,11 @@ This project models a shipyard as a modular monolith:
 
 ## Modules
 
-- sawmill (extracted as a separate grpc service)
-- ropeworks (local module)
-- mastworks (local module)
-- sailworks (local module)
+- sawmill (extracted as a separate grpc service) - produces wood
+- ropeworks (local module) - produces ropes, emits ProductCreated events
+- mastworks (local module) - produces masts, emits ProductCreated events
+- sailworks (local module) - produces sails, emits ProductCreated events
+- reporter (local module) - handles ProductCreated events and drafts ProductionReport
 
 ![Architecture Diagram](./docs/C4_Component.png)
 
@@ -53,4 +54,42 @@ GRPC is used for communication with sawmill module, thus GRPC tooling for Go mus
 
 ```sh
   make run
+```
+```log
+2025/12/20 21:12:26 NewGRPCAPI sawmill client: :9001
+2025/12/20 21:12:26 NewRopeworksLocal client
+2025/12/20 21:12:26 NewMastworksLocal client
+2025/12/20 21:12:26 NewSailworksLocal client
+2025/12/20 21:12:26 Ropeworks produced 1 rope
+2025/12/20 21:12:26 Ropeworks produced 1 rope
+2025/12/20 21:12:26 Ropeworks produced 1 rope
+2025/12/20 21:12:26 Sailworks produced 1 sail
+2025/12/20 21:12:26 Sailworks produced 1 sail
+2025/12/20 21:12:26 SawmillService received GetBeams request: 3
+2025/12/20 21:12:26 Sawmill produced 1 beam
+2025/12/20 21:12:26 Sawmill produced 1 beam
+2025/12/20 21:12:26 Sawmill produced 1 beam
+2025/12/20 21:12:26 Mastworks received 3 beams for making a mast
+2025/12/20 21:12:26 Mastworks produced 1 mast
+2025/12/20 21:12:27 Sailworks produced 1 sail
+2025/12/20 21:12:27 Ropeworks produced 1 rope
+2025/12/20 21:12:27 Ropeworks produced 1 rope
+2025/12/20 21:12:27 Sailworks produced 1 sail
+2025/12/20 21:12:27 Ropeworks produced 1 rope
+2025/12/20 21:12:27 SawmillService received GetBeams request: 3
+2025/12/20 21:12:27 Sawmill produced 1 beam
+2025/12/20 21:12:27 Sawmill produced 1 beam
+2025/12/20 21:12:27 Sawmill produced 1 beam
+2025/12/20 21:12:27 Mastworks received 3 beams for making a mast
+2025/12/20 21:12:27 Mastworks produced 1 mast
+2025/12/20 21:12:28 Ropeworks produced 1 rope
+2025/12/20 21:12:28 Ropeworks produced 1 rope
+2025/12/20 21:12:28 Ropeworks produced 1 rope
+2025/12/20 21:12:28 ship built successfully (9 ropes, 2 masts, 4 sails)
+2025/12/20 21:12:28 === Production Report ===
+2025/12/20 21:12:28 total ropes: 9
+2025/12/20 21:12:28 total sails: 4
+2025/12/20 21:12:28 total masts: 2
+2025/12/20 21:12:28 Sailworks produced 1 sail
+2025/12/20 21:12:28 =====================
 ```
