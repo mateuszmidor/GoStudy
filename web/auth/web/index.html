@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Welcome</title>
+</head>
+<body>
+  <!-- add user welcome label -->
+  <div id="content" style="display: flex; justify-content: center; align-items: center; height: 60vh; font-size: 32px; text-align: center;"></div>
+  
+  <!-- add logout button -->
+  <button id="logoutBtn" style="position: fixed; top: 24px; right: 36px; font-size: 1.1rem; padding: 0.5em 2em; border-radius: 8px; background: #ee3467; color: white; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: pointer; z-index: 10;">Logout</button>
+  <script>
+    document.getElementById('logoutBtn').addEventListener('click', async function() {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      location.reload();
+    });
+  </script>
+
+  <!-- either welcome the authenticated user, or navigate to login page -->
+  <script>
+    // Helper: get cookie value by name
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    }
+
+    // Parse JWT token and get payload
+    function parseJwt(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    (function() {
+      const token = getCookie('authtoken');
+      if (!token) {
+        window.location.href = '/login.html';
+        return;
+      }
+      const payload = parseJwt(token);
+      if (!payload || !payload.email) {
+        window.location.href = '/login.html';
+        return;
+      }
+      // Check expiration
+      if (payload.exp && Math.floor(Date.now() / 1000) > payload.exp) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      // Success, show greeting
+      document.getElementById('content').textContent = `Hello, ${payload.email}!`;
+    })();
+  </script>
+</body>
+</html>

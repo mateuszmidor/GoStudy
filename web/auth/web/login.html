@@ -1,0 +1,32 @@
+<div style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+  <form id="loginForm" style="border: 1px solid #ccc; padding: 2em; border-radius: 8px; background: #fafafa; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+    <label for="email">Email:</label><br>
+    <input type="email" id="email" name="email" value="admin@o2.pl" required><br><br>
+
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" name="password" value="admin" required><br><br>
+
+    <button type="submit">Login</button>
+  </form>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async function(event) {
+  event.preventDefault();
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ email, password })
+  });
+
+  if (response.status === 200) {
+    window.location.href = '/';
+  } else {
+    alert('Login failed. Please check your credentials and try again.');
+  }
+});
+</script>
+
