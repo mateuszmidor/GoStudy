@@ -18,14 +18,14 @@ func main() {
 	sawmillAPI := sawmill.NewGrpcClient(configs.SawmillAddr)
 
 	// initialize local modules
-	ropeworksAPI := ropeworks.NewAPI(messagebus.MessageBus)
+	ropeworksAPI := ropeworks.NewAPI(messagebus.Instance)
 	ropeworksAPI.Run()
-	mastworksAPI := mastworks.NewAPI(sawmillAPI, messagebus.MessageBus)
+	mastworksAPI := mastworks.NewAPI(sawmillAPI, messagebus.Instance)
 	mastworksAPI.Run()
-	sailworksAPI := sailworks.NewAPI(messagebus.MessageBus)
+	sailworksAPI := sailworks.NewAPI(messagebus.Instance)
 	sailworksAPI.Run()
 	reporterAPI := reporter.NewAPI()
-	messagebus.MessageBus.Subscribe(reporterAPI.Handle)
+	messagebus.Instance.AddSubscriber(reporterAPI.HandleMessage)
 
 	// execute the use case
 	buildShip(ropeworksAPI, mastworksAPI, sailworksAPI)

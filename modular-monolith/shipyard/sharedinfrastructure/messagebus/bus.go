@@ -1,11 +1,13 @@
 package messagebus
 
+import "log"
+
 type Subscriber func(msg Message)
 
 // Bus interface for dependency injection
 type Bus interface {
 	Publish(msg Message)
-	Subscribe(sub Subscriber)
+	AddSubscriber(sub Subscriber)
 }
 
 // messageBus implements Bus
@@ -22,12 +24,16 @@ func new(capacity int) *messageBus {
 	}
 }
 
-func (bus *messageBus) Subscribe(sub Subscriber) {
+func (bus *messageBus) AddSubscriber(sub Subscriber) {
 	bus.subscribers = append(bus.subscribers, sub)
 }
 
 func (bus *messageBus) Publish(msg Message) {
-	bus.messages <- msg
+	select {
+	case bus.messages <- msg:
+	default:
+		log.Println("WARNING: MessageBus queue full; discarding new message")
+	}
 }
 
 func (bus *messageBus) Run() {
@@ -40,9 +46,9 @@ func (bus *messageBus) Run() {
 	}()
 }
 
-var MessageBus *messageBus
+var Instance *messageBus
 
 func init() {
-	MessageBus = new(100)
-	MessageBus.Run()
+	Instance = new(100)
+	Instance.Run()
 }

@@ -13,11 +13,11 @@ func NewAPI() *APIImpl {
 	return &APIImpl{}
 }
 
-// Handle messages coming from MessageBus
-func (r *APIImpl) Handle(msg messagebus.Message) {
+// HandleMessage messages coming from MessageBus
+func (r *APIImpl) HandleMessage(msg messagebus.Message) {
 	switch v := msg.(type) {
 	case *messagebus.ProductCreated:
-		log.Printf("ProductCreated event: name=%s, quantity=%d", v.Name, v.Quantity)
+		log.Printf("%s created (%d)", v.Name, v.Quantity)
 	default:
 		// Ignore other message types
 	}
