@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"log"
 	"time"
 
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
@@ -28,11 +29,14 @@ func (s *Sailworks) Run() {
 	go func() {
 		for {
 			for i := 0; i < numSailsPerSecond; i++ {
+				// produce
 				s.sails <- &Sail{}
-				s.messageBus.Publish(&messagebus.ProductCreated{
-					Name:     "sail",
-					Quantity: 1,
-				})
+
+				// notify
+				s.messageBus.Publish(&messagebus.ProductCreated{Name: "sail", Quantity: 1})
+
+				// log
+				log.Println("Sailworks produced 1 sail")
 			}
 			time.Sleep(time.Second)
 		}

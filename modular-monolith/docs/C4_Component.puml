@@ -6,10 +6,16 @@ LAYOUT_WITH_LEGEND()
 title Shipyard - Components
 
 Container_Boundary(shipyard, "Shipyard") {
+    Component(reporter, "Reporter", "Module", "tracks the item production")
     Component(ropeworks, "Ropeworks", "Module", "produces ropes")
     Component(mastworks, "Mastworks", "Module", "produces masts")
     Component(sailworks, "Sailworks", "Module", "produces sails")
+    Component(messagebus, "sharedinfrastructure/MessageBus", "Module", "inter-module communication")
 }
 Container(sawmill, "Sawmill", "Container", "produces beams")
 Rel(mastworks, sawmill, "Uses", "grpc")
+Rel(ropeworks, messagebus, "Uses", "publish events")
+Rel(mastworks, messagebus, "Uses", "publish events")
+Rel(sailworks, messagebus, "Uses", "publish events")
+Rel(reporter, messagebus, "Uses", "subscribe events")
 @enduml

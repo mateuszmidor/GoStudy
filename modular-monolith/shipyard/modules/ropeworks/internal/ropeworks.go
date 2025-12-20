@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"log"
 	"time"
 
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
@@ -27,12 +28,15 @@ func NewRopeworks(bus messagebus.Bus) *Ropeworks {
 func (r *Ropeworks) Run() {
 	go func() {
 		for {
-			for i := 0; i < numRopesPerSecond; i++ {
+			for range numRopesPerSecond {
+				// produce
 				r.ropes <- &Rope{}
-				r.messageBus.Publish(&messagebus.ProductCreated{
-					Name:     "rope",
-					Quantity: 1,
-				})
+
+				// notify
+				r.messageBus.Publish(&messagebus.ProductCreated{Name: "rope", Quantity: 1})
+
+				// log
+				log.Println("Ropeworks produced 1 rope")
 			}
 			time.Sleep(time.Second)
 		}

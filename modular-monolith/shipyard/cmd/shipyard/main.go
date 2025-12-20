@@ -29,6 +29,9 @@ func main() {
 
 	// execute the use case
 	buildShip(ropeworksAPI, mastworksAPI, sailworksAPI)
+
+	// print production statistics
+	reporterAPI.PrintReport()
 }
 
 func buildShip(_ropeworks ropeworks.API, _mastworks mastworks.API, _sailworks sailworks.API) {
@@ -60,6 +63,5 @@ func buildShip(_ropeworks ropeworks.API, _mastworks mastworks.API, _sailworks sa
 	}
 
 	// success
-	log.Println("collected", len(ropes), "ropes,", len(masts), "masts,", len(sails), "sails")
-	log.Println("### ship built successfuly ###")
+	log.Printf("ship built successfully (%d ropes, %d masts, %d sails)", len(ropes), len(masts), len(sails))
 }
