@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 )
 
 func login(w http.ResponseWriter, r *http.Request) {
@@ -27,6 +28,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: false,
 		Secure:   false,
 		SameSite: http.SameSiteLaxMode,
+		Expires:  time.Now().Add(5 * time.Minute),
 	})
 
 	// Respond with HTTP 200
