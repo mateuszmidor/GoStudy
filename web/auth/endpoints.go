@@ -42,7 +42,7 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	email := decodeJWT(cookie.Value)
+	claims := validateAndParseJWT(cookie.Value)
 
 	// Remove the auth cookie by setting MaxAge < 0
 	http.SetCookie(w, &http.Cookie{
@@ -57,5 +57,5 @@ func logout(w http.ResponseWriter, r *http.Request) {
 
 	// Respond with HTTP 200
 	w.WriteHeader(http.StatusOK)
-	log.Printf("logout, email=%s", email)
+	log.Printf("logout, email=%s", claims.Email)
 }

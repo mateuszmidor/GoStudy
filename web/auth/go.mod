@@ -2,7 +2,10 @@ module github.com/mateuszmidor/GoStudy/web/auth
 
 go 1.24.1
 
-require github.com/go-jose/go-jose/v3 v3.0.4
+require (
+	github.com/go-jose/go-jose/v3 v3.0.4
+	github.com/google/uuid v1.6.0
+)
 
 require (
 	github.com/google/go-cmp v0.7.0 // indirect
