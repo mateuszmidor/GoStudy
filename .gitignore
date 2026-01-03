@@ -13,3 +13,5 @@
 
 gostudy.code-workspace
 flight-finder/.dockerignore
+src/
+pkg/
