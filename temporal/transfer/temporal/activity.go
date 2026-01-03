@@ -3,17 +3,19 @@ package temporal
 import (
 	"context"
 	"fmt"
+
+	"go.temporal.io/sdk/temporal"
 )
 
-var counter = 1
+var counter = 2
 
 func Withdraw(ctx context.Context, account string, amountPLN int) error {
 	// check invariants
 	if account == "" {
-		return fmt.Errorf("withdrawal-missing-account-error")
+		return temporal.NewApplicationError("missing account", "MissingAccountError")
 	}
 	if amountPLN <= 0 {
-		return fmt.Errorf("withdrawal-wrong-amount-error")
+		return temporal.NewApplicationError("wrong amount", "WrongAmountError")
 	}
 
 	// success
@@ -21,18 +23,18 @@ func Withdraw(ctx context.Context, account string, amountPLN int) error {
 }
 
 func Deposit(ctx context.Context, account string, amountPLN int) error {
-	// simulate a single error
+	// simulate a deposit error
 	if counter > 0 {
 		counter--
-		return fmt.Errorf("withdrawal-error")
+		return fmt.Errorf("deposit-error")
 	}
 
 	// check invariants
 	if account == "" {
-		return fmt.Errorf("deposit-missing-account-error")
+		return temporal.NewApplicationError("missing account", "MissingAccountError")
 	}
 	if amountPLN <= 0 {
-		return fmt.Errorf("deposit-wrong-amount-error")
+		return temporal.NewApplicationError("wrong amount", "WrongAmountError")
 	}
 
 	// success
