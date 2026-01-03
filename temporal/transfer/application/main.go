@@ -24,7 +24,8 @@ func startWorkflow() {
 		TaskQueue: "my-task-queue",
 	}
 
-	we, err := c.ExecuteWorkflow(context.Background(), options, temporal.MoneyTransferWorkflow, "ING", "BNP", 325)
+	details := temporal.TransferDetails{AccountFrom: "ING", AccountTo: "BNP", AmountPLN: 325}
+	we, err := c.ExecuteWorkflow(context.Background(), options, temporal.MoneyTransferWorkflow, details)
 	if err != nil {
 		log.Fatalln("Unable to execute workflow", err)
 	}
