@@ -23,7 +23,7 @@ func main() {
 	}
 	defer c.Close()
 
-	workflowID := "getAddressFromIP-" + uuid.New().String()
+	workflowID := "getAddressFromIP-" + uuid.New().String()[:8]
 
 	options := client.StartWorkflowOptions{
 		ID:        workflowID,
