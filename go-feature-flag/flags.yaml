@@ -1,0 +1,21 @@
+# define the flag
+MyFeatureFlag:
+  # here we define possible named values of the flag (as name: value)
+  variations:
+    enabled: true
+    disabled: false
+
+  # set the flag value based on custom attributes provided in EvaluationContext
+  targeting:
+    - query: email eq "john.doe@acme.com" # if "email" custom attribute is set to "john.doe@acme.com" -> enable the flag
+      variation: enabled
+
+  # what to do if no query in targeting is matched
+  defaultRule:
+    # Option1: just set the flag to a value
+    variation: disabled
+
+    # Option2: assign value based on hashed EvaluationContext key
+    # percentage:
+    #   enabled: 10 # 10% of users get enabled
+    #   disabled: 90 # 90% get disabled
