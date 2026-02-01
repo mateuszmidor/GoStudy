@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -44,11 +43,10 @@ func createTopic() {
 
 func producer() {
 	// Configure kafka producer
-	writer := &kafka.Writer{
-		Addr:     kafka.TCP(broker),
-		Topic:    topic,
-		Balancer: &kafka.LeastBytes{},
-	}
+	writer := kafka.NewWriter(kafka.WriterConfig{
+		Brokers: []string{broker},
+		Topic:   topic,
+	})
 	defer writer.Close()
 
 	// Produce messages
@@ -70,13 +68,9 @@ func producer() {
 func consumer() {
 	// Configure kafka consumer
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:         []string{broker},
-		GroupID:         "my-consumer-group",
-		Topic:           topic,
-		MinBytes:        10e3, // 10KB min batch
-		MaxBytes:        10e6, // 10MB max batch
-		CommitInterval:  time.Second,
-		ReadLagInterval: time.Second,
+		Brokers: []string{broker},
+		Topic:   topic,
+		GroupID: "my-consumer-group", // arbitrary consumer group ID
 	})
 	defer r.Close()
 
