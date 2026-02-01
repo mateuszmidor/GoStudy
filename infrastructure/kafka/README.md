@@ -30,3 +30,19 @@ kcat -C -b localhost:9092 -t MYTOPIC -p 0 -o 0
 docker-compose up # run kafka
 go run . # run producer-consumer
 ```
+
+```log
+09:34:39 Delivered to my-topic[0]@0
+09:34:39 Delivered to my-topic[0]@1
+09:34:39 Delivered to my-topic[0]@2
+09:34:39 Delivered to my-topic[0]@3
+09:34:39 Delivered to my-topic[0]@4
+09:34:39 Producer done
+09:34:42 Received: "Hello Kafka 0" from my-topic[0]@0
+09:34:42 Received: "Hello Kafka 1" from my-topic[0]@1
+09:34:42 Received: "Hello Kafka 2" from my-topic[0]@2
+09:34:43 Received: "Hello Kafka 3" from my-topic[0]@3
+09:34:43 Received: "Hello Kafka 4" from my-topic[0]@4
+09:34:43 Reached EOF at my-topic[0]@5(Broker: No more messages)
+09:34:43 Consumer done
+```
