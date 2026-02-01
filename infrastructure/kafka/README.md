@@ -1,6 +1,8 @@
 # Kafka hello-world
 
 Producer-Consumer in a single process.
+- segmentio/ - good for experiments
+- confluent/ - good for production
 
 ## Test kafka in CLI
 
@@ -24,11 +26,11 @@ Then read from topic MYTOPIC, partition 0, starting at offset 0:
 kcat -C -b localhost:9092 -t MYTOPIC -p 0 -o 0
 ```
 
-## Run
+## Run "confluent/" version
 
 ```sh
 docker-compose up # run kafka
-go run . # run producer-consumer
+go run confluent/main.go # run producer-consumer
 ```
 
 ```log

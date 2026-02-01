@@ -7,11 +7,12 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
-var topic string = "my-topic"        // arbitrary topic name
-var broker string = "localhost:9092" // exposed in decoker-compose.yaml
+var topic string = "my-topic-confluent" // arbitrary topic name
+var broker string = "localhost:9092"    // exposed in decoker-compose.yaml
 
 func main() {
 	log.SetFlags(log.Ltime)
+	// note: topic is created automatically on write
 	producer() // first produce messages
 	consumer() // then consume them
 }
