@@ -157,8 +157,8 @@ func formatValue(input any) string {
 	return result
 }
 
-// example input:  "names:\"AAD Oct 10 test\"  names:\"DTMX internal testers\""
-// example output:  names:["AAD Oct 10 test","DTMX internal testers"]
+// example input:  "names:\"AAD Oct 10 test\"  names:\"company internal testers\""
+// example output:  names:["AAD Oct 10 test","company internal testers"]
 func tryFormatList(input string) string {
 	// check if this is actually this weird-formatted list where key repeats for every item making key:value pairs
 	colonQuoteIndex := strings.Index(input, `:`)
@@ -183,13 +183,13 @@ func tryFormatList(input string) string {
 		}
 	}
 
-	// format the list like: names:["AAD Oct 10 test","DTMX internal testers"]
+	// format the list like: names:["AAD Oct 10 test","company internal testers"]
 	output := key + formatList(sanitizedItems)
 	return output
 }
 
 func formatList[T any](input []T) string {
-	formattedList, err := json.Marshal(input) // e.g. ["AAD Oct 10 test","DTMX internal testers"]
+	formattedList, err := json.Marshal(input) // e.g. ["AAD Oct 10 test","company internal testers"]
 	if err != nil {
 		fmt.Println("<pretty> - error formatting list: " + err.Error())
 	}
@@ -197,7 +197,7 @@ func formatList[T any](input []T) string {
 }
 
 const line = `{}
-{"req":"names:\"AAD Oct 10 test\"  names:\"DTMX internal testers\"  names:\"AzureAD Integration Admins\"  names:\"DTMX test\"  names:\"AdamTestGroup\"", "color":"red"}
+{"req":"names:\"AAD Oct 10 test\"  names:\"company internal testers\"  names:\"AzureAD Integration Admins\"  names:\"company test\"  names:\"AdamTestGroup\"", "color":"red"}
 {"req":["andrzej","anna","arek"]}
 {"req":[1,2,3]}
 `
