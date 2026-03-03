@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"sort"
 	"strconv"
@@ -36,18 +37,26 @@ func extract(key string, in map[string]interface{}) string {
 }
 
 func timestampToRFC3339(unixTS string) string {
-	timestampFloat, err := strconv.ParseFloat(unixTS, 64)
-	if err != nil {
+	input := strings.TrimSpace(unixTS)
+	if input == "" {
 		return "<no-date>"
 	}
 
-	timestamp := int64(timestampFloat)
+	// try parsing as float (seconds since epoch); example: 1712240618.3682706
+	if timestampFloat, err := strconv.ParseFloat(input, 64); err == nil {
+		seconds, fractional := math.Modf(timestampFloat)
+		nanos := int64(fractional * float64(time.Second))
+		t := time.Unix(int64(seconds), nanos)
+		return t.Format(time.DateTime)
+	}
+	// try parsing as RFC3339 format (with and without nanoseconds)
+	for _, layout := range []string{time.RFC3339Nano, time.RFC3339} {
+		if t, err := time.Parse(layout, input); err == nil {
+			return t.Format(time.DateTime)
+		}
+	}
 
-	// Convert the Unix timestamp to time.Time
-	t := time.Unix(timestamp, 0)
-
-	// Format the time.Time value to RFC3339 string
-	return t.Format(time.DateTime)
+	return "<no-date>"
 }
 
 func red(s string) string {
@@ -110,7 +119,7 @@ func prettyPrint(plain string, items map[string]any) {
 
 	out += " "
 
-	datetime := timestampToRFC3339(extract("ts", items))
+	datetime := timestampToRFC3339(extract("time", items))
 	out += fmt.Sprintf("[%s]", datetime)
 
 	out += " "
