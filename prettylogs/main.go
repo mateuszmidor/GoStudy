@@ -3,17 +3,30 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"flag"
 	"fmt"
+	"io"
 	"math"
 	"os"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 )
 
+var (
+	excludePattern = flag.String("e", "", "regex pattern to exclude fields from output")
+	excludeRegex   *regexp.Regexp
+)
+
+// isExcluded returns true if the field name matches the exclude pattern
+func isExcluded(what string) bool {
+	return excludeRegex != nil && excludeRegex.MatchString(what)
+}
+
 // example stern line:
-// user-auth-54f476d854-2k2bp primary-user-auth {"level":"debug","ts":1712240618.3682706,"caller":"internal/user.go:137","msg":"updating user's groups from IDP groups","user_id":101,"groups":[]}
+// user-auth-54f476d854-2k2bp primary-user-auth {"level":"debug","ts":1712240618.3682706,"caller":"internal/user.go:137","msg":"updating user groups from IDP groups","user_id":101,"groups":[]}
 func splitSternLine(input string) (pod, json string) {
 	parts := strings.SplitN(input, "{", 2)
 	if len(parts) == 2 {
@@ -105,7 +118,7 @@ func formatError(err string) string {
 	return err
 }
 
-func prettyPrint(plain string, items map[string]any) {
+func prettyPrint(plain string, items map[string]any, excludeRegex *regexp.Regexp) {
 	extract("stacktrace", items) // added by loging lib, we dont want to see this
 	verbose := extract("errorVerbose", items)
 	out := ""
@@ -114,37 +127,60 @@ func prettyPrint(plain string, items map[string]any) {
 		out = fmt.Sprintf("%s: ", plain)
 	}
 
-	level := extract("level", items)
-	out += formatLevel(level)
+	// Extract and format level field if not filtered
+	if !isExcluded("level") {
+		level := extract("level", items)
+		out += formatLevel(level)
+		out += " "
+	} else {
+		extract("level", items) // still remove from map
+	}
 
-	out += " "
+	// Extract and format time field if not filtered
+	if !isExcluded("time") {
+		datetime := timestampToRFC3339(extract("time", items))
+		out += fmt.Sprintf("[%s]", datetime)
+		out += " "
+	} else {
+		extract("time", items) // still remove from map
+	}
 
-	datetime := timestampToRFC3339(extract("time", items))
-	out += fmt.Sprintf("[%s]", datetime)
+	// Extract and format caller field if not filtered
+	if !isExcluded("caller") {
+		caller := extract("caller", items)
+		out += fmt.Sprintf("%s", caller)
+		out += " "
+	} else {
+		extract("caller", items) // still remove from map
+	}
 
-	out += " "
+	// Extract and format msg field if not filtered
+	if !isExcluded("msg") {
+		msg := extract("msg", items)
+		out += yellow(msg)
+	} else {
+		extract("msg", items) // still remove from map
+	}
 
-	caller := extract("caller", items)
-	out += fmt.Sprintf("%s", caller)
-
-	out += " "
-
-	msg := extract("msg", items)
-	out += yellow(msg)
-
-	if len(items) > 0 {
-		out += " | "
-
+	if len(items) > 0 || len(verbose) > 0 {
 		pairs := []string{}
 		for _, key := range sortedKeys(items) {
+			// Skip fields matching the exclude pattern
+			if isExcluded(key) {
+				continue
+			}
 			value := items[key]
 			valueStr := formatValue(value)
 			pairs = append(pairs, fmt.Sprintf("%s:%s", blue(key), cyan(valueStr)))
 		}
-		if len(verbose) > 0 {
+		// Add errorVerbose if not filtered
+		if len(verbose) > 0 && !isExcluded("errorVerbose") {
 			pairs = append(pairs, cyan("errorVerbose:"+formatError(verbose)))
 		}
-		out += (strings.Join(pairs, ", "))
+		if len(pairs) > 0 {
+			out += " | "
+			out += strings.Join(pairs, ", ")
+		}
 	}
 
 	fmt.Println(out)
@@ -212,6 +248,18 @@ const line = `{}
 `
 
 func main() {
+	flag.Parse()
+
+	// Compile regex pattern if provided
+	if *excludePattern != "" {
+		var err error
+		excludeRegex, err = regexp.Compile(*excludePattern)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: invalid regex pattern: %v\n", err)
+			os.Exit(1)
+		}
+	}
+
 	in := os.Stdin
 	// in := strings.NewReader(line)
 	reader := bufio.NewReader(in)
@@ -220,6 +268,10 @@ func main() {
 		// Read a line from stdin
 		line, err := reader.ReadString('\n')
 		if err != nil {
+			if err == io.EOF {
+				fmt.Println("Done.")
+				break // End of input, exit the loop
+			}
 			// If an error occurs, break the loop
 			fmt.Println("Pretty error; terminating: ", err)
 			break
@@ -233,7 +285,7 @@ func main() {
 				fmt.Println("###", line)
 				continue
 			}
-			prettyPrint(plain, jsonMap)
+			prettyPrint(plain, jsonMap, excludeRegex)
 		} else {
 			fmt.Println(plain)
 		}
