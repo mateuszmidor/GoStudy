@@ -14,7 +14,10 @@ func main() {
 	tool := os.Args[1]
 	args := os.Args[2:]
 
-	fmt.Fprintf(os.Stderr, "TOOLEXEC: %s %s\n", tool, args)
+	fmt.Fprintln(os.Stderr, "TOOLEXEC:", tool)
+	for _, arg := range args {
+		fmt.Fprintln(os.Stderr, " ", arg)
+	}
 
 	cmd := exec.Command(tool, args...)
 	cmd.Stdout = os.Stdout
