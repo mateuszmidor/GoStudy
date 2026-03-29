@@ -10,7 +10,7 @@
     ./errgroup/
     ├── go.mod
     ├── go.sum
-    └── main.go
+    └── main.go # program's main entry point
     ```
 
 * collections of related demo programs should reside under dedicated parent folders. Example of such collections are:
