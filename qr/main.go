@@ -29,7 +29,7 @@ const templateStr = `
 	</head>
 	<body>
 		{{if .}}
-			<img src="http://chart.apis.google.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl={{.}}" />
+			<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={{.}}" />
 			<br>
 			{{.}}
 			<br>
