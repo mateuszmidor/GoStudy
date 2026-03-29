@@ -7,7 +7,7 @@ import (
 
 var counter = 1
 
-func Greet(ctx context.Context, name string) (string, error) {
+func GreetActivity(ctx context.Context, name string) (string, error) {
 	// simulate a single error
 	if counter > 0 {
 		counter--

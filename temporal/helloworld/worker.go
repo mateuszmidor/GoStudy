@@ -17,7 +17,7 @@ func startWorker() {
 	w := worker.New(c, "my-task-queue", worker.Options{})
 
 	w.RegisterWorkflow(SayHelloWorkflow)
-	w.RegisterActivity(Greet)
+	w.RegisterActivity(GreetActivity)
 
 	err = w.Run(worker.InterruptCh())
 	if err != nil {
