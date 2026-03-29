@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 )
 
@@ -24,63 +26,72 @@ func printAssetPrice(price float64, currency string) {
 }
 
 func getBitcoinPriceInCurrency(currency string) float64 {
-	// Define the URL for the CoinGecko API
-	url := "https://api.coindesk.com/v1/bpi/currentprice.json"
+	priceByCurrency, ok := getBitcoinPrices()
+	if !ok {
+		return 0
+	}
 
-	// Make the HTTP GET request
-	resp, err := http.Get(url)
+	if currency == "PLN" {
+		if pln, ok := priceByCurrency["pln"]; ok {
+			return pln
+		}
+		usdToPlnRate := getUSDRateInPLN()
+		return priceByCurrency["usd"] * usdToPlnRate
+	}
+
+	price, ok := priceByCurrency[strings.ToLower(currency)]
+	if !ok {
+		fmt.Println("Unsupported currency:", currency)
+		return 0
+	}
+	return price
+}
+
+func getBitcoinPrices() (map[string]float64, bool) {
+	u, err := url.Parse("https://api.coingecko.com/api/v3/simple/price")
+	if err != nil {
+		fmt.Println("Error parsing URL:", err)
+		return nil, false
+	}
+	q := u.Query()
+	q.Set("ids", "bitcoin")
+	q.Set("vs_currencies", "usd,eur,gbp,pln")
+	u.RawQuery = q.Encode()
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Get(u.String())
 	if err != nil {
 		fmt.Println("Error making HTTP GET request:", err)
-		return 0 // Return 0 or another default value in case of an error
+		return nil, false
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		b, _ := io.ReadAll(resp.Body)
+		fmt.Printf("Unexpected HTTP status: %s\n%s\n", resp.Status, string(b))
+		return nil, false
+	}
 
 	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
-		return 0 // Return 0 or another default value in case of an error
+		return nil, false
 	}
 
-	type Response struct {
-		BPI struct {
-			USD struct {
-				RateFloat float64 `json:"rate_float"`
-			} `json:"USD"`
-			GBP struct {
-				RateFloat float64 `json:"rate_float"`
-			} `json:"GBP"`
-			EUR struct {
-				RateFloat float64 `json:"rate_float"`
-			} `json:"EUR"`
-		} `json:"bpi"`
-	}
-
-	// Unmarshal the JSON response into the struct
-	var data Response
-	err = json.Unmarshal(body, &data)
-	if err != nil {
+	// Example:
+	// {"bitcoin":{"usd":123,"eur":456,"gbp":789,"pln":999}}
+	var data map[string]map[string]float64
+	if err := json.Unmarshal(body, &data); err != nil {
 		fmt.Println("Error unmarshalling JSON:", err)
-		return 0 // Return 0 or another default value in case of an error
+		return nil, false
 	}
-
-	var price float64
-	switch currency {
-	case "USD":
-		price = data.BPI.USD.RateFloat
-	case "GBP":
-		price = data.BPI.GBP.RateFloat
-	case "EUR":
-		price = data.BPI.EUR.RateFloat
-	case "PLN":
-		usdToPlnRate := getUSDRateInPLN()
-		price = data.BPI.USD.RateFloat * usdToPlnRate
-	default:
-		fmt.Println("Unsupported currency:", currency)
-		return 0 // Return 0 or another default value in case of an error
+	m, ok := data["bitcoin"]
+	if !ok || len(m) == 0 {
+		fmt.Println("Unexpected response:", string(body))
+		return nil, false
 	}
-
-	return price
+	return m, true
 }
 
 // here is URL and response from API that returns USD rate in PLN for given date:
