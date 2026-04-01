@@ -4,7 +4,7 @@ This directory contains demos for generating Go code from OpenAPI 3.0.0 specific
 
 ## Demos
 
-| Demo | Tool | Description |
+| Demo | OpenAPI->Go generator | Description |
 |------|------|-------------|
 | [oapicodegen/](oapicodegen/) | [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) | Go binary, single file output, net/http |
 | [openapigenerator/](openapigenerator/) | [openapi-generator](https://openapi-generator.tech/) | Docker-based, multi-file output, gorilla/mux |
@@ -18,20 +18,26 @@ Both demos implement the same Fridge API:
 - `GET /products/{name}` - Get single product
 - `PUT /products/{name}` - Withdraw from product (`{"quantity": 0.5}`)
 
+![Fridge API](fridge_api.png)
+
 ## Quick Start
 
 ### oapi-codegen
 
 ```bash
 cd oapicodegen
-./gen_server.sh
-go run ./cmd/server/main.go
+go run ./cmd/server/main.go &
+# Test with curl:
+curl -X POST http://localhost:8080/products -H "Content-Type: application/json" -d '{"name": "Milk", "quantity": 2}'
+curl http://localhost:8080/products
 ```
 
 ### openapi-generator
 
 ```bash
 cd openapigenerator
-./gen_server.sh
-go run ./cmd/server/main.go
+go run ./cmd/server/main.go &
+# Test with curl:
+curl -X POST http://localhost:8080/products -H "Content-Type: application/json" -d '{"name": "Milk", "quantity": 2}'
+curl http://localhost:8080/products
 ```

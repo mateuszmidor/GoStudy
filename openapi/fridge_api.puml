@@ -1,0 +1,23 @@
+@startuml fridge_api
+
+title Fridge operations
+
+left to right direction
+' top to bottom direction
+'
+skinparam actorStyle awesome
+
+actor "User" as user
+
+package fridge_api {
+    usecase "List all products" as list #LightBlue
+    usecase "Get single product (by name)" as get #LightBlue
+    usecase "Insert product (name, quantity)" as insert #lightgreen
+    usecase "Withdraw product (name, quantity)" as withdraw #Orange
+
+    user --> get: GET
+    user --> list: GET
+    user --> insert: POST
+    user --> withdraw: PUT
+}
+@enduml
