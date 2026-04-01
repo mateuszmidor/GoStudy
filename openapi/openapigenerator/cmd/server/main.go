@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"sort"
 
-	server "github.com/mateuszmidor/GoStudy/openapi-openapigenerator/generated_server/go"
+	server "github.com/mateuszmidor/GoStudy/openapi/openapigenerator/generated_server"
 )
 
 type FridgeServer struct {

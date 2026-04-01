@@ -1,4 +1,4 @@
-module github.com/mateuszmidor/GoStudy/openapi-oapicodegen
+module github.com/mateuszmidor/GoStudy/openapi/oapicodegen
 
 go 1.24
 

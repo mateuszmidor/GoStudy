@@ -66,5 +66,3 @@ curl -X PUT http://localhost:8080/products/Milk \
 - `generated_client/` - Go client library with types and HTTP client
 - `generated_server/go/` - Go server with types, router, and service interface
 - `cmd/server/main.go` - Example server implementation using generated server code
-
-## Key Differences from oapi-codegen

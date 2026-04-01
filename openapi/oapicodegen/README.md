@@ -58,9 +58,3 @@ curl -X PUT http://localhost:8080/products/Milk \
 - `generated_server/server.go` - net/http server with server interface and types
 - `cmd/server/main.go` - Example server implementation using net/http ServeMux
 
-## Key Differences from openapi-generator
-
-- Single Go binary (no Docker required)
-- Uses Go standard library net/http (no external router dependency)
-- Types, client, and server in single files
-- More lightweight output
