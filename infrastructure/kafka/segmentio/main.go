@@ -46,8 +46,8 @@ func producer() {
 	writer := kafka.NewWriter(kafka.WriterConfig{
 		Brokers:      []string{broker},
 		Topic:        topic,
-		RequiredAcks: -1,    // wait for all replicas to ack successful write
-		Async:        false, // false=synchronous producer that blocks on write, true=fire-and-forget producer, there is no true async producer with callback/channel for errors
+		RequiredAcks: -1,   // wait for all replicas to ack successful write before WriteMessages returns
+		Async:        true, // false=synchronous producer that blocks on write, true=fire-and-forget producer, there is no true async producer with callback/channel for errors
 	})
 	defer writer.Close() // send all buffered messages
 
@@ -70,21 +70,24 @@ func producer() {
 func consumer() {
 	// Configure kafka consumer
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:        []string{broker},
-		Topic:          topic,
-		GroupID:        "my-consumer-group", // arbitrary consumer group ID
-		CommitInterval: 0,                   // commit after every read instead of periodically
+		Brokers: []string{broker},
+		Topic:   topic,
+		GroupID: "my-consumer-group", // arbitrary consumer group ID
+
 	})
 	defer r.Close()
 
 	// Consume messages
 	for range 5 {
-		m, err := r.ReadMessage(context.Background()) // read and auto-commit. For manual commit, use FetchMessage+CommitMessage
+		m, err := r.FetchMessage(context.Background()) // read without commit. Use ReadMessage for auto-commit
 		if err != nil {
 			fmt.Printf("Read failed: %v\n", err)
 			continue
 		}
+		// process message
 		fmt.Printf("Received: %q from partition=%d offset=%d\n", string(m.Value), m.Partition, m.Offset)
+		// commit message
+		r.CommitMessages(context.Background(), m)
 	}
 	fmt.Println("Consumer done")
 }

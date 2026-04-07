@@ -34,7 +34,8 @@ func createTopic() {
 		[]kafka.TopicSpecification{{
 			Topic:             topic,
 			NumPartitions:     1,
-			ReplicationFactor: 1}},
+			ReplicationFactor: 1,
+		}},
 	)
 	if err != nil {
 		log.Fatalf("Failed to create topic: %s\n", err)
@@ -51,7 +52,7 @@ func producer() {
 	producer, err := kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers": broker,        // exposed in decoker-compose.yaml
 		"client.id":         "go-producer", // arbitrary client id
-		"acks":              "all",         // wait for all replicas to ack successful write
+		"acks":              "all",         // wait for all replicas to ack successful write before "Produce" returns
 	})
 	if err != nil {
 		log.Fatalf("Failed to create producer: %s\n", err)
@@ -68,12 +69,16 @@ func producer() {
 		if err != nil {
 			log.Printf("Produce failed: %s\n", err)
 		} else {
-			event := <-producer.Events()       // Wait for delivery report
-			messsage := event.(*kafka.Message) // Assume this is a message :)
-			if messsage.TopicPartition.Error != nil {
-				log.Printf("Delivery failed: %s\n", messsage.TopicPartition.Error)
-			} else {
-				log.Printf("Delivered to %v\n", messsage.TopicPartition)
+			event := <-producer.Events() // Wait for delivery report in the same goroutine - this makes the producer a synchronous producer
+			switch e := event.(type) {
+			case *kafka.Message:
+				if e.TopicPartition.Error != nil {
+					log.Printf("Delivery failed: %s\n", e.TopicPartition.Error)
+				} else {
+					log.Printf("Delivered to %v\n", e.TopicPartition)
+				}
+			default: // *kafka.Error, *kafka.Stats, *kafka.LogEvent
+				log.Printf("Producer received: [%T] %+v", e, e)
 			}
 		}
 	}
@@ -90,7 +95,7 @@ func consumer() {
 		"group.id":             "my-consumer-group", // arbitrary consumer group id
 		"auto.offset.reset":    "earliest",          // Read from start
 		"enable.partition.eof": true,                // enable reporing end-of-partition when all messages are consumed (see: kafka.PartitionEOF)
-		"enable.auto.commit":   false,
+		"enable.auto.commit":   false,               // commit message reception manually
 	})
 	if err != nil {
 		log.Fatalf("Failed to create consumer: %s\n", err)
@@ -113,14 +118,15 @@ func consumer() {
 		// check if we got message, or event
 		switch event := ev.(type) {
 		case *kafka.Message:
+			// handle message
 			log.Printf("Received: %q from %s\n", string(event.Value), event.TopicPartition)
-			// Commit manually
+			// commit manually
 			if _, err := consumer.CommitMessage(event); err != nil {
 				log.Printf("Commit failed: %s\n", err)
 			}
 		case kafka.PartitionEOF:
 			log.Printf("Reached %v\n", event)
-			run = false
+			run = false // if we had more partitions, we had to handle that events can still be on other paritiotns
 		case *kafka.Error:
 			log.Printf("Error: %s\n", event)
 			if event.Code() == kafka.ErrAllBrokersDown {
