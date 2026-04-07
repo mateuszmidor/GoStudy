@@ -49,7 +49,7 @@ func producer() {
 		Brokers:      []string{broker},
 		Topic:        topic,
 		RequiredAcks: -1,          // wait for all replicas to ack successful write before WriteMessages returns
-		Async:        false,       // false=synchronous producer that blocks on write, true=fire-and-forget producer, there is no true async producer with callback/channel for errors
+		Async:        false,       // false=synchronous producer that blocks on write, true=fire-and-forget producer, with writer.Completion callback = async producer
 		BatchSize:    5,           // buffer up to 5 messages before actually sending them (good for async producer, not this one)
 		BatchTimeout: time.Second, // or wait max 1s, effect here: 1 message sent every second
 	})
@@ -58,8 +58,9 @@ func producer() {
 		if err != nil {
 			log.Printf("Write failed: %s\n", err)
 		} else {
-			msg := messages[0] // we write only single messages
-			log.Printf("Produced: %q to %s[%d]@%d\n", string(msg.Value), msg.Topic, msg.Partition, msg.Offset)
+			for _, msg := range messages {
+				log.Printf("Produced: %q to %s partition=%d offset=%d\n", string(msg.Value), msg.Topic, msg.Partition, msg.Offset)
+			}
 		}
 	}
 	defer writer.Close() // send all buffered messages
@@ -96,7 +97,7 @@ func consumer() {
 			continue
 		}
 		// process message
-		log.Printf("Received: %q from %s[%d]@%d\n", string(m.Value), m.Topic, m.Partition, m.Offset)
+		log.Printf("Received: %q from %s partition=%d offset=%d\n", string(m.Value), m.Topic, m.Partition, m.Offset)
 		// commit message
 		if err := r.CommitMessages(context.Background(), m); err != nil {
 			log.Printf("Commit failed: %s\n", err)

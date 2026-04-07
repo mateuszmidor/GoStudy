@@ -77,7 +77,11 @@ func producer() {
 				if e.TopicPartition.Error != nil {
 					log.Printf("Producer failed: %s\n", e.TopicPartition.Error)
 				} else {
-					log.Printf("Produced %q to %v\n", string(e.Value), e.TopicPartition)
+					topicName := "<nil>"
+					if e.TopicPartition.Topic != nil {
+						topicName = *e.TopicPartition.Topic
+					}
+					log.Printf("Produced: %q to %s partition=%d offset=%d\n", string(e.Value), topicName, e.TopicPartition.Partition, e.TopicPartition.Offset)
 				}
 			default: // *kafka.Error, *kafka.Stats, *kafka.LogEvent
 				log.Printf("Producer received: [%T] %+v", e, e)
@@ -122,7 +126,11 @@ func consumer() {
 		switch event := ev.(type) {
 		case *kafka.Message:
 			// process message
-			log.Printf("Received: %q from %s\n", string(event.Value), event.TopicPartition)
+			topicName := "<nil>"
+			if event.TopicPartition.Topic != nil {
+				topicName = *event.TopicPartition.Topic
+			}
+			log.Printf("Received: %q from %s partition=%d offset=%d\n", string(event.Value), topicName, event.TopicPartition.Partition, event.TopicPartition.Offset)
 			// commit message
 			if _, err := consumer.CommitMessage(event); err != nil {
 				log.Printf("Commit failed: %s\n", err)
