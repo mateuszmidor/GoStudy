@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -12,9 +13,37 @@ var broker string = "localhost:9092"    // exposed in decoker-compose.yaml
 
 func main() {
 	log.SetFlags(log.Ltime)
-	// note: topic is created automatically on write
-	producer() // first produce messages
-	consumer() // then consume them
+	createTopic() // note: topic can be also created automatically on write if not create beforehand
+	producer()    // first produce messages
+	consumer()    // then consume them
+}
+
+func createTopic() {
+	// Configure admin
+	admin, err := kafka.NewAdminClient(&kafka.ConfigMap{"bootstrap.servers": broker})
+	if err != nil {
+		log.Fatalf("Failed to create admin client: %s\n", err)
+	}
+	defer admin.Close()
+
+	// Create topic
+	results, err := admin.CreateTopics(
+		context.Background(),
+		// Multiple topics can be created simultaneously
+		// by providing more TopicSpecification structs here.
+		[]kafka.TopicSpecification{{
+			Topic:             topic,
+			NumPartitions:     1,
+			ReplicationFactor: 1}},
+	)
+	if err != nil {
+		log.Fatalf("Failed to create topic: %s\n", err)
+	}
+
+	// Print results
+	for _, result := range results {
+		log.Printf("%s\n", result)
+	}
 }
 
 func producer() {
@@ -22,6 +51,7 @@ func producer() {
 	producer, err := kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers": broker,        // exposed in decoker-compose.yaml
 		"client.id":         "go-producer", // arbitrary client id
+		"acks":              "all",         // wait for all replicas to ack successful write
 	})
 	if err != nil {
 		log.Fatalf("Failed to create producer: %s\n", err)

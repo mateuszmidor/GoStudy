@@ -44,10 +44,12 @@ func createTopic() {
 func producer() {
 	// Configure kafka producer
 	writer := kafka.NewWriter(kafka.WriterConfig{
-		Brokers: []string{broker},
-		Topic:   topic,
+		Brokers:      []string{broker},
+		Topic:        topic,
+		RequiredAcks: -1,    // wait for all replicas to ack successful write
+		Async:        false, // false=synchronous producer that blocks on write, true=fire-and-forget producer, there is no true async producer with callback/channel for errors
 	})
-	defer writer.Close()
+	defer writer.Close() // send all buffered messages
 
 	// Produce messages
 	for i := range 5 {
@@ -68,15 +70,16 @@ func producer() {
 func consumer() {
 	// Configure kafka consumer
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{broker},
-		Topic:   topic,
-		GroupID: "my-consumer-group", // arbitrary consumer group ID
+		Brokers:        []string{broker},
+		Topic:          topic,
+		GroupID:        "my-consumer-group", // arbitrary consumer group ID
+		CommitInterval: 0,                   // commit after every read instead of periodically
 	})
 	defer r.Close()
 
 	// Consume messages
 	for range 5 {
-		m, err := r.ReadMessage(context.Background())
+		m, err := r.ReadMessage(context.Background()) // read and auto-commit. For manual commit, use FetchMessage+CommitMessage
 		if err != nil {
 			fmt.Printf("Read failed: %v\n", err)
 			continue
