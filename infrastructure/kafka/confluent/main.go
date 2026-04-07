@@ -50,9 +50,11 @@ func createTopic() {
 func producer() {
 	// Configure producer
 	producer, err := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": broker,        // exposed in decoker-compose.yaml
-		"client.id":         "go-producer", // arbitrary client id
-		"acks":              "all",         // wait for all replicas to ack successful write before "Produce" returns
+		"bootstrap.servers":            broker,        // exposed in decoker-compose.yaml
+		"client.id":                    "go-producer", // arbitrary client id
+		"acks":                         "all",         // wait for all replicas to ack successful write before "Produce" returns
+		"queue.buffering.max.messages": 5,             // buffer up to 5 messages before actually sending them (good for async producer, not this one)
+		"queue.buffering.max.ms":       1000,          // or wait max 1000ms, effect here: 1 message sent every second
 	})
 	if err != nil {
 		log.Fatalf("Failed to create producer: %s\n", err)
@@ -128,6 +130,8 @@ func consumer() {
 		case kafka.PartitionEOF:
 			log.Printf("Reached %v\n", event)
 			run = false
+		// case kafka.AssignedPartitions:
+		// case kafka.RevokedPartitions:
 		case *kafka.Error:
 			log.Printf("Error: %s\n", event)
 		default:

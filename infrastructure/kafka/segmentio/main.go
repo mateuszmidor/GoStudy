@@ -47,10 +47,20 @@ func producer() {
 	writer := kafka.NewWriter(kafka.WriterConfig{
 		Brokers:      []string{broker},
 		Topic:        topic,
-		RequiredAcks: -1,                     // wait for all replicas to ack successful write before WriteMessages returns
-		Async:        false,                  // false=synchronous producer that blocks on write, true=fire-and-forget producer, there is no true async producer with callback/channel for errors
-		BatchTimeout: time.Millisecond * 100, // buffer events for max 100ms before sending them out (visible when Async=false)
+		RequiredAcks: -1,          // wait for all replicas to ack successful write before WriteMessages returns
+		Async:        false,       // false=synchronous producer that blocks on write, true=fire-and-forget producer, there is no true async producer with callback/channel for errors
+		BatchSize:    5,           // buffer up to 5 messages before actually sending them (good for async producer, not this one)
+		BatchTimeout: time.Second, // or wait max 1s, effect here: 1 message sent every second
 	})
+	// configure message write completion
+	writer.Completion = func(messages []kafka.Message, err error) {
+		if err != nil {
+			fmt.Printf("Write failed: %v\n", err)
+		} else {
+			msg := messages[0] // we write only single messages
+			fmt.Printf("Produced: %q to parition=%d offset=%d\n", string(msg.Value), msg.Partition, msg.Offset)
+		}
+	}
 	defer writer.Close() // send all buffered messages
 
 	// Produce messages
@@ -58,17 +68,13 @@ func producer() {
 		msg := kafka.Message{
 			Value: fmt.Appendf(nil, "Hello Kafka %d", i),
 		}
-		err := writer.WriteMessages(context.Background(), msg)
-		if err != nil {
-			fmt.Printf("Write failed: %v\n", err)
-		} else {
-			fmt.Printf("Produced: %s\n", string(msg.Value))
-		}
+		writer.WriteMessages(context.Background(), msg)
 	}
 
 	fmt.Println("Producer done")
 }
 
+// note: segmentio lib doesn't allow to explicitly react to partitions assignment to the consumer
 func consumer() {
 	// Configure kafka consumer
 	r := kafka.NewReader(kafka.ReaderConfig{
