@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -28,7 +29,7 @@ func createTopic() {
 	topicConfigs := []kafka.TopicConfig{
 		{
 			Topic:             topic,
-			NumPartitions:     1, // Partitions (0 = auto)
+			NumPartitions:     1, // Partitions (0 = auto decided)
 			ReplicationFactor: 1, // Replicas (1 for single broker)
 		},
 	}
@@ -46,8 +47,9 @@ func producer() {
 	writer := kafka.NewWriter(kafka.WriterConfig{
 		Brokers:      []string{broker},
 		Topic:        topic,
-		RequiredAcks: -1,   // wait for all replicas to ack successful write before WriteMessages returns
-		Async:        true, // false=synchronous producer that blocks on write, true=fire-and-forget producer, there is no true async producer with callback/channel for errors
+		RequiredAcks: -1,                     // wait for all replicas to ack successful write before WriteMessages returns
+		Async:        false,                  // false=synchronous producer that blocks on write, true=fire-and-forget producer, there is no true async producer with callback/channel for errors
+		BatchTimeout: time.Millisecond * 100, // buffer events for max 100ms before sending them out (visible when Async=false)
 	})
 	defer writer.Close() // send all buffered messages
 
@@ -87,7 +89,9 @@ func consumer() {
 		// process message
 		fmt.Printf("Received: %q from partition=%d offset=%d\n", string(m.Value), m.Partition, m.Offset)
 		// commit message
-		r.CommitMessages(context.Background(), m)
+		if err := r.CommitMessages(context.Background(), m); err != nil {
+			log.Printf("Commit failed: %s\n", err)
+		}
 	}
 	fmt.Println("Consumer done")
 }

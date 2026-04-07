@@ -110,28 +110,28 @@ func consumer() {
 	run := true
 	for run {
 		// read single message or event
-		ev := consumer.Poll(100)
+		ev := consumer.Poll(1000)
 		if ev == nil {
+			log.Println("poll returned empty; continue")
 			continue
 		}
 
 		// check if we got message, or event
 		switch event := ev.(type) {
 		case *kafka.Message:
-			// handle message
+			// process message
 			log.Printf("Received: %q from %s\n", string(event.Value), event.TopicPartition)
-			// commit manually
+			// commit message
 			if _, err := consumer.CommitMessage(event); err != nil {
 				log.Printf("Commit failed: %s\n", err)
 			}
 		case kafka.PartitionEOF:
 			log.Printf("Reached %v\n", event)
-			run = false // if we had more partitions, we had to handle that events can still be on other paritiotns
+			run = false
 		case *kafka.Error:
 			log.Printf("Error: %s\n", event)
-			if event.Code() == kafka.ErrAllBrokersDown {
-				run = false
-			}
+		default:
+			log.Printf("Received [%T] %+v", event, event)
 		}
 	}
 	log.Println("Consumer done")
