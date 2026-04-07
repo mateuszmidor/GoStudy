@@ -4,12 +4,13 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"goprogrammingblueprints/r10-protobuf/vault"
 	"log"
 	"os"
 	"time"
 
-	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/r10-protobuf/vault"
-	grpcclient "github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/r10-protobuf/vault/client/grpc"
+	grpcclient "goprogrammingblueprints/r10-protobuf/vault/client/grpc"
+
 	"google.golang.org/grpc"
 )
 

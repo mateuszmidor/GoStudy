@@ -4,6 +4,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"goprogrammingblueprints/r10-protobuf/vault"
+	"goprogrammingblueprints/r10-protobuf/vault/pb"
 	"log"
 	"net"
 	"net/http"
@@ -13,8 +15,6 @@ import (
 	"time"
 
 	ratelimitkit "github.com/go-kit/kit/ratelimit"
-	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/r10-protobuf/vault"
-	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/r10-protobuf/vault/pb"
 	"golang.org/x/time/rate"
 	"google.golang.org/grpc"
 )

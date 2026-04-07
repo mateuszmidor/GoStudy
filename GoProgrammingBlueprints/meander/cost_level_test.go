@@ -1,10 +1,10 @@
 package meander_test
 
 import (
+	"goprogrammingblueprints/meander"
 	"testing"
 
 	is "github.com/cheekybits/is"
-	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/meander"
 )
 
 func TestCostValues(t *testing.T) {

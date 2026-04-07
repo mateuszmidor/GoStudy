@@ -2,9 +2,9 @@ package vault
 
 import (
 	context "context"
+	"goprogrammingblueprints/r10-protobuf/vault/pb"
 
 	grpctransport "github.com/go-kit/kit/transport/grpc"
-	"github.com/mateuszmidor/GoStudy/GoProgrammingBlueprints/r10-protobuf/vault/pb"
 )
 
 type grpcServer struct {
