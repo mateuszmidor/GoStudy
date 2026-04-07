@@ -75,9 +75,9 @@ func producer() {
 			switch e := event.(type) {
 			case *kafka.Message:
 				if e.TopicPartition.Error != nil {
-					log.Printf("Delivery failed: %s\n", e.TopicPartition.Error)
+					log.Printf("Producer failed: %s\n", e.TopicPartition.Error)
 				} else {
-					log.Printf("Delivered to %v\n", e.TopicPartition)
+					log.Printf("Produced %q to %v\n", string(e.Value), e.TopicPartition)
 				}
 			default: // *kafka.Error, *kafka.Stats, *kafka.LogEvent
 				log.Printf("Producer received: [%T] %+v", e, e)

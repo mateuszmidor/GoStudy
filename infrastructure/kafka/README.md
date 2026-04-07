@@ -1,8 +1,11 @@
 # Kafka hello-world
 
 Producer-Consumer in a single process.
-- segmentio/ - good for experiments
-- confluent/ - good for production
+- segmentio/ - good for experiments, automatically handles rebalancing
+- confluent/ - good for production, notifies you about rebalancing to handle
+
+## Notes
+- messages being sent out can be buffered and sent in batches - configure the producer for that
 
 ## Test kafka in CLI
 
@@ -34,17 +37,18 @@ go run confluent/main.go # run producer-consumer
 ```
 
 ```log
-09:34:39 Delivered to my-topic[0]@0
-09:34:39 Delivered to my-topic[0]@1
-09:34:39 Delivered to my-topic[0]@2
-09:34:39 Delivered to my-topic[0]@3
-09:34:39 Delivered to my-topic[0]@4
-09:34:39 Producer done
-09:34:42 Received: "Hello Kafka 0" from my-topic[0]@0
-09:34:42 Received: "Hello Kafka 1" from my-topic[0]@1
-09:34:42 Received: "Hello Kafka 2" from my-topic[0]@2
-09:34:43 Received: "Hello Kafka 3" from my-topic[0]@3
-09:34:43 Received: "Hello Kafka 4" from my-topic[0]@4
-09:34:43 Reached EOF at my-topic[0]@5(Broker: No more messages)
-09:34:43 Consumer done
+12:18:17 Produced "Hello Kafka 0" to my-topic-confluent[0]@125
+12:18:18 Produced "Hello Kafka 1" to my-topic-confluent[0]@126
+12:18:19 Produced "Hello Kafka 2" to my-topic-confluent[0]@127
+12:18:20 Produced "Hello Kafka 3" to my-topic-confluent[0]@128
+12:18:21 Produced "Hello Kafka 4" to my-topic-confluent[0]@129
+12:18:21 Producer done
+12:18:21 poll returned empty; continue
+12:18:21 Received: "Hello Kafka 0" from my-topic-confluent[0]@125
+12:18:21 Received: "Hello Kafka 1" from my-topic-confluent[0]@126
+12:18:21 Received: "Hello Kafka 2" from my-topic-confluent[0]@127
+12:18:21 Received: "Hello Kafka 3" from my-topic-confluent[0]@128
+12:18:21 Received: "Hello Kafka 4" from my-topic-confluent[0]@129
+12:18:22 Reached EOF at my-topic-confluent[0]@130(Broker: No more messages)
+12:18:22 Consumer done
 ```

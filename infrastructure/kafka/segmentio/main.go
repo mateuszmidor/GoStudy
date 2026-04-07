@@ -22,7 +22,7 @@ func main() {
 func createTopic() {
 	conn, err := kafka.Dial("tcp", broker)
 	if err != nil {
-		log.Fatal("Dial failed:", err)
+		log.Fatalf("Dial failed: %s\n", err)
 	}
 	defer conn.Close()
 
@@ -36,9 +36,10 @@ func createTopic() {
 
 	err = conn.CreateTopics(topicConfigs...)
 	if err != nil {
-		log.Printf("CreateTopics failed: %v", err) // Idempotent: ignores existing
+		// Idempotent: ignores existing
+		log.Printf("CreateTopics failed: %s\n", err)
 	} else {
-		fmt.Println("Topic(s) created successfully")
+		log.Printf("Topic created: %s\n", topic)
 	}
 }
 
@@ -55,10 +56,10 @@ func producer() {
 	// configure message write completion
 	writer.Completion = func(messages []kafka.Message, err error) {
 		if err != nil {
-			fmt.Printf("Write failed: %v\n", err)
+			log.Printf("Write failed: %s\n", err)
 		} else {
 			msg := messages[0] // we write only single messages
-			fmt.Printf("Produced: %q to parition=%d offset=%d\n", string(msg.Value), msg.Partition, msg.Offset)
+			log.Printf("Produced: %q to %s[%d]@%d\n", string(msg.Value), msg.Topic, msg.Partition, msg.Offset)
 		}
 	}
 	defer writer.Close() // send all buffered messages
@@ -68,10 +69,12 @@ func producer() {
 		msg := kafka.Message{
 			Value: fmt.Appendf(nil, "Hello Kafka %d", i),
 		}
-		writer.WriteMessages(context.Background(), msg)
+		if err := writer.WriteMessages(context.Background(), msg); err != nil {
+			log.Printf("WriteMessages failed: %s\n", err)
+		}
 	}
 
-	fmt.Println("Producer done")
+	log.Println("Producer done")
 }
 
 // note: segmentio lib doesn't allow to explicitly react to partitions assignment to the consumer
@@ -89,15 +92,15 @@ func consumer() {
 	for range 5 {
 		m, err := r.FetchMessage(context.Background()) // read without commit. Use ReadMessage for auto-commit
 		if err != nil {
-			fmt.Printf("Read failed: %v\n", err)
+			log.Printf("Read failed: %s\n", err)
 			continue
 		}
 		// process message
-		fmt.Printf("Received: %q from partition=%d offset=%d\n", string(m.Value), m.Partition, m.Offset)
+		log.Printf("Received: %q from %s[%d]@%d\n", string(m.Value), m.Topic, m.Partition, m.Offset)
 		// commit message
 		if err := r.CommitMessages(context.Background(), m); err != nil {
 			log.Printf("Commit failed: %s\n", err)
 		}
 	}
-	fmt.Println("Consumer done")
+	log.Println("Consumer done")
 }
