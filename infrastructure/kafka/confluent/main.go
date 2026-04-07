@@ -97,11 +97,11 @@ func producer() {
 func consumer() {
 	// Configure consumer
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers":    broker,              // exposed in decoker-compose.yaml
-		"group.id":             "my-consumer-group", // arbitrary consumer group id
-		"auto.offset.reset":    "earliest",          // Read from start
-		"enable.partition.eof": true,                // enable reporing end-of-partition when all messages are consumed (see: kafka.PartitionEOF)
-		"enable.auto.commit":   false,               // commit message reception manually
+		"bootstrap.servers":    broker,                     // exposed in decoker-compose.yaml
+		"group.id":             "confluent-consumer-group", // arbitrary consumer group id
+		"auto.offset.reset":    "earliest",                 // Read from start
+		"enable.partition.eof": true,                       // enable reporing end-of-partition when all messages are consumed (see: kafka.PartitionEOF)
+		"enable.auto.commit":   false,                      // commit message reception manually
 	})
 	if err != nil {
 		log.Fatalf("Failed to create consumer: %s\n", err)

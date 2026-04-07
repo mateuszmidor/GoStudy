@@ -84,7 +84,7 @@ func consumer() {
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: []string{broker},
 		Topic:   topic,
-		GroupID: "my-consumer-group", // arbitrary consumer group ID
+		GroupID: "segmentio-consumer-group", // arbitrary consumer group ID
 
 	})
 	defer r.Close()

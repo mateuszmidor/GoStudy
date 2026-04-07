@@ -52,3 +52,9 @@ go run confluent/main.go # run producer-consumer
 12:18:22 Reached EOF at my-topic-confluent[0]@130(Broker: No more messages)
 12:18:22 Consumer done
 ```
+
+# Kafka GUI
+
+```sh
+firefox localhost:8080
+```
