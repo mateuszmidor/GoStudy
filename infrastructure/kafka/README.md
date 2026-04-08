@@ -1,8 +1,40 @@
 # Kafka hello-world
 
-Producer-Consumer in a single process.
+Tutorials:
+- https://www.youtube.com/playlist?list=PLEQXPnKOvPGQplxSFmpPy7-whZiw13Yox
+
+## Producer-Consumer demo in a single process
 - segmentio/ - good for experiments, automatically handles rebalancing
 - confluent/ - good for production, notifies you about rebalancing to handle
+
+## Run "confluent/" version
+
+```sh
+docker-compose up # run kafka_broker and kafka_gui
+go run confluent/main.go # run producer-consumer
+```
+
+```log
+07:46:00 Produced: "Hello Kafka 0" to my-topic-confluent partition=0 offset=25
+07:46:01 Produced: "Hello Kafka 1" to my-topic-confluent partition=0 offset=26
+07:46:02 Produced: "Hello Kafka 2" to my-topic-confluent partition=0 offset=27
+07:46:03 Produced: "Hello Kafka 3" to my-topic-confluent partition=0 offset=28
+07:46:04 Produced: "Hello Kafka 4" to my-topic-confluent partition=0 offset=29
+07:46:04 Producer done
+07:46:04 Received: "Hello Kafka 0" from my-topic-confluent partition=0 offset=25
+07:46:04 Received: "Hello Kafka 1" from my-topic-confluent partition=0 offset=26
+07:46:04 Received: "Hello Kafka 2" from my-topic-confluent partition=0 offset=27
+07:46:04 Received: "Hello Kafka 3" from my-topic-confluent partition=0 offset=28
+07:46:04 Received: "Hello Kafka 4" from my-topic-confluent partition=0 offset=29
+07:46:05 Reached EOF at my-topic-confluent[0]@30(Broker: No more messages)
+07:46:05 Consumer done
+```
+
+# Kafka GUI
+
+```sh
+firefox localhost:8080
+```
 
 ## Notes
 - messages being sent out can be buffered and sent in batches - configure the producer for that
@@ -27,34 +59,4 @@ kcat -P -b localhost:9092 -t MYTOPIC -p 0 <<< 'Hello kafka'
 Then read from topic MYTOPIC, partition 0, starting at offset 0:
 ```sh
 kcat -C -b localhost:9092 -t MYTOPIC -p 0 -o 0
-```
-
-## Run "confluent/" version
-
-```sh
-docker-compose up # run kafka
-go run confluent/main.go # run producer-consumer
-```
-
-```log
-12:18:17 Produced "Hello Kafka 0" to my-topic-confluent[0]@125
-12:18:18 Produced "Hello Kafka 1" to my-topic-confluent[0]@126
-12:18:19 Produced "Hello Kafka 2" to my-topic-confluent[0]@127
-12:18:20 Produced "Hello Kafka 3" to my-topic-confluent[0]@128
-12:18:21 Produced "Hello Kafka 4" to my-topic-confluent[0]@129
-12:18:21 Producer done
-12:18:21 poll returned empty; continue
-12:18:21 Received: "Hello Kafka 0" from my-topic-confluent[0]@125
-12:18:21 Received: "Hello Kafka 1" from my-topic-confluent[0]@126
-12:18:21 Received: "Hello Kafka 2" from my-topic-confluent[0]@127
-12:18:21 Received: "Hello Kafka 3" from my-topic-confluent[0]@128
-12:18:21 Received: "Hello Kafka 4" from my-topic-confluent[0]@129
-12:18:22 Reached EOF at my-topic-confluent[0]@130(Broker: No more messages)
-12:18:22 Consumer done
-```
-
-# Kafka GUI
-
-```sh
-firefox localhost:8080
 ```

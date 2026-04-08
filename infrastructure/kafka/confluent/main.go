@@ -63,30 +63,32 @@ func producer() {
 
 	// Produce messages
 	for i := range 5 {
+		// produce single message
 		msg := &kafka.Message{
 			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 			Value:          fmt.Appendf(nil, "Hello Kafka %d", i),
 		}
 		err = producer.Produce(msg, nil)
+
+		// if error
 		if err != nil {
 			log.Printf("Produce failed: %s\n", err)
-		} else {
-			event := <-producer.Events() // Wait for delivery report in the same goroutine - this makes the producer a synchronous producer
-			switch e := event.(type) {
-			case *kafka.Message:
-				if e.TopicPartition.Error != nil {
-					log.Printf("Producer failed: %s\n", e.TopicPartition.Error)
-				} else {
-					topicName := "<nil>"
-					if e.TopicPartition.Topic != nil {
-						topicName = *e.TopicPartition.Topic
-					}
-					log.Printf("Produced: %q to %s partition=%d offset=%d\n", string(e.Value), topicName, e.TopicPartition.Partition, e.TopicPartition.Offset)
-				}
-			default: // *kafka.Error, *kafka.Stats, *kafka.LogEvent
-				log.Printf("Producer received: [%T] %+v", e, e)
-			}
+			continue
 		}
+
+		// if success
+		event := <-producer.Events() // Wait for delivery report after sending in the same goroutine - this makes the producer a synchronous producer
+		switch e := event.(type) {
+		case *kafka.Message: // this is what we want and expect
+			if e.TopicPartition.Error != nil {
+				log.Printf("Producer failed: %s\n", e.TopicPartition.Error)
+			} else {
+				log.Printf("Produced: %q to %s partition=%d offset=%d\n", string(e.Value), *e.TopicPartition.Topic, e.TopicPartition.Partition, e.TopicPartition.Offset)
+			}
+		default: // *kafka.Error, *kafka.Stats, *kafka.LogEvent
+			log.Printf("Producer received: [%T] %+v", e, e)
+		}
+
 	}
 
 	// Flush remaining
@@ -108,6 +110,7 @@ func consumer() {
 	}
 	defer consumer.Close()
 
+	// subscribe to topic
 	err = consumer.SubscribeTopics([]string{topic}, nil)
 	if err != nil {
 		log.Fatalf("Failed to subscribe: %s\n", err)
@@ -116,7 +119,7 @@ func consumer() {
 	run := true
 	for run {
 		// read single message or event
-		ev := consumer.Poll(1000)
+		ev := consumer.Poll(1000) // timeout=1s
 		if ev == nil {
 			log.Println("poll returned empty; continue")
 			continue
