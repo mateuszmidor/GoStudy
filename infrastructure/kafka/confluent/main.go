@@ -49,6 +49,7 @@ func createTopic() {
 
 func producer() {
 	// Configure producer
+	// see: https://docs.confluent.io/platform/current/installation/configuration/producer-configs.html
 	producer, err := kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers":            broker,        // exposed in decoker-compose.yaml
 		"client.id":                    "go-producer", // arbitrary client id
@@ -98,12 +99,15 @@ func producer() {
 
 func consumer() {
 	// Configure consumer
+	// see: https://docs.confluent.io/platform/current/installation/configuration/consumer-configs.html
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers":    broker,                     // exposed in decoker-compose.yaml
-		"group.id":             "confluent-consumer-group", // arbitrary consumer group id
-		"auto.offset.reset":    "earliest",                 // Read from start
-		"enable.partition.eof": true,                       // enable reporing end-of-partition when all messages are consumed (see: kafka.PartitionEOF)
-		"enable.auto.commit":   false,                      // commit message reception manually
+		"bootstrap.servers":     broker,                     // exposed in decoker-compose.yaml
+		"group.id":              "confluent-consumer-group", // arbitrary consumer group id
+		"auto.offset.reset":     "earliest",                 // Read from start
+		"enable.partition.eof":  true,                       // enable reporing end-of-partition when all messages are consumed (see: kafka.PartitionEOF)
+		"enable.auto.commit":    false,                      // commit message reception manually
+		"heartbeat.interval.ms": 3000,                       // send "i'm alive" to the broker every 3 seconds
+		"session.timeout.ms":    9000,                       // if no heartbeat received in 9 seconds, broker deactivates the consumer and starts rebalancing
 	})
 	if err != nil {
 		log.Fatalf("Failed to create consumer: %s\n", err)
@@ -143,7 +147,7 @@ func consumer() {
 			run = false
 		// case kafka.AssignedPartitions:
 		// case kafka.RevokedPartitions:
-		case *kafka.Error:
+		case kafka.Error:
 			log.Printf("Error: %s\n", event)
 		default:
 			log.Printf("Received [%T] %+v", event, event)

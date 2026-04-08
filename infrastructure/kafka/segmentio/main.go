@@ -82,10 +82,12 @@ func producer() {
 func consumer() {
 	// Configure kafka consumer
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{broker},
-		Topic:   topic,
-		GroupID: "segmentio-consumer-group", // arbitrary consumer group ID
-
+		Brokers:           []string{broker},
+		GroupID:           "segmentio-consumer-group", // arbitrary consumer group ID
+		StartOffset:       kafka.FirstOffset,
+		HeartbeatInterval: time.Second * 3, // send "i'm alive" to the broker every 3 seconds
+		SessionTimeout:    time.Second * 9, // if no heartbeat received in 9 seconds, broker deactivates the consumer and starts rebalancing
+		Topic:             topic,
 	})
 	defer r.Close()
 
