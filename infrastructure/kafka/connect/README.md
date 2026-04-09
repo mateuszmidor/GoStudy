@@ -2,6 +2,8 @@
 
 Watch the file `process_list.txt` and push it's contents into kafka topic `process_list`.
 
+**note:** the `process_list.txt` is mounted in `kafka-connect` container under `/tmp/process_list.txt`.
+
 ## Run
 
 ```
