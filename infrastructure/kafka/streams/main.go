@@ -26,9 +26,9 @@ func main() {
 	createTopics()
 
 	procCtx, procCancel := context.WithCancel(context.Background())
-	go runProcessor(procCtx)
 
 	time.Sleep(2 * time.Second)
+	go runProcessor(procCtx)
 
 	producer()
 	consumer()
@@ -82,17 +82,21 @@ func createTopics() {
 }
 
 func producer() {
-	emitter, err := goka.NewEmitter(brokers, inputTopic, new(codec.String))
-	if err != nil {
-		log.Fatalf("error creating emitter: %v", err)
-	}
-	defer emitter.Finish()
+	writer := kafka.NewWriter(kafka.WriterConfig{
+		Brokers:      brokers,
+		Topic:        string(inputTopic),
+		RequiredAcks: -1,
+	})
+	defer writer.Close()
 
 	for i := range 5 {
 		msg := fmt.Sprintf("Hello Kafka %d", i)
-		_, err := emitter.Emit(fmt.Sprintf("key-%d", i), msg)
+		err := writer.WriteMessages(context.Background(), kafka.Message{
+			Key:   []byte(fmt.Sprintf("key-%d", i)),
+			Value: []byte(msg),
+		})
 		if err != nil {
-			log.Printf("Emit failed: %s\n", err)
+			log.Printf("WriteMessages failed: %s\n", err)
 		} else {
 			log.Printf("Produced: %q to %s", msg, inputTopic)
 		}
