@@ -4,104 +4,121 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
+	"github.com/lovoo/goka"
 	_ "github.com/lovoo/goka"
+	"github.com/lovoo/goka/codec"
 	"github.com/segmentio/kafka-go"
 )
 
-var topic string = "my-topic-segmentio" // arbitrary topic name
-var broker string = "localhost:9092"    // exposed in decoker-compose.yaml
+var (
+	brokers                   = []string{"localhost:9092"}
+	inputTopic    goka.Stream = "my-topic-uppercase-in"
+	outputTopic   goka.Stream = "my-topic-uppercase-out"
+	group         goka.Group  = "uppercase-processor-group"
+	consumerGroup string      = "segmentio-consumer-group"
+)
 
 func main() {
 	log.SetFlags(log.Ltime)
-	createTopic() // need to explicitly create topic
-	producer()    // first produce messages
-	consumer()    // then consume them
+	createTopics()
+
+	procCtx, procCancel := context.WithCancel(context.Background())
+	go runProcessor(procCtx)
+
+	time.Sleep(2 * time.Second)
+
+	producer()
+	consumer()
+
+	procCancel()
+	time.Sleep(1 * time.Second)
+	log.Println("Done")
 }
 
-func createTopic() {
-	conn, err := kafka.Dial("tcp", broker)
+func runProcessor(ctx context.Context) {
+	proc := func(ctx goka.Context, msg interface{}) {
+		input := msg.(string)
+		output := strings.ToUpper(input)
+		ctx.Emit(outputTopic, ctx.Key(), output)
+		log.Printf("Processor: %q -> %q", input, output)
+	}
+
+	groupDef := goka.DefineGroup(group,
+		goka.Input(inputTopic, new(codec.String), proc),
+		goka.Output(outputTopic, new(codec.String)),
+	)
+
+	p, err := goka.NewProcessor(brokers, groupDef)
+	if err != nil {
+		log.Fatalf("error creating processor: %v", err)
+	}
+
+	if err := p.Run(ctx); err != nil {
+		log.Printf("processor error: %v", err)
+	}
+}
+
+func createTopics() {
+	conn, err := kafka.Dial("tcp", brokers[0])
 	if err != nil {
 		log.Fatalf("Dial failed: %s\n", err)
 	}
 	defer conn.Close()
 
 	topicConfigs := []kafka.TopicConfig{
-		{
-			Topic:             topic,
-			NumPartitions:     1, // Partitions (0 = auto decided)
-			ReplicationFactor: 1, // Replicas (1 for single broker)
-		},
+		{Topic: string(inputTopic), NumPartitions: 1, ReplicationFactor: 1},
+		{Topic: string(outputTopic), NumPartitions: 1, ReplicationFactor: 1},
 	}
 
 	err = conn.CreateTopics(topicConfigs...)
 	if err != nil {
-		// Idempotent: ignores existing
 		log.Printf("CreateTopics failed: %s\n", err)
 	} else {
-		log.Printf("Topic created: %s\n", topic)
+		log.Printf("Topics created: %s, %s\n", inputTopic, outputTopic)
 	}
 }
 
 func producer() {
-	// Configure kafka producer
-	writer := kafka.NewWriter(kafka.WriterConfig{
-		Brokers:      []string{broker},
-		Topic:        topic,
-		RequiredAcks: -1,          // wait for all replicas to ack successful write before WriteMessages returns
-		Async:        false,       // false=synchronous producer that blocks on write, true=fire-and-forget producer, with writer.Completion callback = async producer
-		BatchSize:    5,           // buffer up to 5 messages before actually sending them (good for async producer, not this one)
-		BatchTimeout: time.Second, // or wait max 1s, effect here: 1 message sent every second
-	})
-	// configure message write completion
-	writer.Completion = func(messages []kafka.Message, err error) {
-		if err != nil {
-			log.Printf("Write failed: %s\n", err)
-		} else {
-			for _, msg := range messages {
-				log.Printf("Produced: %q to %s partition=%d offset=%d\n", string(msg.Value), msg.Topic, msg.Partition, msg.Offset)
-			}
-		}
+	emitter, err := goka.NewEmitter(brokers, inputTopic, new(codec.String))
+	if err != nil {
+		log.Fatalf("error creating emitter: %v", err)
 	}
-	defer writer.Close() // send all buffered messages
+	defer emitter.Finish()
 
-	// Produce messages
 	for i := range 5 {
-		msg := kafka.Message{
-			Value: fmt.Appendf(nil, "Hello Kafka %d", i),
-		}
-		if err := writer.WriteMessages(context.Background(), msg); err != nil {
-			log.Printf("WriteMessages failed: %s\n", err)
+		msg := fmt.Sprintf("Hello Kafka %d", i)
+		_, err := emitter.Emit(fmt.Sprintf("key-%d", i), msg)
+		if err != nil {
+			log.Printf("Emit failed: %s\n", err)
+		} else {
+			log.Printf("Produced: %q to %s", msg, inputTopic)
 		}
 	}
 
 	log.Println("Producer done")
 }
 
-// note: segmentio lib doesn't allow to explicitly react to partitions assignment to the consumer
 func consumer() {
-	// Configure kafka consumer
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:           []string{broker},
-		GroupID:           "segmentio-consumer-group", // arbitrary consumer group ID
+		Brokers:           brokers,
+		GroupID:           consumerGroup,
 		StartOffset:       kafka.FirstOffset,
-		HeartbeatInterval: time.Second * 3, // send "i'm alive" to the broker every 3 seconds
-		SessionTimeout:    time.Second * 9, // if no heartbeat received in 9 seconds, broker deactivates the consumer and starts rebalancing
-		Topic:             topic,
+		HeartbeatInterval: time.Second * 3,
+		SessionTimeout:    time.Second * 9,
+		Topic:             string(outputTopic),
 	})
 	defer r.Close()
 
-	// Consume messages
 	for range 5 {
-		m, err := r.FetchMessage(context.Background()) // read without commit. Use ReadMessage for auto-commit
+		m, err := r.FetchMessage(context.Background())
 		if err != nil {
 			log.Printf("Read failed: %s\n", err)
 			continue
 		}
-		// process message
 		log.Printf("Received: %q from %s partition=%d offset=%d\n", string(m.Value), m.Topic, m.Partition, m.Offset)
-		// commit message
 		if err := r.CommitMessages(context.Background(), m); err != nil {
 			log.Printf("Commit failed: %s\n", err)
 		}
