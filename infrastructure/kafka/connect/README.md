@@ -8,7 +8,7 @@ Create a kafka connector to watch the file `process_list.txt` and automatically 
 
 ```sh
 # run kafka_broker, kafka_connect, kafka_gui
-docker-compose up # and wait until kafka-connect is up
+docker-compose up # note: and wait until kafka_connect is up
 ```
 
 ```sh
