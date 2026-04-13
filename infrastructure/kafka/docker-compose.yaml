@@ -24,6 +24,8 @@ services:
 
   kafka_gui:
     image: ghcr.io/kafbat/kafka-ui:latest
+    hostname: kafka_gui
+    container_name: kafka_gui
     ports:
       - 8080:8080
     environment:
