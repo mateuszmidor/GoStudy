@@ -16,8 +16,8 @@ import (
 var (
 	brokers                   = []string{"localhost:9092"}
 	inputTopic    goka.Stream = "my-topic-split-in"
-	lowerTopic    goka.Stream = "my-topic-split-lower"
-	upperTopic    goka.Stream = "my-topic-split-upper"
+	lowerTopic    goka.Stream = "my-topic-split-out-lower"
+	upperTopic    goka.Stream = "my-topic-split-out-upper"
 	group         goka.Group  = "split-processor-group"
 	consumerGroup string      = "split-consumer-group"
 )
@@ -113,61 +113,28 @@ func producer() {
 }
 
 func consumer() {
-	lowerReader := kafka.NewReader(kafka.ReaderConfig{
+	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:        brokers,
 		GroupID:        consumerGroup,
-		Topic:          string(lowerTopic),
+		GroupTopics:    []string{string(lowerTopic), string(upperTopic)},
 		StartOffset:    kafka.FirstOffset,
 		MinBytes:       1,
 		MaxBytes:       1e6,
 		MaxWait:        time.Second,
 		CommitInterval: time.Second,
 	})
+	defer reader.Close()
 
-	upperReader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:        brokers,
-		GroupID:        consumerGroup,
-		Topic:          string(upperTopic),
-		StartOffset:    kafka.FirstOffset,
-		MinBytes:       1,
-		MaxBytes:       1e6,
-		MaxWait:        time.Second,
-		CommitInterval: time.Second,
-	})
-
-	defer lowerReader.Close()
-	defer upperReader.Close()
-
-	lowerDone := make(chan struct{})
-	upperDone := make(chan struct{})
-
-	go func() {
-		for range 5 {
-			m, err := lowerReader.FetchMessage(context.Background())
-			if err != nil {
-				log.Printf("Read from lower failed: %s\n", err)
-				continue
-			}
-			log.Printf("Received lower: %q from %s partition=%d offset=%d\n", string(m.Value), m.Topic, m.Partition, m.Offset)
-			lowerReader.CommitMessages(context.Background(), m)
+	for range 10 {
+		m, err := reader.FetchMessage(context.Background())
+		if err != nil {
+			log.Printf("Read failed: %s\n", err)
+			continue
 		}
-		close(lowerDone)
-	}()
-
-	go func() {
-		for range 5 {
-			m, err := upperReader.FetchMessage(context.Background())
-			if err != nil {
-				log.Printf("Read from upper failed: %s\n", err)
-				continue
-			}
-			log.Printf("Received upper: %q from %s partition=%d offset=%d\n", string(m.Value), m.Topic, m.Partition, m.Offset)
-			upperReader.CommitMessages(context.Background(), m)
+		log.Printf("Received: %q from %s partition=%d offset=%d\n", string(m.Value), m.Topic, m.Partition, m.Offset)
+		if err := reader.CommitMessages(context.Background(), m); err != nil {
+			log.Printf("Commit failed: %s\n", err)
 		}
-		close(upperDone)
-	}()
-
-	<-lowerDone
-	<-upperDone
+	}
 	log.Println("Consumer done")
 }
