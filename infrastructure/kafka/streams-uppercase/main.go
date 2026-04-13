@@ -18,7 +18,7 @@ var (
 	inputTopic    goka.Stream = "my-topic-uppercase-in"
 	outputTopic   goka.Stream = "my-topic-uppercase-out"
 	group         goka.Group  = "uppercase-processor-group"
-	consumerGroup string      = "segmentio-consumer-group"
+	consumerGroup string      = "uppercase-consumer-group"
 )
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 	// run stream processor first as it only receives input events from the most recent one
 	// so if producer was run first the processor would miss the events
 	go runProcessor(procCtx)
-	time.Sleep(1 * time.Second)
+	time.Sleep(2 * time.Second)
 
 	producer()
 	consumer()
