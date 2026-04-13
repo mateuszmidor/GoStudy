@@ -27,8 +27,10 @@ func main() {
 
 	procCtx, procCancel := context.WithCancel(context.Background())
 
-	time.Sleep(2 * time.Second)
+	// run stream processor first as it only receives input events from the most recent one
+	// so if producer was run first the processor would miss the events
 	go runProcessor(procCtx)
+	time.Sleep(1 * time.Second)
 
 	producer()
 	consumer()

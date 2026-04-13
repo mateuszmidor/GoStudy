@@ -1,4 +1,4 @@
-module github.com/mateuszmidor/GoStudy/infrastructure/kafka/streams
+module github.com/mateuszmidor/GoStudy/infrastructure/kafka/streams_uppercase
 
 go 1.26.1
 
