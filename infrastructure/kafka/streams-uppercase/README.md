@@ -1,0 +1,1 @@
+simple streams - just transform string -> uppercase STRING
