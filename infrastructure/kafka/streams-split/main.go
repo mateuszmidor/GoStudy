@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/lovoo/goka"
-	_ "github.com/lovoo/goka"
 	"github.com/lovoo/goka/codec"
 	"github.com/segmentio/kafka-go"
 )
