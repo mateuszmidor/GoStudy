@@ -4,13 +4,14 @@ description: This skill is dedicated for finding and listing job offers in IT. U
 ---
 
 # How to find jobs
-You should use MCP server "czyjesteldorado" to find jobs.
+You should use MCP server "czyjesteldorado" to list available jobs and then filter the results and then format remaining results.
 
 ## Instructions
-1. Find job offers for a Go developer, seniority declared in the offer should be: Mid or Senior or Principal or Architect.
-2. Filter out offers typical for Frontend and DevOps and SRE and Management.
-3. Include following information in the results: offer title, company, required technologies, salary (if provided), location (city), work mode (remote/hybrid), link to the offer.
-4. Format and print offers as a table in Markdown format.
+1. Find job offers for a Go developer, seniority declared in the offer should be: Mid or Senior or above.
+2. Filter out offers for Frontend and DevOps and SRE and Management.
+3. Filter out hybrid mode offers where Location is not in (Gdańsk, Sopot, Gdynia, Trójmiasta)
+4. Include following information in the results: offer title, company, required technologies, salary (if provided), location (city), work mode (remote/hybrid), link to the offer.
+5. Format and print offers as a table in Markdown format.
 
 ## Expected outcome
 A table with all relevant job offers is printed out.
