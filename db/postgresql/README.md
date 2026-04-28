@@ -53,6 +53,24 @@ select * from pg_tables
 ```
 
 ```sql
+-- show all indexes
+select * from pg_indexes where schemaname not in ('pg_catalog', 'information_schema');
+```
+
+```sql
+-- explain what db will do to run the query, eg check if it will use index search or seq scan,
+-- use cost to compare qeries, eg with vs without index
+explain select * from users where email like '%gmail.com'; -- without actually running the query, outputs less info eg no times
+-- OR
+explain analyze select * from users where email like '%gmail.com'; -- with actually running the query, outputs more info eg times
+```
+Output:
+```
+Seq Scan on users (cost=0.00..1.94 rows=1 width=65)
+Filter: ((email)::text ~~ '%gmail.com'::text)
+```
+
+```sql
 -- returns modified string of "pracownik: Andrzej"
 select 'pracownik: ' || name from users
 ```
@@ -202,6 +220,26 @@ Options what to do when the referenced Companies.id is deleted:
 - `on delete cascade` - remove all connected Employees
 - `on delete set NULL` - make all connected Emplotees orphans (Company-less)
 - `on delete set default` - set default Company.id if default is configured for company_id
+
+### Indexes - to avoid full table scans
+
+```sql
+-- simple index on a number
+create index idx_room on hotel_bookings (room_number);
+```
+
+```sql
+-- index with support for string pattern matching.
+-- WARN: this doesnt work with leading wildcards, eg. email LIKE '%gmail.com' - will use seqential scan
+create index idx_email_pattern on users (email text_pattern_ops); -- for VARCHAR columns use: varchar_pattern_ops
+explain select * from users where email LIKE 'aubree_%'; -- should use index for search
+```
+
+```sql
+-- composite index - multicolumn; order makes difference:
+-- this index will also cover filtering by fname only, but not by lname only (so called Left-most prefix)
+create index idx_fname_lname on users (fname, lname);
+```
 
 ## Useful
 - COALESCE(users.name, 'UNKNOWN') - return "UNKNOWN" if users.name is NULL
