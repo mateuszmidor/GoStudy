@@ -5,6 +5,10 @@ up:
 fill:
 	@echo "!!! Database password is: pass !!!"
 	psql -h localhost -p 5432 -U postgres -d postgres -f ./series03-final-inserts.sql
+	psql -h localhost -p 5432 -U postgres -d postgres -f ./series05-final-inserts.sql
+
+start:
+	docker start my-postgres # if container already created but was stopped
 
 down:
 	docker stop my-postgres
