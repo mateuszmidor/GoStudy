@@ -24,6 +24,14 @@ GRPC is used for communication with sawmill module, thus GRPC tooling for Go mus
 
 ### Install protobuf compiler (protoc)
 
+#### On Arch
+
+```
+sudo pacman -Sy
+sudo pacman -S protobuf
+```
+
+#### other
 1. download the protoc for x64 archive: https://github.com/protocolbufpfers/protobuf/releases
 1. then make it available as terminal command (add it to PATH)
 1. test installation:
