@@ -1,5 +1,7 @@
 # Swagger for Golang using go-swagger
 
+**NOTE:** go-swagger doesn't support OpenAPI3, just OpenAPI2.
+
 <https://github.com/go-swagger/go-swagger>
 
 ## Swagger 2.0/OpenAPI 3.0 YAML online editors with live preview
