@@ -14,4 +14,6 @@
 gostudy.code-workspace
 flight-finder/.dockerignore
 src/
+.opencode/package-lock.json
+.env
 pkg/
