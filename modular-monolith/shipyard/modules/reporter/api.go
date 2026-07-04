@@ -1,9 +1,9 @@
 package reporter
 
-import "github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
+import "github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedkernel"
 
 // API of the reporter module.
 type API interface {
-	HandleMessage(msg messagebus.Message)
+	HandleEvent(msg sharedkernel.Event)
 	PrintReport()
 }

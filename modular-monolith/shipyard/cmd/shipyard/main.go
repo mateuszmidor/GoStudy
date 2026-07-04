@@ -9,13 +9,13 @@ import (
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/reporter"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/ropeworks"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks"
-	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/eventbus"
 	"golang.org/x/sync/errgroup"
 )
 
 func main() {
 	// initialize shared infrastructure
-	bus := messagebus.New(100)
+	bus := eventbus.New(100)
 	bus.Run()
 
 	// initialize external service client
@@ -29,7 +29,7 @@ func main() {
 	sailworksAPI := sailworks.NewAPI(bus)
 	sailworksAPI.Run()
 	reporterAPI := reporter.NewAPI()
-	bus.AddSubscriber(reporterAPI.HandleMessage)
+	bus.AddSubscriber(reporterAPI.HandleEvent)
 
 	// execute the use case
 	buildShip(ropeworksAPI, mastworksAPI, sailworksAPI)

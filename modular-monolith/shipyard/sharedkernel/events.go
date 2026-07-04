@@ -1,7 +1,6 @@
-package messagebus
+package sharedkernel
 
-type Message interface {
-}
+type Event interface{}
 
 type ProductCreated struct {
 	Name     string

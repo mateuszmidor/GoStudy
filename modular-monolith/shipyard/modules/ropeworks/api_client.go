@@ -4,14 +4,14 @@ import (
 	"log"
 
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/ropeworks/internal"
-	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/eventbus"
 )
 
 type APIClient struct {
 	r *internal.Ropeworks
 }
 
-func NewAPI(bus messagebus.Bus) *APIClient {
+func NewAPI(bus eventbus.Bus) *APIClient {
 	log.Println("NewRopeworksLocal client")
 	return &APIClient{r: internal.NewRopeworks(bus)}
 }

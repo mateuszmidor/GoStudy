@@ -4,14 +4,14 @@ import (
 	"log"
 
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/sailworks/internal"
-	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/eventbus"
 )
 
 type APIClient struct {
 	s *internal.Sailworks
 }
 
-func NewAPI(bus messagebus.Bus) *APIClient {
+func NewAPI(bus eventbus.Bus) *APIClient {
 	log.Println("NewSailworksLocal client")
 	return &APIClient{s: internal.NewSailworks(bus)}
 }

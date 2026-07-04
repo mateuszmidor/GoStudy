@@ -5,14 +5,14 @@ import (
 
 	"github.com/mateuszmidor/GoStudy/modular-monolith/sawmill"
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/modules/mastworks/internal"
-	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/eventbus"
 )
 
 type APIClient struct {
 	m *internal.Mastworks
 }
 
-func NewAPI(sawmillAPI sawmill.API, bus messagebus.Bus) *APIClient {
+func NewAPI(sawmillAPI sawmill.API, bus eventbus.Bus) *APIClient {
 	log.Println("NewMastworksLocal client")
 	return &APIClient{m: internal.NewMastworks(sawmillAPI, bus)}
 }

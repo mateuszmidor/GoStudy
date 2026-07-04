@@ -4,7 +4,7 @@ import (
 	"log"
 	"sync"
 
-	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedkernel"
 )
 
 type APIClient struct {
@@ -18,9 +18,9 @@ func NewAPI() *APIClient {
 	}
 }
 
-func (r *APIClient) HandleMessage(msg messagebus.Message) {
+func (r *APIClient) HandleEvent(msg sharedkernel.Event) {
 	switch v := msg.(type) {
-	case *messagebus.ProductCreated:
+	case *sharedkernel.ProductCreated:
 		r.mu.Lock()
 		r.productCounters[v.Name] += v.Quantity
 		r.mu.Unlock()

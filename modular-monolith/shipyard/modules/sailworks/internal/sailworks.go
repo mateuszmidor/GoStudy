@@ -4,7 +4,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/eventbus"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedkernel"
 )
 
 // Sail as Domain Object.
@@ -13,15 +14,15 @@ type Sail struct{}
 // Sailworks as Domain Service.
 type Sailworks struct {
 	sails      chan *Sail
-	messageBus messagebus.Bus
+	eventBus eventbus.Bus
 }
 
 const numSailsPerSecond = 2
 
-func NewSailworks(bus messagebus.Bus) *Sailworks {
+func NewSailworks(bus eventbus.Bus) *Sailworks {
 	return &Sailworks{
 		sails:      make(chan *Sail, 100),
-		messageBus: bus,
+		eventBus: bus,
 	}
 }
 
@@ -33,7 +34,7 @@ func (s *Sailworks) Run() {
 				s.sails <- &Sail{}
 
 				// notify
-				s.messageBus.Publish(&messagebus.ProductCreated{Name: "sail", Quantity: 1})
+				s.eventBus.Publish(&sharedkernel.ProductCreated{Name: "sail", Quantity: 1})
 
 				// log
 				log.Println("Sailworks produced 1 sail")

@@ -4,7 +4,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/eventbus"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedkernel"
 )
 
 // Rope as Domain Object.
@@ -13,15 +14,15 @@ type Rope struct{}
 // Ropeworks as Domain Service.
 type Ropeworks struct {
 	ropes      chan *Rope
-	messageBus messagebus.Bus
+	eventBus eventbus.Bus
 }
 
 const numRopesPerSecond = 3
 
-func NewRopeworks(bus messagebus.Bus) *Ropeworks {
+func NewRopeworks(bus eventbus.Bus) *Ropeworks {
 	return &Ropeworks{
 		ropes:      make(chan *Rope, 100),
-		messageBus: bus,
+		eventBus: bus,
 	}
 }
 
@@ -33,7 +34,7 @@ func (r *Ropeworks) Run() {
 				r.ropes <- &Rope{}
 
 				// notify
-				r.messageBus.Publish(&messagebus.ProductCreated{Name: "rope", Quantity: 1})
+				r.eventBus.Publish(&sharedkernel.ProductCreated{Name: "rope", Quantity: 1})
 
 				// log
 				log.Println("Ropeworks produced 1 rope")
