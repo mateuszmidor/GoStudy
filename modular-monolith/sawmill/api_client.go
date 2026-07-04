@@ -12,18 +12,17 @@ import (
 	sawmillconnect "github.com/mateuszmidor/GoStudy/modular-monolith/sawmill/api/grpc/gen/sawmill/v1/sawmillv1connect"
 )
 
-// GrpcClient implements the sawmill module API as GRPC client.
-type GrpcClient struct {
+type APIClient struct {
 	client sawmillconnect.SawmillServiceClient
 }
 
-func NewGrpcClient(addr string) *GrpcClient {
+func NewAPI(addr string) *APIClient {
 	log.Println("NewGRPCAPI sawmill client:", addr)
 	client := sawmillconnect.NewSawmillServiceClient(http.DefaultClient, "http://"+addr)
-	return &GrpcClient{client: client}
+	return &APIClient{client: client}
 }
 
-func (sg *GrpcClient) GetBeams(count int) ([]Beam, error) {
+func (sg *APIClient) GetBeams(count int) ([]Beam, error) {
 	msg := sawmillgrpc.GetBeamsRequest{Count: int32(count)}
 	req := connect.NewRequest(&msg)
 	rsp, err := sg.client.GetBeams(context.Background(), req)

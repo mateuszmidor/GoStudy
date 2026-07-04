@@ -7,32 +7,28 @@ import (
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
 )
 
-// APIImpl implements the reporter module API.
-type APIImpl struct {
+type APIClient struct {
 	mu              sync.RWMutex
 	productCounters map[string]uint
 }
 
-func NewAPI() *APIImpl {
-	return &APIImpl{
+func NewAPI() *APIClient {
+	return &APIClient{
 		productCounters: make(map[string]uint),
 	}
 }
 
-// HandleMessage func is a subscriber of the global MessageBus
-func (r *APIImpl) HandleMessage(msg messagebus.Message) {
+func (r *APIClient) HandleMessage(msg messagebus.Message) {
 	switch v := msg.(type) {
 	case *messagebus.ProductCreated:
 		r.mu.Lock()
 		r.productCounters[v.Name] += v.Quantity
 		r.mu.Unlock()
 	default:
-		// Ignore other message types
 	}
 }
 
-// PrintReport logs the total quantity of each product that has been created.
-func (r *APIImpl) PrintReport() {
+func (r *APIClient) PrintReport() {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -48,4 +44,4 @@ func (r *APIImpl) PrintReport() {
 	log.Println("=====================")
 }
 
-var _ API = &APIImpl{}
+var _ API = &APIClient{}

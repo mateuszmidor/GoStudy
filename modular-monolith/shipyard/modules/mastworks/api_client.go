@@ -8,20 +8,19 @@ import (
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
 )
 
-// APIImpl implements the mastworks module API.
-type APIImpl struct {
+type APIClient struct {
 	m *internal.Mastworks
 }
 
-func NewAPI(sawmillAPI sawmill.API, bus messagebus.Bus) *APIImpl {
+func NewAPI(sawmillAPI sawmill.API, bus messagebus.Bus) *APIClient {
 	log.Println("NewMastworksLocal client")
-	return &APIImpl{m: internal.NewMastworks(sawmillAPI, bus)}
+	return &APIClient{m: internal.NewMastworks(sawmillAPI, bus)}
 }
 
-func (ml *APIImpl) GetMasts(count int) ([]Mast, error) {
+func (ml *APIClient) GetMasts(count int) ([]Mast, error) {
 	return make([]Mast, len(ml.m.GetMasts(count))), nil
 }
 
-func (ml *APIImpl) Run() {
+func (ml *APIClient) Run() {
 	ml.m.Run()
 }

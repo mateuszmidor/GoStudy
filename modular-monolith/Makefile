@@ -11,12 +11,12 @@ vet:
 
 run: proto
 	# run sawmill svc in background
-	go build -o sawmill.bin sawmill/cmd/sawmill/*
+	go build -o sawmill.bin ./sawmill/cmd/sawmill/
 	./sawmill.bin &
 	sleep 1
 
 	# run shipyard application, it talks to sawmill and terminates
-	go run shipyard/cmd/shipyard/*
+	go run ./shipyard/cmd/shipyard/
 
 	# stop services
 	pkill -f sawmill

@@ -7,20 +7,19 @@ import (
 	"github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastructure/messagebus"
 )
 
-// APIImpl implements the ropeworks module API.
-type APIImpl struct {
+type APIClient struct {
 	r *internal.Ropeworks
 }
 
-func NewAPI(bus messagebus.Bus) *APIImpl {
+func NewAPI(bus messagebus.Bus) *APIClient {
 	log.Println("NewRopeworksLocal client")
-	return &APIImpl{r: internal.NewRopeworks(bus)}
+	return &APIClient{r: internal.NewRopeworks(bus)}
 }
 
-func (rl *APIImpl) GetRopes(count int) ([]Rope, error) {
+func (rl *APIClient) GetRopes(count int) ([]Rope, error) {
 	return make([]Rope, len(rl.r.GetRopes(count))), nil
 }
 
-func (rl *APIImpl) Run() {
+func (rl *APIClient) Run() {
 	rl.r.Run()
 }

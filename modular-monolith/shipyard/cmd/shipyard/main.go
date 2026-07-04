@@ -19,7 +19,7 @@ func main() {
 	bus.Run()
 
 	// initialize external service client
-	sawmillAPI := sawmill.NewGrpcClient(configs.SawmillAddr)
+	sawmillAPI := sawmill.NewAPI(configs.SawmillAddr)
 
 	// initialize local modules
 	ropeworksAPI := ropeworks.NewAPI(bus)
