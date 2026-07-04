@@ -14,18 +14,22 @@ import (
 )
 
 func main() {
+	// initialize shared infrastructure
+	bus := messagebus.New(100)
+	bus.Run()
+
 	// initialize external service client
 	sawmillAPI := sawmill.NewGrpcClient(configs.SawmillAddr)
 
 	// initialize local modules
-	ropeworksAPI := ropeworks.NewAPI(messagebus.Instance)
+	ropeworksAPI := ropeworks.NewAPI(bus)
 	ropeworksAPI.Run()
-	mastworksAPI := mastworks.NewAPI(sawmillAPI, messagebus.Instance)
+	mastworksAPI := mastworks.NewAPI(sawmillAPI, bus)
 	mastworksAPI.Run()
-	sailworksAPI := sailworks.NewAPI(messagebus.Instance)
+	sailworksAPI := sailworks.NewAPI(bus)
 	sailworksAPI.Run()
 	reporterAPI := reporter.NewAPI()
-	messagebus.Instance.AddSubscriber(reporterAPI.HandleMessage)
+	bus.AddSubscriber(reporterAPI.HandleMessage)
 
 	// execute the use case
 	buildShip(ropeworksAPI, mastworksAPI, sailworksAPI)

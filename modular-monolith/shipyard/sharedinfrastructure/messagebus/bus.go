@@ -8,6 +8,7 @@ type Subscriber func(msg Message)
 type Bus interface {
 	Publish(msg Message)
 	AddSubscriber(sub Subscriber)
+	Run()
 }
 
 // messageBus implements Bus
@@ -16,7 +17,7 @@ type messageBus struct {
 	subscribers []Subscriber
 }
 
-func new(capacity int) *messageBus {
+func New(capacity int) Bus {
 	messages := make(chan Message, capacity)
 	return &messageBus{
 		messages:    messages,
@@ -44,11 +45,4 @@ func (bus *messageBus) Run() {
 			}
 		}
 	}()
-}
-
-var Instance *messageBus
-
-func init() {
-	Instance = new(100)
-	Instance.Run()
 }
