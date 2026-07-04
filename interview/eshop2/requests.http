@@ -1,0 +1,23 @@
+### create hats
+POST http://localhost:9090/api/products
+Content-Type: application/json
+
+{
+    "name": "Hats", "count": 9
+}
+
+### create gloves
+POST http://localhost:9090/api/products
+Content-Type: application/json
+
+{
+    "name": "Gloves", "count": 3
+}
+
+### get all products
+GET http://localhost:9090/api/products
+Content-Type: application/json
+
+### get single product
+GET http://localhost:9090/api/products/2
+Content-Type: application/json

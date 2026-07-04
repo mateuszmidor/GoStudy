@@ -1,0 +1,31 @@
+### create product
+POST http://localhost:9090/api/products
+Content-Type: application/json
+
+{
+    "name": "Widget", "price": 9999
+}
+
+### create another product
+POST http://localhost:9090/api/products
+Content-Type: application/json
+
+{
+    "name": "Gadget", "price": 14999
+}
+
+### get all products
+GET http://localhost:9090/api/products
+Content-Type: application/json
+
+### get single product
+GET http://localhost:9090/api/products/1
+Content-Type: application/json
+
+### update first product
+PUT http://localhost:9090/api/products/1
+Content-Type: application/json
+
+{
+    "name": "Updated Widget", "price": 19999
+}

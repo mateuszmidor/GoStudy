@@ -1,0 +1,28 @@
+### create item
+POST http://localhost:9090/api/items
+Content-Type: application/json
+
+[
+    {
+        "name": "belts",
+        "count": 7,
+        "price_cents": 1299
+    },
+    {
+        "name": "hats",
+        "count": 4,
+        "price_cents": 3950
+    }
+]
+
+### get all items
+GET http://localhost:9090/api/items
+Content-Type: application/json
+
+### get single item
+GET http://localhost:9090/api/items/1
+Content-Type: application/json
+
+### delete single item
+DELETE http://localhost:9090/api/items/1
+Content-Type: application/json
