@@ -37,7 +37,7 @@ GRPC is used for communication with sawmill module, thus GRPC tooling for Go mus
 1. make sure `$GOPATH/bin` is on your $PATH
 1. run:
 ```bash
-    go get install github.com/bufbuild/buf/cmd/buf
+    go get github.com/bufbuild/buf/cmd/buf
     go install github.com/bufbuild/buf/cmd/buf
 
     go get google.golang.org/protobuf/cmd/protoc-gen-go
