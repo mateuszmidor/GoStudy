@@ -4,6 +4,6 @@ import "github.com/mateuszmidor/GoStudy/modular-monolith/shipyard/sharedinfrastr
 
 // API of the reporter module.
 type API interface {
-	Handle(msg messagebus.Message)
+	HandleMessage(msg messagebus.Message)
 	PrintReport()
 }

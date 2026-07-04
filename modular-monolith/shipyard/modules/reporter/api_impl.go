@@ -47,3 +47,5 @@ func (r *APIImpl) PrintReport() {
 	}
 	log.Println("=====================")
 }
+
+var _ API = &APIImpl{}
