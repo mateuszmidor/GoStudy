@@ -8,6 +8,7 @@ import (
 	"github.com/terraskye/eventsourcing/eventstore/memory"
 
 	"task-management/slices/createtask"
+	"task-management/slices/listtasks"
 )
 
 func main() {
@@ -17,9 +18,13 @@ func main() {
 	createTaskHandler := createtask.NewHandler(store)
 	createTaskHTTP := createtask.NewHTTPHandler(createTaskHandler)
 
+	listTasksHandler := listtasks.NewQueryHandler(store)
+	listTasksHTTP := listtasks.NewHTTPHandler(listTasksHandler)
+
 	r := gin.Default()
 	tasks := r.Group("/api/v1/tasks")
 	createTaskHTTP.RegisterRoutes(tasks)
+	listTasksHTTP.RegisterRoutes(tasks) // same router group as createtask
 
 	log.Fatal(r.Run(":8080"))
 }
