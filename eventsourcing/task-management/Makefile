@@ -8,7 +8,7 @@ create:
 	-d '{"title": "Task Two"}'
 
 list:
-	curl http://localhost:8080/api/v1/tasks
+	@curl http://localhost:8080/api/v1/tasks
 
 complete-twice:
 	TASK_ID=$$(curl -s -X POST http://localhost:8080/api/v1/tasks -H "Content-Type: application/json" -d '{"title": "Finish tutorial"}' | jq -r '.task_id') && \

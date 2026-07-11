@@ -1,0 +1,1 @@
+# query with caching, synchronized over event bus store -> bus -> projector (literally task cache)
