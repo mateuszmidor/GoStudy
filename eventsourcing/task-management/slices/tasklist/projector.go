@@ -3,6 +3,8 @@ package tasklist
 
 import (
 	"context"
+	"maps"
+	"slices"
 	"sync"
 
 	"task-management/events"
@@ -33,15 +35,11 @@ func NewProjector() *Projector {
 }
 
 // All returns a snapshot of the current task list.
-func (p *Projector) All() []Task {
+func (p *Projector) All() []*Task {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
-	result := make([]Task, 0, len(p.tasks))
-	for _, t := range p.tasks {
-		result = append(result, *t)
-	}
-	return result
+	return slices.Collect(maps.Values(p.tasks))
 }
 
 // OnTaskCreated is called by the event bus when a TaskCreated event arrives.

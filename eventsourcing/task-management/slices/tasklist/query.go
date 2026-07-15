@@ -15,6 +15,6 @@ func NewQueryHandler(p *Projector) *QueryHandler {
 	return &QueryHandler{projector: p}
 }
 
-func (h *QueryHandler) HandleQuery(_ context.Context, _ ListTasks) ([]Task, error) {
+func (h *QueryHandler) HandleQuery(_ context.Context, _ ListTasks) ([]*Task, error) {
 	return h.projector.All(), nil
 }
