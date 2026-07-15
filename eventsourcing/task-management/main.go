@@ -4,11 +4,14 @@ package main
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	membus "github.com/terraskye/eventsourcing/eventbus/memory"
 	memstore "github.com/terraskye/eventsourcing/eventstore/memory"
 
+	archivetasks "task-management/processors/archivetask"
+	"task-management/slices/archivetask"
 	"task-management/slices/completetask"
 	"task-management/slices/createtask"
 	"task-management/slices/tasklist"
@@ -21,7 +24,14 @@ func main() {
 	bus := membus.NewEventBus(100)
 	defer bus.Close()
 
-	// Create the projector and register it on the bus.
+	// Create the archiver and register it on the bus (handles TaskCompleted event)
+	archiveHandler := archivetask.NewHandler(store)
+	archiveProcessor := archivetasks.NewProcessor(archiveHandler, 5*time.Second) // 5s for testing
+	if err := bus.Subscribe(context.Background(), "archive-processor", archiveProcessor.EventHandlers()); err != nil {
+		log.Fatal(err)
+	}
+
+	// Create the projector and register it on the bus (handles TaskCreated, TaskCompleted, TaskArchived events)
 	projector := tasklist.NewProjector()
 	if err := bus.Subscribe(context.Background(), "task-list-projector", projector.EventHandlers()); err != nil {
 		log.Fatal(err)
