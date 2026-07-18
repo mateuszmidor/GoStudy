@@ -15,6 +15,7 @@ type CreateAccount struct {
 	OwnerName string
 }
 
+// AggregateID is used by the eventsourcing framework to load correct event stream of events for "evolve" function
 func (c CreateAccount) AggregateID() string { return c.AccountID.String() }
 
 type accountState struct {

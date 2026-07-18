@@ -14,10 +14,11 @@ type FundAccount struct {
 	Dollars   uint
 }
 
+// AggregateID is used by the eventsourcing framework to load correct event stream of events for "evolve" function
 func (f FundAccount) AggregateID() string { return f.AccountID.String() }
 
 type accountState struct {
-	dollars uint
+	created bool
 }
 
 func initialState() accountState {
@@ -27,10 +28,9 @@ func initialState() accountState {
 func evolve(state accountState, envelope *eventsourcing.Envelope) accountState {
 	switch e := envelope.Event.(type) {
 	case *events.AccountCreated:
-		{
-		}
+		state.created = true
 	case *events.AccountFunded:
-		state.dollars += e.Dollars
+		break // if it was funded before that's ok
 	default:
 		slog.Error(fmt.Sprintf("unknown event %T", e))
 	}
@@ -39,6 +39,10 @@ func evolve(state accountState, envelope *eventsourcing.Envelope) accountState {
 }
 
 func decide(state accountState, cmd FundAccount) ([]eventsourcing.Event, error) {
+	// account must be created before being funded so check it here
+	if !state.created {
+		return nil, fmt.Errorf("account id %v not created yet", cmd.AccountID)
+	}
 	event := &events.AccountFunded{AccountID: cmd.AccountID, Dollars: cmd.Dollars}
 	return []eventsourcing.Event{event}, nil
 }
