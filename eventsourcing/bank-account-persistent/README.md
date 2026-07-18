@@ -1,16 +1,17 @@
 # bank-account-persistent
 
 - simulates bank account; CreateAccount, FundAccount, ListAccounts
-- uses KurrentDB event storage and event bus for reliability
+- uses PostgreSQL event storage and event bus for reliability
 
-## Bug in eventsourcing lib
+## Bug in KurrentDB eventsourcing lib
 The file github.com/terraskye/eventsourcing@v0.1.6/eventstore/kurrentdb/eventstore.go has a bug:  
-e.client.ReadAll reads with count=0 which means newer return and the function hungs forever.
+e.client.ReadAll reads with count=0 which means 'live reading' and newer return and the function hungs forever.  
+So - using PostgreSQL event store here.
 
 ## Run
 
 ```sh
-make rundb # KurrentDB Admin UI: http://localhost:2113
+make rundb 
 go run .
 
 # 1. successfuly create and list accounts

@@ -5,42 +5,48 @@ import (
 	"bank-account-persistent/slices/createaccount"
 	"bank-account-persistent/slices/fundaccount"
 	"bank-account-persistent/slices/listaccounts"
+	"context"
+	_ "embed"
 	"log/slog"
 	"net/http"
 
-	"github.com/kurrent-io/KurrentDB-Client-Go/kurrentdb"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/terraskye/eventsourcing"
-	eventstorekurrentdb "github.com/terraskye/eventsourcing/eventstore/kurrentdb"
+	pgstore "github.com/terraskye/eventsourcing/eventstore/postgres"
 )
 
+//go:embed schema.sql
+var schemaSQL string
+
 func main() {
-	config, err := kurrentdb.ParseConnectionString("esdb://localhost:2113?tls=false")
+	ctx := context.Background()
+
+	// initialize event store
+	pool, err := pgxpool.New(ctx, "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
-		slog.Error("failed to parse connection string", slog.Any("error", err))
+		slog.Error("failed to create connection pool", slog.Any("error", err))
 		return
 	}
-
-	client, err := kurrentdb.NewClient(config)
-	if err != nil {
-		slog.Error("failed to create KurrentDB client", slog.Any("error", err))
+	defer pool.Close()
+	if _, err := pool.Exec(ctx, schemaSQL); err != nil {
+		slog.Error("failed to apply schema", slog.Any("error", err))
 		return
 	}
-	defer client.Close()
-
-	store := eventstorekurrentdb.NewEventStore(client)
-
-	// for kurrentdb, events must be registered before they can be used
+	store := pgstore.NewEventStore(pool)
+	// events must be registered for the event store to work
 	eventsourcing.RegisterEvent(&events.AccountCreated{})
 	eventsourcing.RegisterEvent(&events.AccountFunded{})
 
-	mux := http.NewServeMux()
+	// initialize command handlers
 	createAccountHandler := createaccount.NewHTTPHandler(createaccount.NewHandler(store))
-	createAccountHandler.Register(mux)
 	listAccountsHandler := listaccounts.NewHTTPHandler(listaccounts.NewQueryHandler(store))
-	listAccountsHandler.Register(mux)
 	fundAccountHandler := fundaccount.NewHTTPHandler(fundaccount.NewHandler(store))
-	fundAccountHandler.Register(mux)
 
+	// initialize&run http server
+	mux := http.NewServeMux()
+	createAccountHandler.Register(mux)
+	listAccountsHandler.Register(mux)
+	fundAccountHandler.Register(mux)
 	server := http.Server{Addr: ":8080", Handler: mux}
 	slog.Info("listening on " + server.Addr)
 	slog.Error(server.ListenAndServe().Error())
