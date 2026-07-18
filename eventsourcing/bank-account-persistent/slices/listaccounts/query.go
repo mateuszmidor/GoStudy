@@ -61,7 +61,7 @@ func NewQueryHandler(store eventsourcing.EventStore) *QueryHandler {
 }
 
 func (h *QueryHandler) HandleQuery(ctx context.Context, _ ListAccounts) (*AccountList, error) {
-	iter, err := h.store.LoadFromAll(ctx, eventsourcing.Revision(0))
+	iter, err := h.store.LoadFromAll(ctx, eventsourcing.Any{})
 	if err != nil {
 		if errors.Is(err, eventsourcing.ErrInvalidRevision) {
 			return &AccountList{Accounts: make([]Account, 0)}, nil
