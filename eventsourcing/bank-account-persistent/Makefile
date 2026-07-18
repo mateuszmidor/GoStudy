@@ -15,4 +15,4 @@ list:
 	@curl http://localhost:8080/accounts
 
 rundb:
-	docker run --rm -d -p 2113:2113 -e EVENTSTORE_INSECURE=true kurrentplatform/kurrentdb:latest --insecure
+	docker run --rm -p 2113:2113 -e EVENTSTORE_INSECURE=true kurrentplatform/kurrentdb:latest --insecure

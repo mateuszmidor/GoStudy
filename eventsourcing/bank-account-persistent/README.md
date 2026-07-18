@@ -3,6 +3,10 @@
 - simulates bank account; CreateAccount, FundAccount, ListAccounts
 - uses KurrentDB event storage and event bus for reliability
 
+## Bug in eventsourcing lib
+The file github.com/terraskye/eventsourcing@v0.1.6/eventstore/kurrentdb/eventstore.go has a bug:  
+e.client.ReadAll reads with count=0 which means newer return and the function hungs forever.
+
 ## Run
 
 ```sh
