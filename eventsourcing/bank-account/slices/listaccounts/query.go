@@ -45,9 +45,10 @@ func evolve(state *AccountList, envelope *eventsourcing.Envelope) *AccountList {
 		})
 	case *events.AccountFunded:
 		acc := state.getByID(e.AccountID.String())
-		if acc == nil {
-			break
-		}
+		// should never happen
+		// if acc == nil {
+		// 	break
+		// }
 		acc.Dollars += e.Dollars
 	}
 
@@ -71,13 +72,13 @@ func (h *QueryHandler) HandleQuery(ctx context.Context, _ ListAccounts) (*Accoun
 		return nil, fmt.Errorf("list accounts: %w", err)
 	}
 
-	result := &AccountList{Accounts: make([]Account, 0)}
+	accounts := &AccountList{Accounts: make([]Account, 0)}
 	for iter.Next(ctx) {
-		result = evolve(result, iter.Value())
+		accounts = evolve(accounts, iter.Value())
 	}
 	if err := iter.Err(); err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return accounts, nil
 }
