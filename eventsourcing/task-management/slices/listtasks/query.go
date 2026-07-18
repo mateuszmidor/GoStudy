@@ -18,8 +18,10 @@ func (q ListTasks) ID() []byte { return []byte("list-tasks") }
 
 // Task is one item in the read model.
 type Task struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
+	ID        string `json:"id"`
+	Title     string `json:"title"`
+	Completed bool   `json:"completed"`
+	Archived  bool   `json:"archived"`
 }
 
 // TaskList is the read model returned by the query.
@@ -35,6 +37,20 @@ func evolve(state *TaskList, envelope *eventsourcing.Envelope) *TaskList {
 			ID:    e.TaskID.String(),
 			Title: e.Title,
 		})
+	case *events.TaskCompleted:
+		for i := range state.Tasks {
+			if state.Tasks[i].ID == e.TaskID.String() {
+				state.Tasks[i].Completed = true
+				break
+			}
+		}
+	case *events.TaskArchived:
+		for i := range state.Tasks {
+			if state.Tasks[i].ID == e.TaskID.String() {
+				state.Tasks[i].Archived = true
+				break
+			}
+		}
 	}
 	return state
 }
