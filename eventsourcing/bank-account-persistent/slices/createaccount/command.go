@@ -1,0 +1,53 @@
+package createaccount
+
+import (
+	"bank-account-persistent/events"
+	"fmt"
+	"log/slog"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/terraskye/eventsourcing"
+)
+
+type CreateAccount struct {
+	AccountID uuid.UUID
+	OwnerName string
+}
+
+// AggregateID is used by the eventsourcing framework to load correct event stream of events for "evolve" function
+func (c CreateAccount) AggregateID() string { return c.AccountID.String() }
+
+type accountState struct {
+	exists bool
+}
+
+var initialState = func() accountState {
+	return accountState{}
+}
+
+func evolve(state accountState, envelope *eventsourcing.Envelope) accountState {
+	switch e := envelope.Event.(type) {
+	case *events.AccountCreated:
+		state.exists = true
+	default:
+		slog.Error(fmt.Sprintf("unknown event %T", e))
+	}
+
+	return state
+}
+
+func decide(state accountState, cmd CreateAccount) ([]eventsourcing.Event, error) {
+	// account with such ID must not exist yet so check it here
+	// this actually is a double-check after the eventsourcing.NoStream{} requirement
+	if state.exists {
+		return nil, fmt.Errorf("account %v already exists", cmd.AccountID)
+	}
+
+	event := &events.AccountCreated{AccountID: cmd.AccountID, OwnerName: cmd.OwnerName, CreatedAt: time.Now()}
+	return []eventsourcing.Event{event}, nil
+}
+
+func NewHandler(store eventsourcing.EventStore) eventsourcing.CommandHandler[CreateAccount] {
+	return eventsourcing.NewCommandHandler(store, initialState, evolve, decide, eventsourcing.WithStreamState(eventsourcing.NoStream{})) // aggregate with such ID must not exist yet
+}
