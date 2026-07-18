@@ -44,11 +44,8 @@ func evolve(state *AccountList, envelope *eventsourcing.Envelope) *AccountList {
 			CreatedAt: e.CreatedAt,
 		})
 	case *events.AccountFunded:
+		// Account always exists - enforced by "FundAccount" command before it emits "AccountFunded" event
 		acc := state.getByID(e.AccountID.String())
-		// should never happen
-		// if acc == nil {
-		// 	break
-		// }
 		acc.Dollars += e.Dollars
 	}
 

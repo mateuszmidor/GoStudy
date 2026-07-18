@@ -40,6 +40,7 @@ func evolve(state accountState, envelope *eventsourcing.Envelope) accountState {
 
 func decide(state accountState, cmd FundAccount) ([]eventsourcing.Event, error) {
 	// account must be created before being funded so check it here
+	// this actually is a double-check after the eventsourcing.StreamExists{} requirement
 	if !state.created {
 		return nil, fmt.Errorf("account id %v not created yet", cmd.AccountID)
 	}
@@ -48,5 +49,5 @@ func decide(state accountState, cmd FundAccount) ([]eventsourcing.Event, error) 
 }
 
 func NewHandler(store eventsourcing.EventStore) eventsourcing.CommandHandler[FundAccount] {
-	return eventsourcing.NewCommandHandler(store, initialState, evolve, decide)
+	return eventsourcing.NewCommandHandler(store, initialState, evolve, decide, eventsourcing.WithStreamState(eventsourcing.StreamExists{})) // aggregate with such ID must already exist
 }
