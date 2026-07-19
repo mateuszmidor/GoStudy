@@ -2,7 +2,6 @@ package getbalance
 
 import (
 	"encoding/json"
-	"log/slog"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -21,23 +20,18 @@ func (h *HTTPHandler) Register(mux *http.ServeMux) {
 }
 
 func (h *HTTPHandler) Handle(w http.ResponseWriter, req *http.Request) {
-	slog.Info(req.Method + " " + req.URL.Path)
-
 	id, err := uuid.Parse(req.PathValue("id"))
 	if err != nil {
-		slog.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	result, err := h.handler.HandleQuery(req.Context(), GetBalance{AccountID: id})
 	if err != nil {
-		slog.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	err = json.NewEncoder(w).Encode(result)
 	if err != nil {
-		slog.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

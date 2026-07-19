@@ -2,7 +2,6 @@ package fundaccount
 
 import (
 	"encoding/json"
-	"log/slog"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -28,15 +27,12 @@ func (h *HTTPHandler) Register(mux *http.ServeMux) {
 func (h *HTTPHandler) Handle(w http.ResponseWriter, req *http.Request) {
 	var r request
 	if err := json.NewDecoder(req.Body).Decode(&r); err != nil {
-		slog.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	slog.Info(req.Method+" "+req.URL.Path, slog.Any("payload", r))
 	id, err := uuid.Parse(req.PathValue("id"))
 	if err != nil {
-		slog.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -46,7 +42,6 @@ func (h *HTTPHandler) Handle(w http.ResponseWriter, req *http.Request) {
 		Dollars:   r.Dollars,
 	}
 	if _, err := h.handler(req.Context(), cmd); err != nil {
-		slog.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

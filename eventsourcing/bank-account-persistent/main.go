@@ -6,6 +6,7 @@ import (
 	"bank-account-persistent/slices/fundaccount"
 	"bank-account-persistent/slices/getbalance"
 	"bank-account-persistent/slices/listaccounts"
+	"bank-account-persistent/utils"
 	"context"
 	_ "embed"
 	"log/slog"
@@ -71,7 +72,7 @@ func main() {
 	listAccountsHandler.Register(mux)
 	fundAccountHandler.Register(mux)
 	getBalanceHandler.Register(mux)
-	server := http.Server{Addr: ":8080", Handler: mux}
+	server := http.Server{Addr: ":8080", Handler: utils.NewRequestLogger(mux)}
 	slog.Info("listening on " + server.Addr)
 	slog.Error(server.ListenAndServe().Error())
 }
