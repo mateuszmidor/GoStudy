@@ -3,6 +3,8 @@ package listaccounts
 import (
 	"bank-account-persistent/events"
 	"context"
+	"errors"
+	"fmt"
 	"maps"
 	"slices"
 	"sync"
@@ -11,14 +13,36 @@ import (
 	"github.com/terraskye/eventsourcing"
 )
 
+// Projector caches the accounts
 type Projector struct {
 	mu       sync.RWMutex
 	accounts map[uuid.UUID]Account // keyed by AccountID
 }
 
 func NewProjector() *Projector {
-	// note: should the accounts map be initially populated from event store?
 	return &Projector{accounts: map[uuid.UUID]Account{}}
+}
+
+// RebuildFromStore populates the projector cache by replaying all events from the event store.
+// Call this before subscribing to the event bus to ensure the projector is up to date.
+func (p *Projector) RebuildFromStore(ctx context.Context, store eventsourcing.EventStore) error {
+	iter, err := store.LoadFromAll(ctx, eventsourcing.Any{})
+	if err != nil {
+		return fmt.Errorf("rebuild from store: %w", err)
+	}
+
+	handleEvent := p.EventHandlers().Handle
+	for iter.Next(ctx) {
+		event := iter.Value().Event
+		if err := handleEvent(ctx, event); err != nil {
+			var skipped *eventsourcing.ErrSkippedEvent
+			if !errors.As(err, &skipped) {
+				return fmt.Errorf("handle event %s: %w", event.EventType(), err)
+			}
+		}
+	}
+
+	return iter.Err()
 }
 
 func (p *Projector) GetAll() []Account {

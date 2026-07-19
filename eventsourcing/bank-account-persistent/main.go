@@ -19,10 +19,14 @@ import (
 )
 
 //go:embed schema.sql
-var schemaSQL string
+var schemaSQL string // postgresql schema for persistent event store and event bus
 
 func main() {
 	ctx := context.Background()
+
+	// all events must be registered for the event store to be able to handle them (specifically: deserialize them)
+	eventsourcing.RegisterEvent(&events.AccountCreated{})
+	eventsourcing.RegisterEvent(&events.AccountFunded{})
 
 	// initialize postgres connection
 	pool, err := pgxpool.New(ctx, "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable")
@@ -32,19 +36,24 @@ func main() {
 	}
 	defer pool.Close()
 
-	// initialize event store
+	// initialize postgres schema for event store and event bus
 	if _, err := pool.Exec(ctx, schemaSQL); err != nil {
 		slog.Error("failed to apply schema", slog.Any("error", err))
 		return
 	}
-	store := pgstore.NewEventStore(pool)
-	// events must be registered for the event store to work
-	eventsourcing.RegisterEvent(&events.AccountCreated{})
-	eventsourcing.RegisterEvent(&events.AccountFunded{})
 
-	// initialize event bus
+	// initialize postgres-backed event store
+	store := pgstore.NewEventStore(pool)
+
+	// initialize postgres-backed event bus
 	bus := pgbus.NewEventBus(pool, time.Second)
+
+	// initialize event bus subscriptions
 	projector := listaccounts.NewProjector()
+	if err := projector.RebuildFromStore(ctx, store); err != nil {
+		slog.Error("failed to rebuild projector from store", slog.Any("error", err))
+		return
+	}
 	if err := bus.Subscribe(ctx, "list-accounts-projector", projector.EventHandlers()); err != nil {
 		slog.Error("failed to add subscriber to bus", slog.Any("error", err))
 		return
@@ -52,8 +61,8 @@ func main() {
 
 	// initialize command handlers
 	createAccountHandler := createaccount.NewHTTPHandler(createaccount.NewHandler(store))
-	listAccountsHandler := listaccounts.NewHTTPHandler(listaccounts.NewQueryHandler(projector))
 	fundAccountHandler := fundaccount.NewHTTPHandler(fundaccount.NewHandler(store))
+	listAccountsHandler := listaccounts.NewHTTPHandler(listaccounts.NewQueryHandler(projector))
 	getBalanceHandler := getbalance.NewHTTPHandler(getbalance.NewQueryHandler(store))
 
 	// initialize&run http server
