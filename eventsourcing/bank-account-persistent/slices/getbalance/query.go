@@ -41,8 +41,8 @@ func NewQueryHandler(store eventsourcing.EventStore) *QueryHandler {
 func (h *QueryHandler) HandleQuery(ctx context.Context, q GetBalance) (uint, error) {
 	iter, err := h.store.LoadStream(ctx, q.AccountID.String())
 	if err != nil {
-		if errors.Is(err, eventsourcing.ErrInvalidRevision) {
-			return 0, nil
+		if errors.Is(err, eventsourcing.ErrStreamNotFound) {
+			return 0, fmt.Errorf("get balance: account not found %v", q.AccountID)
 		}
 		return 0, fmt.Errorf("get balance: %w", err)
 	}
