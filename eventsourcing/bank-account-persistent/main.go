@@ -10,9 +10,11 @@ import (
 	_ "embed"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/terraskye/eventsourcing"
+	pgbus "github.com/terraskye/eventsourcing/eventbus/postgres"
 	pgstore "github.com/terraskye/eventsourcing/eventstore/postgres"
 )
 
@@ -22,13 +24,15 @@ var schemaSQL string
 func main() {
 	ctx := context.Background()
 
-	// initialize event store
+	// initialize postgres connection
 	pool, err := pgxpool.New(ctx, "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		slog.Error("failed to create connection pool", slog.Any("error", err))
 		return
 	}
 	defer pool.Close()
+
+	// initialize event store
 	if _, err := pool.Exec(ctx, schemaSQL); err != nil {
 		slog.Error("failed to apply schema", slog.Any("error", err))
 		return
@@ -38,9 +42,17 @@ func main() {
 	eventsourcing.RegisterEvent(&events.AccountCreated{})
 	eventsourcing.RegisterEvent(&events.AccountFunded{})
 
+	// initialize event bus
+	bus := pgbus.NewEventBus(pool, time.Second)
+	projector := listaccounts.NewProjector()
+	if err := bus.Subscribe(ctx, "list-accounts-projector", projector.EventHandlers()); err != nil {
+		slog.Error("failed to add subscriber to bus", slog.Any("error", err))
+		return
+	}
+
 	// initialize command handlers
 	createAccountHandler := createaccount.NewHTTPHandler(createaccount.NewHandler(store))
-	listAccountsHandler := listaccounts.NewHTTPHandler(listaccounts.NewQueryHandler(store))
+	listAccountsHandler := listaccounts.NewHTTPHandler(listaccounts.NewQueryHandler(projector))
 	fundAccountHandler := fundaccount.NewHTTPHandler(fundaccount.NewHandler(store))
 	getBalanceHandler := getbalance.NewHTTPHandler(getbalance.NewQueryHandler(store))
 

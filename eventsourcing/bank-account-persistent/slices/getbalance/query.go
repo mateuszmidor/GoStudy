@@ -37,6 +37,7 @@ func NewQueryHandler(store eventsourcing.EventStore) *QueryHandler {
 	return &QueryHandler{store: store}
 }
 
+// HandleQuery rebuilds the account balance event by event
 func (h *QueryHandler) HandleQuery(ctx context.Context, q GetBalance) (uint, error) {
 	iter, err := h.store.LoadStream(ctx, q.AccountID.String())
 	if err != nil {
