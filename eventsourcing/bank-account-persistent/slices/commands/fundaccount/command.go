@@ -1,12 +1,13 @@
 package fundaccount
 
 import (
-	"bank-account-persistent/events"
 	"fmt"
 	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/terraskye/eventsourcing"
+
+	"bank-account-persistent/events"
 )
 
 type FundAccount struct {
