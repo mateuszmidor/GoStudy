@@ -21,5 +21,8 @@ make list
 # 2. successfuly create & fund & list accounts
 make fund
 make list # archived=false
+
+#3. get account with balance
+make get id=<uuid from the list>
 ```
 
