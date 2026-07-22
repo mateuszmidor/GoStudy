@@ -1,17 +1,18 @@
 package main
 
 import (
-	"bank-account-persistent/events"
-	"bank-account-persistent/slices/createaccount"
-	"bank-account-persistent/slices/fundaccount"
-	"bank-account-persistent/slices/getbalance"
-	"bank-account-persistent/slices/listaccounts"
-	"bank-account-persistent/utils"
 	"context"
 	_ "embed"
 	"log/slog"
 	"net/http"
 	"time"
+
+	"bank-account-persistent/events"
+	"bank-account-persistent/slices/commands/createaccount"
+	"bank-account-persistent/slices/commands/fundaccount"
+	"bank-account-persistent/slices/queries/getbalance"
+	"bank-account-persistent/slices/queries/listaccounts"
+	"bank-account-persistent/utils"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/terraskye/eventsourcing"
