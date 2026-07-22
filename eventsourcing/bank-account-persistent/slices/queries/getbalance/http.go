@@ -27,7 +27,7 @@ func (h *HTTPHandler) Handle(w http.ResponseWriter, req *http.Request) {
 	}
 	result, err := h.handler.HandleQuery(req.Context(), GetBalance{AccountID: id})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 	err = json.NewEncoder(w).Encode(result)
