@@ -21,7 +21,7 @@ func NewHTTPHandler(handler eventsourcing.CommandHandler[FundAccount]) *HTTPHand
 }
 
 func (h *HTTPHandler) Register(mux *http.ServeMux) {
-	mux.HandleFunc("POST /accounts/{id}/atm", h.Handle)
+	mux.HandleFunc("POST /accounts/{id}/deposits", h.Handle)
 }
 
 func (h *HTTPHandler) Handle(w http.ResponseWriter, req *http.Request) {
