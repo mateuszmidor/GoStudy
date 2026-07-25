@@ -5,17 +5,16 @@ This is more advanced CloudEvents example: payload is wrapped in CloudEventEnvel
 ## Run
 
 ```sh
+docker-compose up # run kafka 
 go run . receiver
 go run . sender
 ```
 
 , result:
 ```
---- [ Event Received ] ---
-ID:          evt-987654321
-Source:      https://auth.example.com/users
-Type:        com.example.user.created
-SpecVersion: 1.0
-Time:        2026-07-25 07:44:04.2749667 +0000 UTC
-Data:        UserID=usr_101, Email=alice@example.com
+--- [ Event Received from Kafka ] ---
+ID:     evt-1001
+Source: https://auth.example.com/users
+Type:   com.example.user.created
+Data:   UserID=usr_202, Email=bob@example.com
 ```

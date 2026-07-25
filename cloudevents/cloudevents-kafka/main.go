@@ -67,7 +67,9 @@ func runSender() {
 	event.SetTime(time.Now())
 
 	payload := UserCreatedPayload{UserID: "usr_202", Email: "bob@example.com"}
-	_ = event.SetData(cloudevents.ApplicationJSON, payload)
+	if err := event.SetData(cloudevents.ApplicationJSON, payload); err != nil {
+		log.Fatalf("failed to set event data: %v", err)
+	}
 
 	// 4. Send event to Kafka
 	log.Printf("Publishing CloudEvent to Kafka topic '%s'...", topic)
@@ -85,15 +87,15 @@ func runReceiver() {
 	saramaConfig := sarama.NewConfig()
 	saramaConfig.Version = sarama.V2_0_0_0
 
-	// 1. Create a CloudEvents Consumer Group protocol listener
-	consumerGroup, err := protocol.NewConsumerGroup([]string{kafkaBroker}, saramaConfig, groupID, topic)
+	// 1. Create a CloudEvents Kafka Consumer
+	consumer, err := protocol.NewConsumer([]string{kafkaBroker}, saramaConfig, groupID, topic)
 	if err != nil {
-		log.Fatalf("failed to create kafka consumer group: %v", err)
+		log.Fatalf("failed to create kafka consumer: %v", err)
 	}
-	defer consumerGroup.Close(context.Background())
+	defer consumer.Close(context.Background())
 
 	// 2. Wrap in CloudEvents client
-	c, err := cloudevents.NewClient(consumerGroup)
+	c, err := cloudevents.NewClient(consumer)
 	if err != nil {
 		log.Fatalf("failed to create cloudevents client: %v", err)
 	}
@@ -113,7 +115,10 @@ func handleEvent(event cloudevents.Event) {
 	fmt.Printf("Type:   %s\n", event.Type())
 
 	var payload UserCreatedPayload
-	if err := event.DataAs(&payload); err == nil {
-		fmt.Printf("Data:   UserID=%s, Email=%s\n", payload.UserID, payload.Email)
+	if err := event.DataAs(&payload); err != nil {
+		log.Printf("Failed to decode event data: %v", err)
+		return
 	}
+
+	fmt.Printf("Data:   UserID=%s, Email=%s\n", payload.UserID, payload.Email)
 }
