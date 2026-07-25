@@ -10,7 +10,7 @@ import (
 	"bank-account-persistent/events"
 	"bank-account-persistent/slices/commands/createaccount"
 	"bank-account-persistent/slices/commands/fundaccount"
-	"bank-account-persistent/slices/queries/getbalance"
+	"bank-account-persistent/slices/queries/getaccount"
 	"bank-account-persistent/slices/queries/listaccounts"
 	"bank-account-persistent/utils"
 
@@ -65,14 +65,14 @@ func main() {
 	createAccountHandler := createaccount.NewHTTPHandler(createaccount.NewHandler(store))
 	fundAccountHandler := fundaccount.NewHTTPHandler(fundaccount.NewHandler(store))
 	listAccountsHandler := listaccounts.NewHTTPHandler(listaccounts.NewQueryHandler(projector))
-	getBalanceHandler := getbalance.NewHTTPHandler(getbalance.NewQueryHandler(store))
+	getAccountHandler := getaccount.NewHTTPHandler(getaccount.NewQueryHandler(store))
 
 	// initialize&run http server
 	mux := http.NewServeMux()
 	createAccountHandler.Register(mux)
 	listAccountsHandler.Register(mux)
 	fundAccountHandler.Register(mux)
-	getBalanceHandler.Register(mux)
+	getAccountHandler.Register(mux)
 	server := http.Server{Addr: ":8080", Handler: utils.NewRequestLogger(mux)}
 	slog.Info("listening on " + server.Addr)
 	slog.Error(server.ListenAndServe().Error())

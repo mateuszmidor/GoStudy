@@ -50,12 +50,14 @@ Each aggregate (bank account) has its own **stream** — an ordered sequence of 
 
 ### 4. Queries — two strategies for deriving state
 
-**Strategy A — Event stream replay** (`getbalance/query.go:41-58`)
+**Strategy A — Event stream replay** (`getaccount/query.go:65-93`)
 
-On each `GET /accounts/{id}/balance` request, `HandleQuery`:
+- **`GET /accounts/{id}`** (`getaccount`): Loads the event stream, replays all events through `evolve`, and returns the full account (ID, owner name, balance, creation date).
+
+On each request, `HandleQuery`:
 1. Loads the entire event stream for that account from the store via `store.LoadStream`
-2. Replays every event through the `evolve` function: `AccountFunded` adds `Dollars` to the state
-3. Returns the accumulated balance
+2. Replays every event through the `evolve` function: `AccountCreated` sets owner/created-at, `AccountFunded` adds `Dollars` to the state
+3. Returns the accumulated state
 
 This is the purest form — **no cached state, always consistent**.
 
@@ -63,11 +65,11 @@ This is the purest form — **no cached state, always consistent**.
 
 The `Projector` maintains an in-memory `map[uuid.UUID]Account`:
 
-- **On startup** (`main.go:54-58`): `RebuildFromStore` uses `store.LoadFromAll(ctx, eventsourcing.Any{})` — a different API from `LoadStream` — to read events from **all streams globally** (not just one). Each event is dispatched through the projector's `EventHandlers()`. Events the projector doesn't handle (like `AccountFunded`) produce an `ErrSkippedEvent` which is silently ignored (`projector.go:38-41`). This is the key pattern: **projectors only handle events they care about**.
-- **At runtime**: The projector subscribes to the **event bus** (`main.go:59-62`). New `AccountCreated` events are pushed to the projector as they happen, updating the cache.
+- **On startup** (`main.go:55-58`): `RebuildFromStore` uses `store.LoadFromAll(ctx, eventsourcing.Any{})` — a different API from `LoadStream` — to read events from **all streams globally** (not just one). Each event is dispatched through the projector's `EventHandlers()`. Events the projector doesn't handle (like `AccountFunded`) produce an `ErrSkippedEvent` which is silently ignored (`projector.go:38-41`). This is the key pattern: **projectors only handle events they care about**.
+- **At runtime**: The projector subscribes to the **event bus** (`main.go:59-61`). New `AccountCreated` events are pushed to the projector as they happen, updating the cache.
 - **Query handling** (`query.go:30-32`): `GET /accounts` just reads from the in-memory cache — O(1), no DB hit.
 
-**Design decision**: The projector only handles `AccountCreated` — it deliberately ignores `AccountFunded`. This is why the `Account` struct (`query.go:14-19`) has no `Dollars` field (note the comment: `// Dollars uint // for account balance use GetBalance query`). The list view is metadata-only; balance requires a dedicated query via stream replay. This is intentional CQRS separation: different read models serve different purposes.
+**Design decision**: The projector only handles `AccountCreated` — it deliberately ignores `AccountFunded`. This is why the `Account` struct (`query.go:14-19`) has no `Dollars` field (note the comment: `// Dollars uint // for account balance use GetAccount query`). The list view is metadata-only; balance requires a dedicated query via stream replay. This is intentional CQRS separation: different read models serve different purposes.
 
 This is the **CQRS projection pattern**: write-side produces events, read-side maintains a denormalized view.
 
@@ -90,7 +92,7 @@ The bus (`main.go:51`) uses a **hybrid push+pull** mechanism over PostgreSQL (`s
 | `POST` | `/accounts` | Create a new account | Command → appends `AccountCreated` event |
 | `POST` | `/accounts/{id}/deposits` | Fund an account | Command → appends `AccountFunded` event |
 | `GET` | `/accounts` | List all accounts | Query → reads from projector cache |
-| `GET` | `/accounts/{id}/balance` | Get account balance | Query → replays event stream |
+| `GET` | `/accounts/{id}` | Get full account details | Query → replays event stream |
 
 ---
 
@@ -100,19 +102,19 @@ The bus (`main.go:51`) uses a **hybrid push+pull** mechanism over PostgreSQL (`s
 WRITE PATH (commands)                    READ PATH (queries)
 ══════════════════════                   ═══════════════════
 
-POST /accounts                           GET /accounts/{id}/balance
-POST /accounts/{id}/deposits                         │
-       │                                        ▼
-       ▼                                 ┌────────────────┐
-  ┌────────────────┐                     │  Event Store   │
-  │ Command Handler │                     │  (PostgreSQL)  │
-  │  1. evolve()   │                     │  events table  │
-  │     validate    │                     └───────┬────────┘
-  │  2. decide()   │                             │
-  │     produce     │                             │ replay events → evolve → balance
+POST /accounts                           GET /accounts/{id}
+POST /accounts/{id}/deposits
+        │                                        │
+        ▼                                        ▼
+  ┌────────────────┐                     ┌────────────────┐
+  │ Command Handler│                     │  Event Store   │
+  │  1. evolve()   │                     │  (PostgreSQL)  │
+  │     validate   │                     │  events table  │
+  │  2. decide()   │                     └───────┬────────┘
+  │     produce    │                             │ replay events → evolve → state
   └───────┬────────┘                             │
-          │ append events                         ▼
-          ▼                                 balance (uint)
+          │ append events                        ▼
+          ▼                                    Account (with all details)
   ┌────────────────┐
   │  Event Store   │                     GET /accounts
   │  (PostgreSQL)  │                            │
@@ -130,7 +132,7 @@ POST /accounts/{id}/deposits                         │
 
 **Two distinct read paths**:
 - **Projector cache** (`listaccounts`): Fast, eventually consistent. Used for listing accounts.
-- **Stream replay** (`getbalance`): Always consistent, reads directly from the event store. Used for balance queries.
+- **Stream replay** (`getaccount`): Always consistent, reads directly from the event store. Used for full account details.
 
 ---
 
@@ -140,6 +142,6 @@ POST /accounts/{id}/deposits                         │
 |---|---|
 | **Command-Query separation** | `slices/commands/` and `slices/queries/` are distinct packages with no direct coupling — they share only the `events` package for type definitions |
 | **Event sourcing** | State is never stored directly — only events. `accountState` is ephemeral, rebuilt on demand |
-| **Projections** | `listaccounts` caches a denormalized view; `getbalance` replays on the fly. Trade-off: staleness vs. consistency |
+| **Projections** | `listaccounts` caches a denormalized view; `getaccount` replays on the fly. Trade-off: staleness vs. consistency |
 | **Optimistic concurrency** | The `UNIQUE(stream_id, stream_position)` constraint prevents concurrent appends to the same stream position |
 | **Framework** | `github.com/terraskye/eventsourcing` — provides the `CommandHandler`, `EventStore`, `EventBus` abstractions with PostgreSQL implementations |

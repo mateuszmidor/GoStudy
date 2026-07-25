@@ -14,9 +14,9 @@ fund:
 list:
 	@curl http://localhost:8080/accounts
 
-# get account balance, example: make get id=bf5b9321-eb0f-4089-888e-45c8a9d5acd2
+# get account, example: make get id=bf5b9321-eb0f-4089-888e-45c8a9d5acd2
 get:
-	@curl http://localhost:8080/accounts/$(id)/balance
+	@curl http://localhost:8080/accounts/$(id)
 
 # run the event store db
 rundb:

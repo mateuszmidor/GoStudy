@@ -1,6 +1,6 @@
 # bank-account-persistent
 
-- simulates bank account; CreateAccount, FundAccount, ListAccounts
+- simulates bank account; CreateAccount, FundAccount, ListAccounts, GetAccount
 - uses PostgreSQL event storage and event bus for reliability
 
 ## Bug in KurrentDB eventsourcing lib
@@ -16,13 +16,13 @@ go run .
 
 # 1. successfuly create and list accounts
 make create
-make list
+make list 
 
 # 2. successfuly create & fund & list accounts
 make fund
 make list # archived=false
 
-#3. get account with balance
+# 3. get account
 make get id=<uuid from the list>
 ```
 

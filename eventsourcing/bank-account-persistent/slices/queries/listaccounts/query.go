@@ -13,7 +13,7 @@ func (q ListAccounts) ID() []byte { return []byte("list-accounts") }
 
 type Account struct {
 	ID uuid.UUID
-	// Dollars   uint // for account balance use GetBalance query
+	// Dollars   uint // for account balance use GetAccount query
 	OwnerName string
 	CreatedAt time.Time
 }
