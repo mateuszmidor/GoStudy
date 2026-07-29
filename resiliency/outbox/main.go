@@ -25,7 +25,7 @@ func main() {
 	}
 	defer db.Close()
 
-	// Initialize the database schema
+	// Initialize the database schema with outbox table
 	_, err = db.ExecContext(ctx, initDbSql)
 	if err != nil {
 		log.Fatal(err)
@@ -45,14 +45,14 @@ func main() {
 		}
 	}()
 
-	// Create a new notifier that writes messages to the outbox table
+	// Create a new message publisher that writes messages to the outbox table
 	notifier := NewPublisher(db)
 
-	// Send messages to the outbox table
+	// Publish messages to the outbox table
 	i := 1
 	for {
-		eventData := fmt.Appendf([]byte{}, `{%q: %q}`, "event_name", fmt.Sprintf("event-%d", i))
-		msg := NewMessage(uuid.New(), fmt.Sprintf("test-%d", i), eventData, time.Now(), fmt.Sprintf("trace-id-%d", i))
+		eventDataJSON := fmt.Appendf(nil, `{%q: %q}`, "event_name", fmt.Sprintf("event_%d", i))
+		msg := NewMessage(uuid.New(), fmt.Sprintf("test_%d", i), eventDataJSON, time.Now(), fmt.Sprintf("trace_id_%d", i))
 		if err := notifier.Publish(ctx, msg); err != nil {
 			log.Fatal(err)
 		}
