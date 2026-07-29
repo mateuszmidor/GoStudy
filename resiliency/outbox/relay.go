@@ -12,7 +12,7 @@ import (
 )
 
 // RelayMessage is a function that relays an outbox message after its received from the outbox table
-type RelayMessage func(ctx context.Context, message Message) error //nolint:revive // name needs to stutter
+type RelayMessage func(ctx context.Context, msg *Message) error
 
 // Option is a function that modifies a OutboxRelay based on options
 type Option func(*OutboxRelay)
@@ -61,7 +61,7 @@ func (p *OutboxRelay) Run(ctx context.Context) error {
 	for {
 		select {
 		case <-time.After(p.pollEvery):
-			err := p.repository.ProcessUnprocessedWithLock(ctx, 100, func(ctx context.Context, msg Message) {
+			err := p.repository.ProcessUnprocessedWithLock(ctx, 100, func(ctx context.Context, msg *Message) {
 				ctx, span := tracer.Start(resumeContextWithTraceID(ctx, msg.TraceID()),
 					"outbox.relay.publish",
 					trace.WithAttributes(

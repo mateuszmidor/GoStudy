@@ -16,8 +16,8 @@ func NewNotifier(db *sql.DB) *Notifier {
 }
 
 // Notify ensures the outbox is aware of the given domain event
-func (n *Notifier) Notify(ctx context.Context, msg message) error {
+func (n *Notifier) Notify(ctx context.Context, msg *Message) error {
 	return RunInTransaction(ctx, n.db, func(tx *sql.Tx) error {
-		return PersistMessages(ctx, []Message{&msg}, tx)
+		return PersistMessages(ctx, []*Message{msg}, tx)
 	})
 }

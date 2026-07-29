@@ -84,7 +84,7 @@ func listUnprocessedWithLockQuery(limit int32) bob.Query {
 }
 
 // upsertQuery creates an upsert query for a message
-func upsertQuery(message Message) bob.Query {
+func upsertQuery(msg *Message) bob.Query {
 
 	var (
 		processedAt   *time.Time
@@ -92,17 +92,17 @@ func upsertQuery(message Message) bob.Query {
 		traceID       *string
 	)
 
-	if message.IsProcessed() {
-		processedAt = message.ProcessedAt()
+	if msg.IsProcessed() {
+		processedAt = msg.ProcessedAt()
 	}
 
-	if message.FailureReason() != "" {
-		reason := message.FailureReason()
+	if msg.FailureReason() != "" {
+		reason := msg.FailureReason()
 		failureReason = &reason
 	}
 
-	if message.TraceID() != "" {
-		trace := message.TraceID()
+	if msg.TraceID() != "" {
+		trace := msg.TraceID()
 		traceID = &trace
 	}
 
@@ -120,13 +120,13 @@ func upsertQuery(message Message) bob.Query {
 			traceIDCol,
 		),
 		im.Values(psql.Arg(
-			message.ID(),
-			message.EventName(),
-			message.EventData(),
-			message.OccurredAt(),
+			msg.ID(),
+			msg.EventName(),
+			msg.EventData(),
+			msg.OccurredAt(),
 			processedAt,
-			message.FailCount(),
-			message.IsFailed(),
+			msg.FailCount(),
+			msg.IsFailed(),
 			failureReason,
 			traceID,
 		)),
@@ -144,8 +144,8 @@ func upsertQuery(message Message) bob.Query {
 }
 
 // mapRowToMessage converts a database row to a Message
-func mapRowToMessage(row outboxRow) Message {
-	m := &message{
+func mapRowToMessage(row outboxRow) *Message {
+	m := &Message{
 		id:         row.ID,
 		eventName:  row.EventName,
 		eventData:  row.EventData,
@@ -170,8 +170,8 @@ func mapRowToMessage(row outboxRow) Message {
 }
 
 // mapRowsToMessages converts multiple database rows to Messages
-func mapRowsToMessages(rows []outboxRow) []Message {
-	messages := make([]Message, len(rows))
+func mapRowsToMessages(rows []outboxRow) []*Message {
+	messages := make([]*Message, len(rows))
 	for i, row := range rows {
 		messages[i] = mapRowToMessage(row)
 	}

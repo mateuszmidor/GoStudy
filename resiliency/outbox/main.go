@@ -35,8 +35,8 @@ func main() {
 	}
 	defer db.Close()
 
-	relay := NewOutboxRelay(func(ctx context.Context, message Message) error {
-		fmt.Println(message)
+	relay := NewOutboxRelay(func(ctx context.Context, msg *Message) error {
+		fmt.Println(msg)
 		return nil
 	}, NewRepository(db))
 
@@ -52,14 +52,14 @@ func main() {
 	i := 1
 	for {
 		eventData := fmt.Appendf([]byte{}, `{%q: %q}`, "event_name", fmt.Sprintf("event-%d", i))
-		msg := message{
+		msg := Message{
 			id:         uuid.New(),
 			eventName:  fmt.Sprintf("test-%d", i),
 			eventData:  eventData,
 			occurredAt: time.Now(),
 			traceID:    fmt.Sprintf("trace-id-%d", i),
 		}
-		err = notifier.Notify(ctx, msg)
+		err = notifier.Notify(ctx, &msg)
 		if err != nil {
 			log.Fatal(err)
 		}

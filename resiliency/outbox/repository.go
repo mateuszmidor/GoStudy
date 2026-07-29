@@ -10,15 +10,15 @@ import (
 )
 
 // VisitorFunc is a function that processes a message.
-type VisitorFunc func(context.Context, Message)
+type VisitorFunc func(context.Context, *Message)
 
 // Repository interface for managing outbox operations.
 type Repository interface {
-	Get(ctx context.Context) ([]Message, error)
-	GetUnprocessed(ctx context.Context, limit int32) ([]Message, error)
+	Get(ctx context.Context) ([]*Message, error)
+	GetUnprocessed(ctx context.Context, limit int32) ([]*Message, error)
 	// ProcessUnprocessedWithLock calls the visitorFunc with a context that has a lock on the outbox table, to avoid concurrent processing of the same messages.
 	ProcessUnprocessedWithLock(ctx context.Context, limit int32, visitorFunc VisitorFunc) error
-	Store(ctx context.Context, msg Message) error
+	Store(ctx context.Context, msg *Message) error
 }
 
 type repository struct {
@@ -26,7 +26,7 @@ type repository struct {
 }
 
 // Get all messages from the outbox.
-func (r *repository) Get(ctx context.Context) ([]Message, error) {
+func (r *repository) Get(ctx context.Context) ([]*Message, error) {
 	query := listAllQuery()
 	rows, err := bob.All(ctx, r.db, query, scan.StructMapper[outboxRow]())
 	if err != nil {
@@ -36,7 +36,7 @@ func (r *repository) Get(ctx context.Context) ([]Message, error) {
 }
 
 // GetUnprocessed returns a slice of messages that have not been processed yet.
-func (r *repository) GetUnprocessed(ctx context.Context, limit int32) ([]Message, error) {
+func (r *repository) GetUnprocessed(ctx context.Context, limit int32) ([]*Message, error) {
 	query := listUnprocessedQuery(limit)
 	rows, err := bob.All(ctx, r.db, query, scan.StructMapper[outboxRow]())
 	if err != nil {
@@ -69,7 +69,7 @@ func (r *repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32
 }
 
 // Store a message in the outbox.
-func (r *repository) Store(ctx context.Context, msg Message) error {
+func (r *repository) Store(ctx context.Context, msg *Message) error {
 	return persistMessage(ctx, msg, r.db)
 }
 
