@@ -4,88 +4,44 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/stephenafamo/bob"
-	"github.com/stephenafamo/bob/dialect/psql"
-	"github.com/stephenafamo/bob/dialect/psql/im"
-	"github.com/stephenafamo/bob/dialect/psql/sm"
 )
 
-const (
-	tableOutbox = "outbox"
-
-	idCol            = "id"
-	eventNameCol     = "event_name"
-	eventDataCol     = "event_data"
-	occurredAtCol    = "occurred_at"
-	processedAtCol   = "processed_at"
-	failCountCol     = "fail_count"
-	failedCol        = "failed"
-	failureReasonCol = "failure_reason"
-	traceIDCol       = "trace_id"
-)
-
-var databaseColumns = []any{
-	idCol,
-	eventNameCol,
-	eventDataCol,
-	occurredAtCol,
-	processedAtCol,
-	failCountCol,
-	failedCol,
-	failureReasonCol,
-	traceIDCol,
-}
-
-// outboxRow represents the database row structure for outbox table
 type outboxRow struct {
-	ID            uuid.UUID  `db:"id"`
-	EventName     string     `db:"event_name"`
-	EventData     []byte     `db:"event_data"`
-	OccurredAt    time.Time  `db:"occurred_at"`
-	ProcessedAt   *time.Time `db:"processed_at"`
-	FailCount     int32      `db:"fail_count"`
-	Failed        bool       `db:"failed"`
-	FailureReason *string    `db:"failure_reason"`
-	TraceID       *string    `db:"trace_id"`
+	ID            uuid.UUID
+	EventName     string
+	EventData     []byte
+	OccurredAt    time.Time
+	ProcessedAt   *time.Time
+	FailCount     int32
+	Failed        bool
+	FailureReason *string
+	TraceID       *string
 }
 
-// listAllQuery returns all messages from the outbox ordered by occurred_at
-func listAllQuery() bob.Query {
-	return psql.Select(
-		sm.Columns(databaseColumns...),
-		sm.From(tableOutbox),
-		sm.OrderBy(occurredAtCol),
-	)
+func listAllQuery() string {
+	return `SELECT id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason, trace_id
+	          FROM outbox
+	         ORDER BY occurred_at`
 }
 
-// listUnprocessedQuery returns unprocessed and non-failed messages
-func listUnprocessedQuery(limit int32) bob.Query {
-	return psql.Select(
-		sm.Columns(databaseColumns...),
-		sm.From(tableOutbox),
-		sm.Where(psql.Quote(processedAtCol).IsNull()),
-		sm.Where(psql.Quote(failedCol).NE(psql.Arg(true))),
-		sm.OrderBy(occurredAtCol),
-		sm.Limit(int(limit)),
-	)
+func listUnprocessedQuery(limit int32) (string, []any) {
+	return `SELECT id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason, trace_id
+	          FROM outbox
+	         WHERE processed_at IS NULL AND failed != true
+	         ORDER BY occurred_at
+	         LIMIT $1`, []any{limit}
 }
 
-// listUnprocessedWithLockQuery returns unprocessed and non-failed messages with row-level lock
-func listUnprocessedWithLockQuery(limit int32) bob.Query {
-	return psql.Select(
-		sm.Columns(databaseColumns...),
-		sm.From(tableOutbox),
-		sm.Where(psql.Quote(processedAtCol).IsNull()),
-		sm.Where(psql.Quote(failedCol).NE(psql.Arg(true))),
-		sm.OrderBy(occurredAtCol),
-		sm.Limit(int(limit)),
-		sm.ForUpdate().SkipLocked(),
-	)
+func listUnprocessedWithLockQuery(limit int32) (string, []any) {
+	return `SELECT id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason, trace_id
+	          FROM outbox
+	         WHERE processed_at IS NULL AND failed != true
+	         ORDER BY occurred_at
+	         LIMIT $1
+	           FOR UPDATE SKIP LOCKED`, []any{limit}
 }
 
-// upsertQuery creates an upsert query for a message
-func upsertQuery(msg *Message) bob.Query {
-
+func upsertQuery(msg *Message) (string, []any) {
 	var (
 		processedAt   *time.Time
 		failureReason *string
@@ -106,20 +62,18 @@ func upsertQuery(msg *Message) bob.Query {
 		traceID = &trace
 	}
 
-	return psql.Insert(
-		im.Into(
-			tableOutbox,
-			idCol,
-			eventNameCol,
-			eventDataCol,
-			occurredAtCol,
-			processedAtCol,
-			failCountCol,
-			failedCol,
-			failureReasonCol,
-			traceIDCol,
-		),
-		im.Values(psql.Arg(
+	return `INSERT INTO outbox (id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason, trace_id)
+	         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+	         ON CONFLICT (id) DO UPDATE SET
+	               event_name     = EXCLUDED.event_name,
+	               event_data     = EXCLUDED.event_data,
+	               occurred_at    = EXCLUDED.occurred_at,
+	               processed_at   = EXCLUDED.processed_at,
+	               fail_count     = EXCLUDED.fail_count,
+	               failed         = EXCLUDED.failed,
+	               failure_reason = EXCLUDED.failure_reason,
+	               trace_id       = EXCLUDED.trace_id`,
+		[]any{
 			msg.ID(),
 			msg.EventName(),
 			msg.EventData(),
@@ -129,21 +83,9 @@ func upsertQuery(msg *Message) bob.Query {
 			msg.IsFailed(),
 			failureReason,
 			traceID,
-		)),
-		im.OnConflict(idCol).DoUpdate(
-			im.SetExcluded(eventNameCol),
-			im.SetExcluded(eventDataCol),
-			im.SetExcluded(occurredAtCol),
-			im.SetExcluded(processedAtCol),
-			im.SetExcluded(failCountCol),
-			im.SetExcluded(failedCol),
-			im.SetExcluded(failureReasonCol),
-			im.SetExcluded(traceIDCol),
-		),
-	)
+		}
 }
 
-// mapRowToMessage converts a database row to a Message
 func mapRowToMessage(row outboxRow) *Message {
 	m := &Message{
 		id:         row.ID,
@@ -169,7 +111,6 @@ func mapRowToMessage(row outboxRow) *Message {
 	return m
 }
 
-// mapRowsToMessages converts multiple database rows to Messages
 func mapRowsToMessages(rows []outboxRow) []*Message {
 	messages := make([]*Message, len(rows))
 	for i, row := range rows {

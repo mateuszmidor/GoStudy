@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	_ "github.com/lib/pq"
 )
 
@@ -18,37 +17,38 @@ var initDbSql string
 
 func main() {
 	ctx := context.Background()
-	conn, err := pgx.Connect(ctx, "postgres://postgres:postgres@localhost:5432/postgres")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conn.Close(ctx)
 
-	_, err = conn.Exec(ctx, initDbSql)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	// Open a connection to the database
 	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	relay := NewOutboxRelay(func(ctx context.Context, msg *Message) error {
+	// Initialize the database schema
+	_, err = db.ExecContext(ctx, initDbSql)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create a new outbox relay that reads messages from the outbox table and prints them to the console
+	printer := func(ctx context.Context, msg *Message) error {
 		fmt.Println(msg)
 		return nil
-	}, NewRepository(db))
+	}
+	relay := NewOutboxRelay(printer, NewRepository(db))
 
+	// Start the outbox relay in the background
 	go func() {
-		err = relay.Run(ctx)
-		if err != nil {
+		if err := relay.Run(ctx); err != nil {
 			log.Fatal(err)
 		}
 	}()
 
+	// Create a new notifier that writes messages to the outbox table
 	notifier := NewNotifier(db)
 
+	// Send 10 messages to the outbox table
 	i := 1
 	for {
 		eventData := fmt.Appendf([]byte{}, `{%q: %q}`, "event_name", fmt.Sprintf("event-%d", i))

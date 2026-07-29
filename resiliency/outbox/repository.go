@@ -4,61 +4,108 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-
-	"github.com/stephenafamo/bob"
-	"github.com/stephenafamo/scan"
 )
 
-// VisitorFunc is a function that processes a message.
 type VisitorFunc func(context.Context, *Message)
 
-// Repository interface for managing outbox operations.
 type Repository interface {
 	Get(ctx context.Context) ([]*Message, error)
 	GetUnprocessed(ctx context.Context, limit int32) ([]*Message, error)
-	// ProcessUnprocessedWithLock calls the visitorFunc with a context that has a lock on the outbox table, to avoid concurrent processing of the same messages.
 	ProcessUnprocessedWithLock(ctx context.Context, limit int32, visitorFunc VisitorFunc) error
 	Store(ctx context.Context, msg *Message) error
 }
 
 type repository struct {
-	db bob.DB
+	db *sql.DB
 }
 
-// Get all messages from the outbox.
+func scanRow(scanner interface {
+	Scan(dest ...any) error
+}) (outboxRow, error) {
+	var row outboxRow
+	err := scanner.Scan(
+		&row.ID,
+		&row.EventName,
+		&row.EventData,
+		&row.OccurredAt,
+		&row.ProcessedAt,
+		&row.FailCount,
+		&row.Failed,
+		&row.FailureReason,
+		&row.TraceID,
+	)
+	return row, err
+}
+
 func (r *repository) Get(ctx context.Context) ([]*Message, error) {
 	query := listAllQuery()
-	rows, err := bob.All(ctx, r.db, query, scan.StructMapper[outboxRow]())
+	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
-	return mapRowsToMessages(rows), nil
+	defer rows.Close()
+
+	var results []outboxRow
+	for rows.Next() {
+		row, err := scanRow(rows)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, row)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return mapRowsToMessages(results), nil
 }
 
-// GetUnprocessed returns a slice of messages that have not been processed yet.
 func (r *repository) GetUnprocessed(ctx context.Context, limit int32) ([]*Message, error) {
-	query := listUnprocessedQuery(limit)
-	rows, err := bob.All(ctx, r.db, query, scan.StructMapper[outboxRow]())
+	query, args := listUnprocessedQuery(limit)
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
-	return mapRowsToMessages(rows), nil
+	defer rows.Close()
+
+	var results []outboxRow
+	for rows.Next() {
+		row, err := scanRow(rows)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, row)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return mapRowsToMessages(results), nil
 }
 
 func (r *repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32, visitorFunc VisitorFunc) error {
 	var lastErr error
-	err := RunInTransaction(ctx, r.db.DB, func(tx *sql.Tx) error {
-		query := listUnprocessedWithLockQuery(limit)
-		txBob := bob.NewTx(tx)
-		rows, err := bob.All(ctx, txBob, query, scan.StructMapper[outboxRow]())
+	err := RunInTransaction(ctx, r.db, func(tx *sql.Tx) error {
+		query, args := listUnprocessedWithLockQuery(limit)
+		rows, err := tx.QueryContext(ctx, query, args...)
 		if err != nil {
 			return err
 		}
+		defer rows.Close()
 
-		for _, msg := range mapRowsToMessages(rows) {
+		var outboxRows []outboxRow
+		for rows.Next() {
+			row, err := scanRow(rows)
+			if err != nil {
+				return err
+			}
+			outboxRows = append(outboxRows, row)
+		}
+		if err := rows.Err(); err != nil {
+			return err
+		}
+
+		for _, msg := range mapRowsToMessages(outboxRows) {
 			visitorFunc(ctx, msg)
-			if persistErr := persistMessage(ctx, msg, txBob); persistErr != nil {
-				// early stop and return
+			if persistErr := persistMessage(ctx, msg, tx); persistErr != nil {
 				lastErr = persistErr
 				break
 			}
@@ -68,12 +115,12 @@ func (r *repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32
 	return errors.Join(lastErr, err)
 }
 
-// Store a message in the outbox.
 func (r *repository) Store(ctx context.Context, msg *Message) error {
-	return persistMessage(ctx, msg, r.db)
+	return RunInTransaction(ctx, r.db, func(tx *sql.Tx) error {
+		return persistMessage(ctx, msg, tx)
+	})
 }
 
-// NewRepository creates a new instance of the Repository.
 func NewRepository(db *sql.DB) Repository {
-	return &repository{db: bob.NewDB(db)}
+	return &repository{db: db}
 }
