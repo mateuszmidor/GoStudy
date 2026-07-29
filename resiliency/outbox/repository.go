@@ -9,10 +9,7 @@ import (
 type VisitorFunc func(context.Context, *Message)
 
 type Repository interface {
-	Get(ctx context.Context) ([]*Message, error)
-	GetUnprocessed(ctx context.Context, limit int32) ([]*Message, error)
 	ProcessUnprocessedWithLock(ctx context.Context, limit int32, visitorFunc VisitorFunc) error
-	Store(ctx context.Context, msg *Message) error
 }
 
 type repository struct {
@@ -35,50 +32,6 @@ func scanRow(scanner interface {
 		&row.TraceID,
 	)
 	return row, err
-}
-
-func (r *repository) Get(ctx context.Context) ([]*Message, error) {
-	query := listAllQuery()
-	rows, err := r.db.QueryContext(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var results []outboxRow
-	for rows.Next() {
-		row, err := scanRow(rows)
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, row)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return mapRowsToMessages(results), nil
-}
-
-func (r *repository) GetUnprocessed(ctx context.Context, limit int32) ([]*Message, error) {
-	query, args := listUnprocessedQuery(limit)
-	rows, err := r.db.QueryContext(ctx, query, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var results []outboxRow
-	for rows.Next() {
-		row, err := scanRow(rows)
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, row)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return mapRowsToMessages(results), nil
 }
 
 func (r *repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32, visitorFunc VisitorFunc) error {
@@ -113,12 +66,6 @@ func (r *repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32
 		return nil
 	})
 	return errors.Join(lastErr, err)
-}
-
-func (r *repository) Store(ctx context.Context, msg *Message) error {
-	return RunInTransaction(ctx, r.db, func(tx *sql.Tx) error {
-		return persistMessage(ctx, msg, tx)
-	})
 }
 
 func NewRepository(db *sql.DB) Repository {

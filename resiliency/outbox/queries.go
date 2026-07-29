@@ -18,20 +18,6 @@ type outboxRow struct {
 	TraceID       *string
 }
 
-func listAllQuery() string {
-	return `SELECT id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason, trace_id
-	          FROM outbox
-	         ORDER BY occurred_at`
-}
-
-func listUnprocessedQuery(limit int32) (string, []any) {
-	return `SELECT id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason, trace_id
-	          FROM outbox
-	         WHERE processed_at IS NULL AND failed != true
-	         ORDER BY occurred_at
-	         LIMIT $1`, []any{limit}
-}
-
 func listUnprocessedWithLockQuery(limit int32) (string, []any) {
 	return `SELECT id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason, trace_id
 	          FROM outbox

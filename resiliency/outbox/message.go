@@ -1,11 +1,9 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
-	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/google/uuid"
 )
 
@@ -112,18 +110,3 @@ func (m *Message) MarkAsProcessed() *Message {
 	return m
 }
 
-// ToCloudEvent converts the outbox message to a CloudEvent format, including the trace ID as an extension.
-func (m *Message) ToCloudEvent() (cloudevents.Event, error) {
-	event := cloudevents.NewEvent()
-	event.SetID(m.ID().String())
-	event.SetType(m.EventName())
-	event.SetTime(m.OccurredAt())
-	event.SetExtension("traceID", m.TraceID())
-
-	if err := event.SetData(cloudevents.ApplicationJSON, m.EventData()); err != nil {
-		return event, errors.Join(errors.New("failed to set CloudEvent data"), err)
-	}
-
-	return event, nil
-
-}

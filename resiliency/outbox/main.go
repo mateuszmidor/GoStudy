@@ -46,23 +46,17 @@ func main() {
 	}()
 
 	// Create a new notifier that writes messages to the outbox table
-	notifier := NewNotifier(db)
+	notifier := NewPublisher(db)
 
-	// Send 10 messages to the outbox table
+	// Send messages to the outbox table
 	i := 1
 	for {
 		eventData := fmt.Appendf([]byte{}, `{%q: %q}`, "event_name", fmt.Sprintf("event-%d", i))
-		msg := Message{
-			id:         uuid.New(),
-			eventName:  fmt.Sprintf("test-%d", i),
-			eventData:  eventData,
-			occurredAt: time.Now(),
-			traceID:    fmt.Sprintf("trace-id-%d", i),
-		}
-		err = notifier.Notify(ctx, &msg)
-		if err != nil {
+		msg := NewMessage(uuid.New(), fmt.Sprintf("test-%d", i), eventData, time.Now(), fmt.Sprintf("trace-id-%d", i))
+		if err := notifier.Publish(ctx, msg); err != nil {
 			log.Fatal(err)
 		}
+		fmt.Println("published message", i)
 		i++
 		time.Sleep(1 * time.Second)
 	}
