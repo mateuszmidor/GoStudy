@@ -17,22 +17,8 @@ type repository struct {
 	db *sql.DB
 }
 
-func scanRow(scanner interface {
-	Scan(dest ...any) error
-}) (outboxRow, error) {
-	var row outboxRow
-	err := scanner.Scan(
-		&row.ID,
-		&row.EventName,
-		&row.EventData,
-		&row.OccurredAt,
-		&row.ProcessedAt,
-		&row.FailCount,
-		&row.Failed,
-		&row.FailureReason,
-		&row.TraceID,
-	)
-	return row, err
+func NewRepository(db *sql.DB) Repository {
+	return &repository{db: db}
 }
 
 func (r *repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32, visitorFunc VisitorFunc) error {
@@ -41,22 +27,8 @@ func (r *repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32
 		// Select unprocessed messages with row-level locks. SKIP LOCKED allows
 		// multiple relay workers to process different messages concurrently
 		// without blocking on each other.
-		query, args := listUnprocessedWithLockQuery(limit)
-		rows, err := tx.QueryContext(ctx, query, args...)
+		outboxRows, err := fetchUnprocessed(ctx, limit, tx)
 		if err != nil {
-			return err
-		}
-		defer rows.Close()
-
-		var outboxRows []outboxRow
-		for rows.Next() {
-			row, err := scanRow(rows)
-			if err != nil {
-				return err
-			}
-			outboxRows = append(outboxRows, row)
-		}
-		if err := rows.Err(); err != nil {
 			return err
 		}
 
@@ -111,6 +83,36 @@ func (r *repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32
 	return errors.Join(append(persistErrs, err)...)
 }
 
-func NewRepository(db *sql.DB) Repository {
-	return &repository{db: db}
+// fetchUnprocessed fetches unprocessed messages from the outbox table with row-level locks.
+func fetchUnprocessed(ctx context.Context, limit int32, tx *sql.Tx) ([]outboxRow, error) {
+	query, args := listUnprocessedWithLockQuery(limit)
+	rows, err := tx.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var outboxRows []outboxRow
+	for rows.Next() {
+		var row outboxRow
+		err := rows.Scan(
+			&row.ID,
+			&row.EventName,
+			&row.EventData,
+			&row.OccurredAt,
+			&row.ProcessedAt,
+			&row.FailCount,
+			&row.Failed,
+			&row.FailureReason,
+			&row.TraceID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		outboxRows = append(outboxRows, row)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return outboxRows, nil
 }
