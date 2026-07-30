@@ -8,6 +8,5 @@ create table if not exists outbox
     fail_count     integer default 0     not null,
     failed         boolean default false not null,
     failure_reason text,
-    trace_id       text,
     constraint outbox_pk primary key (id)
 );

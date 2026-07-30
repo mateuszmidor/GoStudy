@@ -16,11 +16,10 @@ type Message struct {
 	failCount     int32
 	failed        bool
 	failureReason string
-	traceID       string
 }
 
 // NewMessage creates a new outbox message.
-func NewMessage(id uuid.UUID, eventName string, eventData []byte, occurredAt time.Time, traceID string) *Message {
+func NewMessage(id uuid.UUID, eventName string, eventData []byte, occurredAt time.Time) *Message {
 	return &Message{
 		id:            id,
 		eventName:     eventName,
@@ -30,7 +29,6 @@ func NewMessage(id uuid.UUID, eventName string, eventData []byte, occurredAt tim
 		failCount:     0,
 		failed:        false,
 		failureReason: "",
-		traceID:       traceID,
 	}
 }
 
@@ -84,11 +82,6 @@ func (m *Message) FailureReason() string {
 	return m.failureReason
 }
 
-// TraceID returns the trace ID of the message.
-func (m *Message) TraceID() string {
-	return m.traceID
-}
-
 // AddFailure increments the failure count and sets the failure reason.
 func (m *Message) AddFailure(reason string) *Message {
 	m.failCount++
@@ -109,4 +102,3 @@ func (m *Message) MarkAsProcessed() *Message {
 	m.processedAt = &now
 	return m
 }
-

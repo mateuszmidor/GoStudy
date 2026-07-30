@@ -52,7 +52,7 @@ func main() {
 	i := 1
 	for {
 		eventDataJSON := fmt.Appendf(nil, `{%q: %q}`, "event_name", fmt.Sprintf("event_%d", i))
-		msg := NewMessage(uuid.New(), fmt.Sprintf("test_%d", i), eventDataJSON, time.Now(), fmt.Sprintf("trace_id_%d", i))
+		msg := NewMessage(uuid.New(), fmt.Sprintf("test_%d", i), eventDataJSON, time.Now())
 		if err := notifier.Publish(ctx, msg); err != nil {
 			log.Fatal(err)
 		}

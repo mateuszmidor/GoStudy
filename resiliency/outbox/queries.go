@@ -16,12 +16,11 @@ type outboxRow struct {
 	FailCount     int32
 	Failed        bool
 	FailureReason *string
-	TraceID       *string
 }
 
 // listUnprocessedWithLockQuery returns a query to list unprocessed messages. With row-level locks for multi-threaded processing.
 func listUnprocessedWithLockQuery(limit int32) (string, []any) {
-	return `SELECT id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason, trace_id
+	return `SELECT id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason
 	          FROM outbox
 	         WHERE processed_at IS NULL AND failed != true
 	         ORDER BY occurred_at
@@ -33,7 +32,6 @@ func upsertQuery(msg *Message) (string, []any) {
 	var (
 		processedAt   *time.Time
 		failureReason *string
-		traceID       *string
 	)
 
 	if msg.IsProcessed() {
@@ -45,13 +43,8 @@ func upsertQuery(msg *Message) (string, []any) {
 		failureReason = &reason
 	}
 
-	if msg.TraceID() != "" {
-		trace := msg.TraceID()
-		traceID = &trace
-	}
-
-	sql := `INSERT INTO outbox (id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason, trace_id)
-	         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+	sql := `INSERT INTO outbox (id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason)
+	         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	         ON CONFLICT (id) DO UPDATE SET
 	               event_name     = EXCLUDED.event_name,
 	               event_data     = EXCLUDED.event_data,
@@ -59,8 +52,7 @@ func upsertQuery(msg *Message) (string, []any) {
 	               processed_at   = EXCLUDED.processed_at,
 	               fail_count     = EXCLUDED.fail_count,
 	               failed         = EXCLUDED.failed,
-	               failure_reason = EXCLUDED.failure_reason,
-	               trace_id       = EXCLUDED.trace_id`
+	               failure_reason = EXCLUDED.failure_reason`
 	args := []any{
 		msg.ID(),
 		msg.EventName(),
@@ -70,7 +62,6 @@ func upsertQuery(msg *Message) (string, []any) {
 		msg.FailCount(),
 		msg.IsFailed(),
 		failureReason,
-		traceID,
 	}
 	return sql, args
 }
@@ -91,10 +82,6 @@ func mapRowToMessage(row outboxRow) *Message {
 
 	if row.FailureReason != nil {
 		m.failureReason = *row.FailureReason
-	}
-
-	if row.TraceID != nil {
-		m.traceID = *row.TraceID
 	}
 
 	return m

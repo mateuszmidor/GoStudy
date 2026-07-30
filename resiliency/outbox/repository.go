@@ -104,7 +104,6 @@ func fetchUnprocessed(ctx context.Context, limit int32, tx *sql.Tx) ([]outboxRow
 			&row.FailCount,
 			&row.Failed,
 			&row.FailureReason,
-			&row.TraceID,
 		)
 		if err != nil {
 			return nil, err
