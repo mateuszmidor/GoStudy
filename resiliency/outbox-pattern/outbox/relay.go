@@ -1,5 +1,5 @@
 // Package relay provides functionality for relaying outbox messages from a database table to a message publisher.
-package main
+package outbox
 
 import (
 	"context"
