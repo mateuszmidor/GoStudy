@@ -38,7 +38,7 @@ func main() {
 		fmt.Println(msg)
 		return nil
 	}
-	relay := outbox.NewOutboxRelay(printer, outbox.NewRepository(db))
+	relay := outbox.NewOutboxRelay(printer, outbox.NewRepository(db), outbox.WithMaxAttempts(3))
 
 	// Start the outbox relay in the background
 	go func() {

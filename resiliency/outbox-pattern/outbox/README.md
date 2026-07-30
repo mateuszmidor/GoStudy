@@ -44,19 +44,13 @@ WHERE processed_at IS NULL AND failed != true AND claimed_at IS NULL;
 
 Described above
 
-### 1. Exponential Backoff
+### 1. Exponential Backoff ✅ implemented
 
-Implement delay based on `fail_count` to avoid overwhelming downstream systems during outages.
+Delay based on `fail_count` to avoid overwhelming downstream systems during outages.
 
 **Approach:**
-- Calculate delay as `base_delay * 2^(fail_count-1)` (e.g., 1s, 2s, 4s, 8s, 16s...)
-- Cap maximum delay (e.g., 5 minutes)
+- Calculate delay as `power(2, fail_count-1)` seconds (e.g., 1s, 2s, 4s, 8s, 16s...)
 - Modify polling query to only fetch messages where `occurred_at + delay < now()`
-
-**Schema changes:**
-```sql
--- No schema changes needed, use existing fail_count
-```
 
 **Query modification:**
 ```sql
@@ -69,13 +63,13 @@ LIMIT $1
 FOR UPDATE SKIP LOCKED
 ```
 
-### 2. Max Retry Limit & Dead Letter Queue
+### 2. Max Attempts & Dead Letter Queue
 
 Move permanently failed messages to a separate table after N attempts to prevent infinite retries.
 
 **Approach:**
-- Define max retry threshold (e.g., 10 attempts)
-- When `fail_count >= max_retries`, mark as `failed = true` and move to `dead_letter` table
+- Define max attempts threshold (e.g., 10 attempts)
+- When `fail_count + 1 >= maxAttempts`, mark as `failed = true` (dead letter)
 - Background job or manual process handles dead letter messages
 
 **Schema changes:**
@@ -94,7 +88,7 @@ CREATE TABLE dead_letter (
 
 **Implementation:**
 ```go
-if msg.FailCount() >= maxRetries {
+if msg.FailCount()+1 >= maxAttempts {
     msg.MarkAsFailed(reason)
     // Move to dead_letter table
     // Delete from outbox table

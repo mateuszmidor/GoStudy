@@ -22,7 +22,9 @@ type outboxRow struct {
 func listUnprocessedWithLockQuery(limit int32) (string, []any) {
 	return `SELECT id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason
 	          FROM outbox
-	         WHERE processed_at IS NULL AND failed != true
+	         WHERE processed_at IS NULL
+	           AND failed != true
+	           AND occurred_at + (power(2, fail_count - 1) * interval '1 second') < now()
 	         ORDER BY occurred_at
 	         LIMIT $1
 	           FOR UPDATE SKIP LOCKED`, []any{limit}

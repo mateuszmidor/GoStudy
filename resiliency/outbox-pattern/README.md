@@ -144,7 +144,8 @@ select * from outbox; # semicolon means: EXECUTE NOW
  (will never be retried)                   (will never be retried)
 
 
-   NOTE: There is NO retry mechanism. A single publish failure
-   permanently marks the message as failed. The README proposes
-   exponential backoff and dead-letter queues as future improvements.
+    Messages that fail are retried with exponential backoff
+    (`power(2, fail_count-1)` second delay — first retry waits 1s, then 2s, 4s, etc.). The `WithMaxAttempts(N)` option controls
+    how many total processing attempts are allowed before
+    the message is permanently marked as failed.
 ```

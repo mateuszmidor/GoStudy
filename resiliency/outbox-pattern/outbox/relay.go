@@ -20,11 +20,19 @@ func WithPollingRate(pollEvery time.Duration) Option {
 	}
 }
 
+// WithMaxAttempts sets the maximum number of processing attempts for a message
+func WithMaxAttempts(maxAttempts int32) Option {
+	return func(p *OutboxRelay) {
+		p.maxAttempts = maxAttempts
+	}
+}
+
 // OutboxRelay is a worker that polls the outbox table for unprocessed messages and publishes them using the provided RelayMessage function. It marks messages as processed or failed based on the result of the publish operation.
 type OutboxRelay struct {
 	repository  Repository
 	pollEvery   time.Duration
 	publishFunc RelayMessage
+	maxAttempts int32
 }
 
 // NewOutboxRelay creates a new OutboxRelay instance.
@@ -50,7 +58,13 @@ func (p *OutboxRelay) Run(ctx context.Context) error {
 			err := p.repository.ProcessUnprocessedWithLock(ctx, 100, func(ctx context.Context, msg *Message) {
 				if err := p.publishFunc(ctx, msg); err != nil {
 					slog.ErrorContext(ctx, "failed to relay message", "message_id", msg.ID(), "error", err.Error())
-					msg.MarkAsFailed(err.Error())
+
+					if msg.FailCount()+1 >= p.maxAttempts {
+						slog.ErrorContext(ctx, "message exceeded max retries, abandoning", "message_id", msg.ID(), "error", err.Error())
+						msg.MarkAsFailed(err.Error())
+					} else {
+						msg.AddFailure(err.Error())
+					}
 					return
 				}
 
