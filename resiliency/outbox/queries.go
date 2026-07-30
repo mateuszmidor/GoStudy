@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// outboxRow is a row in the outbox table.
 type outboxRow struct {
 	ID            uuid.UUID
 	EventName     string
@@ -18,6 +19,7 @@ type outboxRow struct {
 	TraceID       *string
 }
 
+// listUnprocessedWithLockQuery returns a query to list unprocessed messages. With row-level locks for multi-threaded processing.
 func listUnprocessedWithLockQuery(limit int32) (string, []any) {
 	return `SELECT id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason, trace_id
 	          FROM outbox
@@ -48,7 +50,7 @@ func upsertQuery(msg *Message) (string, []any) {
 		traceID = &trace
 	}
 
-	return `INSERT INTO outbox (id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason, trace_id)
+	sql := `INSERT INTO outbox (id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason, trace_id)
 	         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 	         ON CONFLICT (id) DO UPDATE SET
 	               event_name     = EXCLUDED.event_name,
@@ -58,18 +60,19 @@ func upsertQuery(msg *Message) (string, []any) {
 	               fail_count     = EXCLUDED.fail_count,
 	               failed         = EXCLUDED.failed,
 	               failure_reason = EXCLUDED.failure_reason,
-	               trace_id       = EXCLUDED.trace_id`,
-		[]any{
-			msg.ID(),
-			msg.EventName(),
-			msg.EventData(),
-			msg.OccurredAt(),
-			processedAt,
-			msg.FailCount(),
-			msg.IsFailed(),
-			failureReason,
-			traceID,
-		}
+	               trace_id       = EXCLUDED.trace_id`
+	args := []any{
+		msg.ID(),
+		msg.EventName(),
+		msg.EventData(),
+		msg.OccurredAt(),
+		processedAt,
+		msg.FailCount(),
+		msg.IsFailed(),
+		failureReason,
+		traceID,
+	}
+	return sql, args
 }
 
 func mapRowToMessage(row outboxRow) *Message {

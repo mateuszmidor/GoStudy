@@ -18,6 +18,6 @@ func NewPublisher(db *sql.DB) *Publisher {
 // Publish stores the message in the outbox table
 func (n *Publisher) Publish(ctx context.Context, msg *Message) error {
 	return RunInTransaction(ctx, n.db, func(tx *sql.Tx) error {
-		return PersistMessages(ctx, []*Message{msg}, tx)
+		return PersistMessage(ctx, msg, tx)
 	})
 }

@@ -15,10 +15,6 @@ func PersistMessages(ctx context.Context, msgs []*Message, tx *sql.Tx) error {
 }
 
 func PersistMessage(ctx context.Context, msg *Message, tx *sql.Tx) error {
-	return persistMessage(ctx, msg, tx)
-}
-
-func persistMessage(ctx context.Context, msg *Message, tx *sql.Tx) error {
 	query, args := upsertQuery(msg)
 	_, err := tx.ExecContext(ctx, query, args...)
 	return err

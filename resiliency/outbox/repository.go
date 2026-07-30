@@ -27,12 +27,12 @@ func (r *repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32
 		// Select unprocessed messages with row-level locks. SKIP LOCKED allows
 		// multiple relay workers to process different messages concurrently
 		// without blocking on each other.
-		outboxRows, err := fetchUnprocessed(ctx, limit, tx)
+		unprocessed, err := fetchUnprocessed(ctx, limit, tx)
 		if err != nil {
 			return err
 		}
 
-		for _, msg := range mapRowsToMessages(outboxRows) {
+		for _, msg := range mapRowsToMessages(unprocessed) {
 			// The visitor runs the handler (e.g., publish to broker) and
 			// mutates the message in memory (mark as processed or failed).
 			// This is external I/O that may fail — we use savepoints to
@@ -46,7 +46,7 @@ func (r *repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32
 				return fmt.Errorf("create savepoint: %w", err)
 			}
 
-			if err := persistMessage(ctx, msg, tx); err != nil {
+			if err := PersistMessage(ctx, msg, tx); err != nil {
 				// Persist failed. Roll back to the savepoint to restore
 				// the transaction to a usable state (Postgres puts it in
 				// "aborted" state after any statement failure). This

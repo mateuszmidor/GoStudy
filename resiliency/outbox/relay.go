@@ -35,7 +35,7 @@ func WithTracingServiceName(serviceName string) Option {
 type OutboxRelay struct {
 	repository  Repository
 	pollEvery   time.Duration
-	publish     RelayMessage
+	publishFunc RelayMessage
 	serviceName string
 }
 
@@ -44,7 +44,7 @@ func NewOutboxRelay(publisher RelayMessage, repository Repository, options ...Op
 	p := &OutboxRelay{
 		repository:  repository,
 		pollEvery:   1 * time.Second,
-		publish:     publisher,
+		publishFunc: publisher,
 		serviceName: "outbox.relay",
 	}
 
@@ -63,14 +63,10 @@ func (p *OutboxRelay) Run(ctx context.Context) error {
 		case <-time.After(p.pollEvery):
 			err := p.repository.ProcessUnprocessedWithLock(ctx, 100, func(ctx context.Context, msg *Message) {
 				ctx, span := tracer.Start(resumeContextWithTraceID(ctx, msg.TraceID()),
-					"outbox.relay.publish",
-					trace.WithAttributes(
-						attribute.String("message.id", msg.ID().String()),
-						attribute.String("message.event_name", msg.EventName()),
-					))
+					"outbox.relay.publish", trace.WithAttributes(attribute.String("message.id", msg.ID().String()), attribute.String("message.event_name", msg.EventName())))
 				defer span.End()
 
-				if err := p.publish(ctx, msg); err != nil {
+				if err := p.publishFunc(ctx, msg); err != nil {
 					slog.ErrorContext(ctx, "failed to relay message", "message_id", msg.ID(), "error", err.Error())
 					span.RecordError(err)
 
