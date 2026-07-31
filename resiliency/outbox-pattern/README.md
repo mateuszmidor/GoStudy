@@ -27,8 +27,8 @@ select * from outbox; # semicolon means: EXECUTE NOW
    main.go
      │
      ▼
- ┌──────────┐   Publisher   ┌──────────────────────────────────┐
- │ *sql.DB  │───Publish()──▶│ RunInTransaction                 │
+ ┌──────────┐   Recorder    ┌──────────────────────────────────┐
+ │ *sql.DB  │───Record()───▶│ RunInTransaction                 │
  └──────────┘               │                                  │
                             │  BEGIN                           │
                             │    ▼                             │
@@ -38,15 +38,15 @@ select * from outbox; # semicolon means: EXECUTE NOW
                             │  tx.Commit                       │
                             └──────────────────────────────────┘
                                           │
-                                outbox row is now in DB,
-                                waiting for relay to pick up
+                                 outbox row is now in DB,
+                                 waiting for dispatcher to pick up
 
 
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                    READ SIDE  (relay polling loop, every 3s)                        │
+│                    READ SIDE  (dispatcher polling loop, every 3s)                        │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
-   relay.Run (OutboxRelay)
+   dispatcher.Run (Dispatcher)
      │
      ▼
  ┌──────────────────┐
@@ -75,7 +75,7 @@ select * from outbox; # semicolon means: EXECUTE NOW
                          │  ┌────────────────────────┐  │
                          │  │ visitorFunc(ctx, msg)  │  │  ◄── external I/O happens
                          │  │                        │  │      FIRST, before savepoint
-                         │  │  publish message       │  │
+                         │  │  dispatch message      │  │
                          │  │    │                   │  │
                          │  │    ├── ok ──▶          │  │
                          │  │      MarkAsProcessed() │  │
@@ -123,7 +123,7 @@ select * from outbox; # semicolon means: EXECUTE NOW
 │                            MESSAGE LIFECYCLE                                        │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
-   publish OK                              publish FAIL
+   dispatch OK                             dispatch FAIL
       │                                        │
       ▼                                        ▼
  MarkAsProcessed()                      MarkAsFailed(reason)

@@ -22,7 +22,7 @@ func NewRepository(db *sql.DB) *Repository {
 func (r *Repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32, visitorFunc VisitorFunc) error {
 	err := RunInTransaction(ctx, r.db, func(tx *sql.Tx) error {
 		// Select unprocessed messages with row-level locks. SKIP LOCKED allows
-		// multiple relay workers to process different messages concurrently
+		// multiple dispatcher workers to process different messages concurrently
 		// without blocking on each other.
 		unprocessed, err := fetchUnprocessed(ctx, limit, tx)
 		if err != nil {
