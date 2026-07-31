@@ -34,6 +34,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// [PRODUCER]
 	// Create and run a message recorder that writes messages to the outbox table in the background
 	go func() {
 		recorder := outbox.NewRecorder(db)
@@ -52,6 +53,7 @@ func main() {
 		}
 	}()
 
+	// [CONSUMER]
 	// Create and run a dispatcher that reads messages from the outbox table and prints them to the console
 	dispatcher := outbox.NewDispatcher(outbox.NewRepository(db), outbox.WithMaxAttempts(3), outbox.WithPollingRate(3*time.Second))
 	msgPrinter := func(ctx context.Context, msg *outbox.Message) error {
