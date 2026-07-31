@@ -54,7 +54,7 @@ func (p *OutboxRelay) Run(ctx context.Context, publishFunc RelayMessage) error {
 	publishWithRetry := func(ctx context.Context, msg *Message) {
 		// try to publish...
 		if err := publishFunc(ctx, msg); err != nil {
-			// 1. failure
+			// 1. failure, retry if any attempts left
 			slog.ErrorContext(ctx, "failed to relay message", "message_id", msg.ID(), "error", err.Error())
 
 			if msg.FailCount()+1 >= p.maxAttempts {
