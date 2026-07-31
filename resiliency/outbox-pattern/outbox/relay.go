@@ -52,26 +52,26 @@ func NewOutboxRelay(publisher RelayMessage, repository *Repository, options ...O
 
 // Run starts the publisher loop and polls the outbox table for unprocessed messages.
 func (p *OutboxRelay) Run(ctx context.Context) error {
+	publishWithRetry := func(ctx context.Context, msg *Message) {
+		if err := p.publishFunc(ctx, msg); err != nil {
+			slog.ErrorContext(ctx, "failed to relay message", "message_id", msg.ID(), "error", err.Error())
+
+			if msg.FailCount()+1 >= p.maxAttempts {
+				slog.ErrorContext(ctx, "message exceeded max retries, abandoning", "message_id", msg.ID(), "error", err.Error())
+				msg.MarkAsFailed(err.Error())
+			} else {
+				msg.AddFailure(err.Error())
+			}
+			return
+		}
+
+		msg.MarkAsProcessed()
+	}
+
 	for {
 		select {
 		case <-time.After(p.pollEvery):
-			err := p.repository.ProcessUnprocessedWithLock(ctx, 100, func(ctx context.Context, msg *Message) {
-				if err := p.publishFunc(ctx, msg); err != nil {
-					slog.ErrorContext(ctx, "failed to relay message", "message_id", msg.ID(), "error", err.Error())
-
-					if msg.FailCount()+1 >= p.maxAttempts {
-						slog.ErrorContext(ctx, "message exceeded max retries, abandoning", "message_id", msg.ID(), "error", err.Error())
-						msg.MarkAsFailed(err.Error())
-					} else {
-						msg.AddFailure(err.Error())
-					}
-					return
-				}
-
-				msg.MarkAsProcessed()
-			})
-
-			if err != nil {
+			if err := p.repository.ProcessUnprocessedWithLock(ctx, 100, publishWithRetry); err != nil {
 				return err
 			}
 

@@ -17,6 +17,7 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db: db}
 }
 
+// ProcessUnprocessedWithLock visits a batch of messages. It does not fail on visit failure; only on db transaction failure.
 func (r *Repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32, visitorFunc VisitorFunc) error {
 	var persistErrs []error
 	err := RunInTransaction(ctx, r.db, func(tx *sql.Tx) error {
