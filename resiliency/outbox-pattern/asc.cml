@@ -1,0 +1,394 @@
+// Tool: https://contextmapper.org
+// VS Code plugin: "Context Mapper", command to generate images: "Generate Graphical Context Map"
+
+// ASC (Atos Sovereign Cloud) Context Map
+ContextMap ASC {
+    type SYSTEM_LANDSCAPE
+    state AS_IS
+
+    // Identity & Access Management
+    contains UamService
+    contains AuthorizationService
+
+    // Infrastructure as a Service (IaaS)
+    contains InfraGateway
+    contains InfraController
+    contains InfraAgent
+    contains InfraVsockAgent
+    contains InfraGuestd
+    contains InfraApplianceInit
+    contains ClusterService
+
+    // Workloads
+    contains ContainerService
+    contains ServerlessContainerService
+
+    // Data & Storage
+    contains FileService
+    contains ObjectStorageService
+    contains ManagedDbService
+
+    // Infrastructure Operations
+    contains BackupService
+    contains LoggingService
+    contains BillingService
+    contains InvoiceService
+    contains KmService
+
+    // ============================================================
+    // Identity & Access Management relationships
+    // ============================================================
+    UamService [P]<->[P] AuthorizationService { // UAM manages users/tenants via Keycloak and publishes events to Kafka; Authorization consumes them to sync SpiceDB. UAM also calls Authorization via HTTP for role/group/tenant member management
+        implementationTechnology = "HTTP REST, Kafka CloudEvents"
+    }
+    InfraGateway [D]<-[U,OHS] AuthorizationService { // AuthorizationService provides Envoy ext_authz gRPC that authorizes requests before they reach InfraGateway; Authorization is upstream, InfraGateway is downstream
+        implementationTechnology = "gRPC (Envoy ext_authz v3)"
+    }
+
+    // ============================================================
+    // IaaS Control Plane relationships
+    // ============================================================
+    InfraGateway [P]<->[P] InfraController { // Gateway sends infrastructure commands via NATS; Controller processes and dispatches to agents; responses flow back
+        implementationTechnology = "NATS JetStream"
+    }
+    InfraController [P]<->[P] InfraAgent { // Controller dispatches VM operations via gRPC; Agent registers and heartbeats back to Controller
+        implementationTechnology = "gRPC"
+    }
+    InfraAgent [D]<-[U,OHS] InfraVsockAgent { // Agent calls VsockAgent via gRPC over TCP for VM serial console log forwarding tunnels (StartTunnel/StopTunnel)
+        implementationTechnology = "gRPC over TCP"
+    }
+    InfraVsockAgent [D,CF]<-[U,OHS] InfraGuestd { // VsockAgent pushes configuration to guest appliance daemons over VSOCK
+        implementationTechnology = "gRPC over AF_VSOCK"
+    }
+    InfraApplianceInit [D]<-[U] InfraGuestd { // ApplianceInit runs as VM PID 1 and spawns InfraGuestd as supervised child process
+        implementationTechnology = "Process supervision"
+    }
+    ClusterService [D,CF]<-[U,OHS] InfraGateway { // ClusterService orchestrates K8s cluster lifecycle by calling InfraGateway for VM/VPC provisioning and consuming infra events
+        implementationTechnology = "gRPC, Kafka CloudEvents"
+    }
+
+    // ============================================================
+    // Backup relationships (WorkloadBackupService contract)
+    // ============================================================
+    BackupService [D,ACL]<-[U,OHS] InfraGateway { // BackupService calls InfraGateway's WorkloadBackupService gRPC API for VM workload backup
+        implementationTechnology = "gRPC"
+    }
+    BackupService [D,ACL]<-[U,OHS] ManagedDbService { // BackupService calls ManagedDbService's WorkloadBackupService gRPC API for database backup
+        implementationTechnology = "gRPC"
+    }
+    BackupService [D,ACL]<-[U,OHS] FileService { // BackupService calls FileService's WorkloadBackupService gRPC API for file storage backup
+        implementationTechnology = "gRPC"
+    }
+
+    // ============================================================
+    // Managed Database relationships
+    // ============================================================
+    ManagedDbService [D,CF]<-[U,OHS] InfraGateway { // ManagedDbService provisions database VMs through InfraGateway and consumes VM lifecycle events
+        implementationTechnology = "gRPC, Kafka CloudEvents"
+    }
+
+    // ============================================================
+    // Logging & Audit relationships
+    // ============================================================
+    LoggingService [D]<-[U] UamService { // LoggingService calls UamService for tenant information lookups
+        implementationTechnology = "HTTP REST"
+    }
+    LoggingService [D]<-[U] ObjectStorageService { // LoggingService calls ObjectStorageService to create/delete organization-level log storage buckets
+        implementationTechnology = "HTTP REST"
+    }
+
+    // ============================================================
+    // Billing & Invoicing relationships
+    // ============================================================
+    InvoiceService [D,CF]<-[U,OHS] BillingService { // InvoiceService calls BillingService for billing records and cost data to generate invoice PDFs
+        implementationTechnology = "HTTP REST"
+    }
+
+    // ============================================================
+    // UAM & Object Storage relationships
+    // ============================================================
+    UamService [D]<-[U] ObjectStorageService { // UamService calls ObjectStorageService to provision/delete tenant logging buckets on tenant create/delete
+        implementationTechnology = "HTTP REST"
+    }
+}
+
+// ================================================================
+// Bounded Contexts
+// ================================================================
+
+// --- Identity & Access Management ---
+BoundedContext UamService implements IdentityAccessManagementSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "organization, tenant, user, role, group, MFA, API client management via Keycloak"
+    Module Organizations
+    Module Tenants
+    Module Users
+    Module Roles
+    Module Groups
+}
+
+BoundedContext AuthorizationService implements IdentityAccessManagementSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "JWT validation, fine-grained permission checks via SpiceDB, Envoy ext_authz authorization"
+}
+
+// --- Infrastructure as a Service (IaaS) ---
+BoundedContext InfraGateway implements IaasSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "event-sourced CQRS API gateway for VMs, VPCs, subnets, block volumes, VM groups, autoscaling"
+}
+
+BoundedContext InfraController implements IaasSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "central IaaS control plane, command processing, agent dispatch, OVN networking"
+}
+
+BoundedContext InfraAgent implements IaasSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "hypervisor host agent, VM lifecycle via libvirt, OVS networking, Ceph block storage"
+}
+
+BoundedContext InfraVsockAgent implements IaasSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "host-side VSOCK daemon, config push relay to guests, VM log tunnel management"
+}
+
+BoundedContext InfraGuestd implements IaasSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "guest appliance configuration daemon, receives config pushes over VSOCK"
+}
+
+BoundedContext InfraApplianceInit implements IaasSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "micro-VM appliance init (PID 1), network setup, process supervision for guestd and Envoy"
+}
+
+BoundedContext ClusterService implements IaasSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "OpenShift/Kubernetes cluster lifecycle management, control plane and worker node pool orchestration"
+}
+
+// --- Workloads ---
+BoundedContext ContainerService implements ContainerWorkloadsSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "Kubernetes-based container deployment management, multi-namespace support, pod log forwarding"
+}
+
+BoundedContext ServerlessContainerService implements ContainerWorkloadsSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "serverless function orchestration via Knative Serving, scale-to-zero, consumption metrics"
+}
+
+// --- Data & Storage ---
+BoundedContext FileService implements DataStorageSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "CephFS-based file storage over NFS, tenant-isolated subvolumes, Ceph snapshot backups"
+}
+
+BoundedContext ObjectStorageService implements DataStorageSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "S3-compatible object storage bucket provisioning via Kubernetes OBC CRDs, quota management"
+}
+
+BoundedContext ManagedDbService implements DataStorageSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "tenant-scoped database instance provisioning on VMs, DB lifecycle management"
+}
+
+// --- Infrastructure Operations ---
+BoundedContext BackupService implements DataProtectionSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "backup policies, external backup destinations (S3), recovery points, protection contracts"
+}
+
+BoundedContext LoggingService implements ObservabilitySubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "tenant log collection via OTLP gRPC, log retrieval via REST, log storage in S3/ODF, log forwarding to Splunk"
+}
+
+BoundedContext BillingService implements BillingSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "billing records, price rules, cost calculations, consumption metering"
+}
+
+BoundedContext InvoiceService implements BillingSubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "invoice PDF generation, S3 document storage"
+}
+
+BoundedContext KmService implements SecuritySubdomain {
+    type APPLICATION
+    implementationTechnology "Go"
+    responsibilities "cryptographic key management via OpenBao"
+}
+
+// ================================================================
+// Domains and Subdomains
+// ================================================================
+
+Domain SovereignCloudPlatform {
+
+    Subdomain IdentityAccessManagementSubdomain supports ManageOrganizations, ManageUsers, AuthorizeAccess {
+        type GENERIC_SUBDOMAIN
+        domainVisionStatement "manage organizations, tenants, users, roles, groups, MFA, and fine-grained authorization"
+    }
+
+    Subdomain IaasSubdomain supports ProvisionVMs, ManageNetworks, ManageClusters {
+        type CORE_DOMAIN
+        domainVisionStatement "provide infrastructure as a service with VMs, VPCs, subnets, block storage, and managed Kubernetes clusters"
+    }
+
+    Subdomain ContainerWorkloadsSubdomain supports DeployContainers, RunServerlessFunctions {
+        type CORE_DOMAIN
+        domainVisionStatement "enable container-based and serverless workloads with scale-to-zero and autoscaling"
+    }
+
+    Subdomain DataStorageSubdomain supports FileStorage, ObjectStorage, ManagedDatabases {
+        type CORE_DOMAIN
+        domainVisionStatement "provide file storage (NFS), object storage (S3), and managed database instances"
+    }
+
+    Subdomain DataProtectionSubdomain supports BackupPolicies, RecoveryPoints {
+        type SUPPORTING_DOMAIN
+        domainVisionStatement "protect workload data with backup policies, external destinations, and recovery points"
+    }
+
+    Subdomain ObservabilitySubdomain supports LogCollection {
+        type SUPPORTING_DOMAIN
+        domainVisionStatement "collect tenant logs and provide log retrieval"
+    }
+
+    Subdomain BillingSubdomain supports BillingRecords, InvoiceGeneration {
+        type SUPPORTING_DOMAIN
+        domainVisionStatement "track consumption, calculate costs, and generate invoices"
+    }
+
+    Subdomain SecuritySubdomain supports KeyManagement {
+        type SUPPORTING_DOMAIN
+        domainVisionStatement "provide cryptographic key management for tenant workloads"
+    }
+}
+
+// ================================================================
+// User Stories
+// ================================================================
+
+UserStory ManageOrganizations {
+    As an "Admin"
+        I want to "create_and_manage" "organizations"
+    so that "tenants and users can be organized"
+}
+
+UserStory ManageUsers {
+    As an "Admin"
+        I want to "manage_users" "in_my_organization"
+    so that "the right people have access to resources"
+}
+
+UserStory AuthorizeAccess {
+    As an "User"
+        I want to "be_authorized" "when_accessing_resources"
+    so that "only permitted actions are allowed"
+}
+
+UserStory ProvisionVMs {
+    As an "User"
+        I want to "provision" "virtual_machines"
+    so that "I can run my workloads in the cloud"
+}
+
+UserStory ManageNetworks {
+    As an "User"
+        I want to "manage" "networks_and_subnets"
+    so that "my workloads have proper network isolation"
+}
+
+UserStory ManageClusters {
+    As an "User"
+        I want to "create" "kubernetes_clusters"
+    so that "I can deploy containerized applications"
+}
+
+UserStory DeployContainers {
+    As an "User"
+        I want to "deploy" "container_workloads"
+    so that "my applications run on Kubernetes"
+}
+
+UserStory RunServerlessFunctions {
+    As an "User"
+        I want to "run" "serverless_functions"
+    so that "my code executes on demand with automatic scaling"
+}
+
+UserStory FileStorage {
+    As an "User"
+        I want to "create" "file_storage"
+    so that "my applications have shared NFS storage"
+}
+
+UserStory ObjectStorage {
+    As an "User"
+        I want to "create" "object_storage_buckets"
+    so that "I can store and retrieve objects via S3"
+}
+
+UserStory ManagedDatabases {
+    As an "User"
+        I want to "provision" "managed_database_instances"
+    so that "I have databases without managing infrastructure"
+}
+
+UserStory BackupPolicies {
+    As an "User"
+        I want to "configure" "backup_policies"
+    so that "my data is protected with automated backups"
+}
+
+UserStory RecoveryPoints {
+    As an "User"
+        I want to "restore" "from_recovery_points"
+    so that "I can recover my data after failures"
+}
+
+UserStory LogCollection {
+    As an "User"
+        I want to "collect" "application_logs"
+    so that "I can troubleshoot and monitor my workloads"
+}
+
+UserStory BillingRecords {
+    As an "User"
+        I want to "view" "billing_records"
+    so that "I understand my resource costs"
+}
+
+UserStory InvoiceGeneration {
+    As an "Admin"
+        I want to "generate" "invoices"
+    so that "tenants receive billing documents"
+}
+
+UserStory KeyManagement {
+    As an "User"
+        I want to "manage" "encryption_keys"
+    so that "my data is encrypted with my own keys"
+}

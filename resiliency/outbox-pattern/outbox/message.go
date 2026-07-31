@@ -34,7 +34,7 @@ func NewMessage(id uuid.UUID, eventName string, eventData []byte, occurredAt tim
 
 func (m *Message) String() string {
 	return fmt.Sprintf("Message{ID: %s, EventName: %s, EventData: %s, OccurredAt: %s, FailCount: %d}",
-		m.id, m.eventName, m.eventData, m.occurredAt.Format(time.DateTime), m.failCount)
+		m.id.String()[:8], m.eventName, m.eventData, m.occurredAt.Format(time.DateTime), m.failCount)
 }
 
 // ID returns the unique identifier of the message.
