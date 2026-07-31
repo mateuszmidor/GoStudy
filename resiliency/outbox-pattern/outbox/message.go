@@ -9,8 +9,8 @@ import (
 
 type Message struct {
 	id            uuid.UUID
-	eventName     string
-	eventData     []byte
+	messageName   string
+	messageData   []byte
 	occurredAt    time.Time
 	processedAt   *time.Time
 	failCount     int32
@@ -19,11 +19,11 @@ type Message struct {
 }
 
 // NewMessage creates a new outbox message.
-func NewMessage(id uuid.UUID, eventName string, eventData []byte, occurredAt time.Time) *Message {
+func NewMessage(id uuid.UUID, name string, data []byte, occurredAt time.Time) *Message {
 	return &Message{
 		id:            id,
-		eventName:     eventName,
-		eventData:     eventData,
+		messageName:   name,
+		messageData:   data,
 		occurredAt:    occurredAt,
 		processedAt:   nil,
 		failCount:     0,
@@ -33,8 +33,8 @@ func NewMessage(id uuid.UUID, eventName string, eventData []byte, occurredAt tim
 }
 
 func (m *Message) String() string {
-	return fmt.Sprintf("Message{ID: %s, EventName: %s, EventData: %s, OccurredAt: %s, FailCount: %d}",
-		m.id.String()[:8], m.eventName, m.eventData, m.occurredAt.Format(time.DateTime), m.failCount)
+	return fmt.Sprintf("Message{ID: %s, Name: %s, Data: %s, OccurredAt: %s, FailCount: %d}",
+		m.id.String()[:8], m.messageName, m.messageData, m.occurredAt.Format(time.DateTime), m.failCount)
 }
 
 // ID returns the unique identifier of the message.
@@ -42,14 +42,14 @@ func (m *Message) ID() uuid.UUID {
 	return m.id
 }
 
-// EventName returns the name of the event that triggered the message.
-func (m *Message) EventName() string {
-	return m.eventName
+// MessageName returns the name of the message.
+func (m *Message) MessageName() string {
+	return m.messageName
 }
 
-// EventData returns the event data that triggered the message.
-func (m *Message) EventData() []byte {
-	return m.eventData
+// MessageData returns the data payload of the message.
+func (m *Message) MessageData() []byte {
+	return m.messageData
 }
 
 // OccurredAt returns the time when the message was created.

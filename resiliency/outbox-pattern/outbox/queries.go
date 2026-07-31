@@ -9,8 +9,8 @@ import (
 // outboxRow is a row in the outbox table.
 type outboxRow struct {
 	ID            uuid.UUID
-	EventName     string
-	EventData     []byte
+	MessageName   string
+	MessageData   []byte
 	OccurredAt    time.Time
 	ProcessedAt   *time.Time
 	FailCount     int32
@@ -20,7 +20,7 @@ type outboxRow struct {
 
 // listUnprocessedWithLockQuery returns a query to list unprocessed messages. With row-level locks for multi-threaded processing.
 func listUnprocessedWithLockQuery(limit int32) (string, []any) {
-	return `SELECT id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason
+	return `SELECT id, 	message_name, message_data, occurred_at, processed_at, fail_count, failed, failure_reason
 	          FROM outbox
 	         WHERE processed_at IS NULL
 	           AND failed != true
@@ -45,11 +45,11 @@ func upsertQuery(msg *Message) (string, []any) {
 		failureReason = &reason
 	}
 
-	sql := `INSERT INTO outbox (id, event_name, event_data, occurred_at, processed_at, fail_count, failed, failure_reason)
+	sql := `INSERT INTO outbox (id, 	message_name, 	message_data, occurred_at, processed_at, fail_count, failed, failure_reason)
 	         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	         ON CONFLICT (id) DO UPDATE SET
-	               event_name     = EXCLUDED.event_name,
-	               event_data     = EXCLUDED.event_data,
+	               message_name   = EXCLUDED.message_name,
+	               message_data   = EXCLUDED.message_data,
 	               occurred_at    = EXCLUDED.occurred_at,
 	               processed_at   = EXCLUDED.processed_at,
 	               fail_count     = EXCLUDED.fail_count,
@@ -57,8 +57,8 @@ func upsertQuery(msg *Message) (string, []any) {
 	               failure_reason = EXCLUDED.failure_reason`
 	args := []any{
 		msg.ID(),
-		msg.EventName(),
-		msg.EventData(),
+		msg.MessageName(),
+		msg.MessageData(),
 		msg.OccurredAt(),
 		processedAt,
 		msg.FailCount(),
@@ -70,12 +70,12 @@ func upsertQuery(msg *Message) (string, []any) {
 
 func mapRowToMessage(row outboxRow) *Message {
 	m := &Message{
-		id:         row.ID,
-		eventName:  row.EventName,
-		eventData:  row.EventData,
-		occurredAt: row.OccurredAt,
-		failCount:  row.FailCount,
-		failed:     row.Failed,
+		id:          row.ID,
+		messageName: row.MessageName,
+		messageData: row.MessageData,
+		occurredAt:  row.OccurredAt,
+		failCount:   row.FailCount,
+		failed:      row.Failed,
 	}
 
 	if row.ProcessedAt != nil {

@@ -76,8 +76,8 @@ Move permanently failed messages to a separate table after N attempts to prevent
 ```sql
 CREATE TABLE dead_letter (
     id             uuid                  not null,
-    event_name     text                  not null,
-    event_data     jsonb                 not null,
+    message_name   text                  not null,
+    message_data   jsonb                 not null,
     occurred_at    timestamp with time zone not null,
     fail_count     integer               not null,
     failure_reason text,

@@ -93,8 +93,8 @@ func fetchUnprocessed(ctx context.Context, limit int32, tx *sql.Tx) ([]outboxRow
 		var row outboxRow
 		err := rows.Scan(
 			&row.ID,
-			&row.EventName,
-			&row.EventData,
+			&row.MessageName,
+			&row.MessageData,
 			&row.OccurredAt,
 			&row.ProcessedAt,
 			&row.FailCount,

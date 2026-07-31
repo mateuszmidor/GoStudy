@@ -58,8 +58,8 @@ func main() {
 	// Publish messages to the outbox table
 	i := 1
 	for {
-		eventDataJSON := fmt.Appendf(nil, `{%q: %q}`, "event_name", fmt.Sprintf("event_%d", i))
-		msg := outbox.NewMessage(uuid.New(), fmt.Sprintf("test_%d", i), eventDataJSON, time.Now())
+		messageDataJSON := fmt.Appendf(nil, `{%q: %q}`, "idx", fmt.Sprintf("%d", i))
+		msg := outbox.NewMessage(uuid.New(), fmt.Sprintf("msg_%d", i), messageDataJSON, time.Now())
 		if err := notifier.Publish(ctx, msg); err != nil {
 			log.Fatal(err)
 		}

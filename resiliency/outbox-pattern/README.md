@@ -59,7 +59,7 @@ select * from outbox; # semicolon means: EXECUTE NOW
                                         │
                                         ▼
                          ┌──────────────────────────────┐
-                         │ SELECT id, event_name, ...   │
+                         │ SELECT id, message_name, ...   │
                          │  FROM outbox                 │
                          │  WHERE processed_at IS NULL  │
                          │    AND failed != true        │
