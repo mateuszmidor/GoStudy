@@ -34,7 +34,25 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Create a new dispatcher that reads messages from the outbox table and prints them to the console
+	// Create and run a message recorder that writes messages to the outbox table in the background
+	go func() {
+		recorder := outbox.NewRecorder(db)
+		i := 1
+		for {
+			name := fmt.Sprintf("msg_%d", i)
+			data := fmt.Appendf(nil, `{%q: %q}`, "idx", fmt.Sprintf("%d", i))
+			msg := outbox.NewMessage(uuid.New(), name, data, time.Now())
+			if err := recorder.Record(ctx, msg); err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("recorded message", msg.ID().String()[:8])
+
+			i++
+			time.Sleep(1 * time.Second)
+		}
+	}()
+
+	// Create and run a dispatcher that reads messages from the outbox table and prints them to the console
 	dispatcher := outbox.NewDispatcher(outbox.NewRepository(db), outbox.WithMaxAttempts(3), outbox.WithPollingRate(3*time.Second))
 	msgPrinter := func(ctx context.Context, msg *outbox.Message) error {
 		// Simulate a random error 10% of the time to show the retry mechanism
@@ -44,27 +62,7 @@ func main() {
 		fmt.Println("dispatched", msg)
 		return nil
 	}
-
-	// Start the dispatcher in the background
-	go func() {
-		if err := dispatcher.Run(ctx, msgPrinter); err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	// Create a new message recorder that writes messages to the outbox table
-	recorder := outbox.NewRecorder(db)
-
-	// Record messages to the outbox table
-	i := 1
-	for {
-		messageDataJSON := fmt.Appendf(nil, `{%q: %q}`, "idx", fmt.Sprintf("%d", i))
-		msg := outbox.NewMessage(uuid.New(), fmt.Sprintf("msg_%d", i), messageDataJSON, time.Now())
-		if err := recorder.Record(ctx, msg); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println("recorded message", msg.ID().String()[:8])
-		i++
-		time.Sleep(1 * time.Second)
+	if err := dispatcher.Run(ctx, msgPrinter); err != nil {
+		log.Fatal(err)
 	}
 }
