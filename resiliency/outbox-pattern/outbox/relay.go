@@ -50,6 +50,7 @@ func NewOutboxRelay(repository *Repository, options ...Option) *OutboxRelay {
 
 // Run starts the publisher loop and polls the outbox table for unprocessed messages.
 func (p *OutboxRelay) Run(ctx context.Context, publishFunc RelayMessage) error {
+	// publish single message, use with retry mechanism
 	publishWithRetry := func(ctx context.Context, msg *Message) {
 		// try to publish...
 		if err := publishFunc(ctx, msg); err != nil {
@@ -68,6 +69,7 @@ func (p *OutboxRelay) Run(ctx context.Context, publishFunc RelayMessage) error {
 		}
 	}
 
+	// relay loop
 	for {
 		select {
 		case <-time.After(p.pollEvery):
