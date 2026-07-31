@@ -29,14 +29,14 @@ func WithMaxAttempts(maxAttempts int32) Option {
 
 // OutboxRelay is a worker that polls the outbox table for unprocessed messages and publishes them using the provided RelayMessage function. It marks messages as processed or failed based on the result of the publish operation.
 type OutboxRelay struct {
-	repository  Repository
+	repository  *Repository
 	pollEvery   time.Duration
 	publishFunc RelayMessage
 	maxAttempts int32
 }
 
 // NewOutboxRelay creates a new OutboxRelay instance.
-func NewOutboxRelay(publisher RelayMessage, repository Repository, options ...Option) *OutboxRelay {
+func NewOutboxRelay(publisher RelayMessage, repository *Repository, options ...Option) *OutboxRelay {
 	p := &OutboxRelay{
 		repository:  repository,
 		pollEvery:   1 * time.Second,

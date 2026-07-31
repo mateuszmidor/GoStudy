@@ -9,19 +9,15 @@ import (
 
 type VisitorFunc func(context.Context, *Message)
 
-type Repository interface {
-	ProcessUnprocessedWithLock(ctx context.Context, limit int32, visitorFunc VisitorFunc) error
-}
-
-type repository struct {
+type Repository struct {
 	db *sql.DB
 }
 
-func NewRepository(db *sql.DB) Repository {
-	return &repository{db: db}
+func NewRepository(db *sql.DB) *Repository {
+	return &Repository{db: db}
 }
 
-func (r *repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32, visitorFunc VisitorFunc) error {
+func (r *Repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32, visitorFunc VisitorFunc) error {
 	var persistErrs []error
 	err := RunInTransaction(ctx, r.db, func(tx *sql.Tx) error {
 		// Select unprocessed messages with row-level locks. SKIP LOCKED allows
