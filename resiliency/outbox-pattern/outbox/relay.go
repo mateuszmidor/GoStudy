@@ -31,16 +31,14 @@ func WithMaxAttempts(maxAttempts int32) Option {
 type OutboxRelay struct {
 	repository  *Repository
 	pollEvery   time.Duration
-	publishFunc RelayMessage
 	maxAttempts int32
 }
 
 // NewOutboxRelay creates a new OutboxRelay instance.
-func NewOutboxRelay(publisher RelayMessage, repository *Repository, options ...Option) *OutboxRelay {
+func NewOutboxRelay(repository *Repository, options ...Option) *OutboxRelay {
 	p := &OutboxRelay{
-		repository:  repository,
-		pollEvery:   1 * time.Second,
-		publishFunc: publisher,
+		repository: repository,
+		pollEvery:  1 * time.Second,
 	}
 
 	for _, opt := range options {
@@ -51,9 +49,11 @@ func NewOutboxRelay(publisher RelayMessage, repository *Repository, options ...O
 }
 
 // Run starts the publisher loop and polls the outbox table for unprocessed messages.
-func (p *OutboxRelay) Run(ctx context.Context) error {
+func (p *OutboxRelay) Run(ctx context.Context, publishFunc RelayMessage) error {
 	publishWithRetry := func(ctx context.Context, msg *Message) {
-		if err := p.publishFunc(ctx, msg); err != nil {
+		// try to publish...
+		if err := publishFunc(ctx, msg); err != nil {
+			// 1. failure
 			slog.ErrorContext(ctx, "failed to relay message", "message_id", msg.ID(), "error", err.Error())
 
 			if msg.FailCount()+1 >= p.maxAttempts {
@@ -62,10 +62,10 @@ func (p *OutboxRelay) Run(ctx context.Context) error {
 			} else {
 				msg.AddFailure(err.Error())
 			}
-			return
+		} else {
+			// 2. success
+			msg.MarkAsProcessed()
 		}
-
-		msg.MarkAsProcessed()
 	}
 
 	for {

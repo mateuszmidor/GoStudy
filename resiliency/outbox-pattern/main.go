@@ -35,7 +35,7 @@ func main() {
 	}
 
 	// Create a new outbox relay that reads messages from the outbox table and prints them to the console
-	printer := func(ctx context.Context, msg *outbox.Message) error {
+	msgPrinter := func(ctx context.Context, msg *outbox.Message) error {
 		// Simulate a random error 10% of the time so shows the retry mechanism
 		if rand.Float32() < 0.1 {
 			return fmt.Errorf("random error")
@@ -43,11 +43,11 @@ func main() {
 		fmt.Println(msg)
 		return nil
 	}
-	relay := outbox.NewOutboxRelay(printer, outbox.NewRepository(db), outbox.WithMaxAttempts(3), outbox.WithPollingRate(3*time.Second))
+	relay := outbox.NewOutboxRelay(outbox.NewRepository(db), outbox.WithMaxAttempts(3), outbox.WithPollingRate(3*time.Second))
 
 	// Start the outbox relay in the background
 	go func() {
-		if err := relay.Run(ctx); err != nil {
+		if err := relay.Run(ctx, msgPrinter); err != nil {
 			log.Fatal(err)
 		}
 	}()
