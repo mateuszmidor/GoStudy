@@ -43,14 +43,14 @@ select * from outbox; # semicolon means: EXECUTE NOW
 
 
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                    READ SIDE  (relay polling loop, every 1s)                        │
+│                    READ SIDE  (relay polling loop, every 3s)                        │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
    relay.Run (OutboxRelay)
      │
      ▼
  ┌──────────────────┐
- │ time.After(1s)   │◀──── wait for next tick
+ │ time.After(3s)   │◀──── wait for next tick
  └────────┬─────────┘
           ▼
  ┌──────────────────┐  BEGIN   ┌──────────────────────────────────┐
@@ -59,7 +59,7 @@ select * from outbox; # semicolon means: EXECUTE NOW
                                         │
                                         ▼
                          ┌──────────────────────────────┐
-                         │ SELECT id, message_name, ...   │
+                         │ SELECT id, message_name, ... │
                          │  FROM outbox                 │
                          │  WHERE processed_at IS NULL  │
                          │    AND failed != true        │
@@ -75,15 +75,17 @@ select * from outbox; # semicolon means: EXECUTE NOW
                          │  ┌────────────────────────┐  │
                          │  │ visitorFunc(ctx, msg)  │  │  ◄── external I/O happens
                          │  │                        │  │      FIRST, before savepoint
-                         │  │  publish to broker     │  │
+                         │  │  publish message       │  │
                          │  │    │                   │  │
-                         │  │    ├── ok ──▶ MarkAsProcessed()     │
-                         │  │    │        (in-memory only)        │
+                         │  │    ├── ok ──▶          │  │
+                         │  │      MarkAsProcessed() │  │
+                         │  │       (in-memory only) │  │
                          │  │    │                   │  │
-                         │  │    └── err ▶ MarkAsFailed(reason)   │
-                         │  │             (failed=true,           │
-                         │  │              failCount++,           │
-                         │  │              in-memory only)        │
+                         │  │    └── err ▶           │  │
+                         │  │      MarkAsFailed      │  │
+                         │  │       (failed=true,    │  │
+                         │  │        failCount++,    │  │
+                         │  │        in-memory only) │  │
                          │  └───────────┬────────────┘  │
                          │              ▼               │
                          │  ┌────────────────────────┐  │
