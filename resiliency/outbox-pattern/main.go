@@ -36,7 +36,7 @@ func main() {
 
 	// Create a new outbox relay that reads messages from the outbox table and prints them to the console
 	printer := func(ctx context.Context, msg *outbox.Message) error {
-		// Simulate a random error 50% of the time so shows the retry mechanism
+		// Simulate a random error 10% of the time so shows the retry mechanism
 		if rand.Float32() < 0.1 {
 			return fmt.Errorf("random error")
 		}

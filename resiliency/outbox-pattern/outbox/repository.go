@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 )
 
 type VisitorFunc func(context.Context, *Message)
@@ -19,7 +20,6 @@ func NewRepository(db *sql.DB) *Repository {
 
 // ProcessUnprocessedWithLock visits a batch of messages. It does not fail on visit failure; only on db transaction failure.
 func (r *Repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32, visitorFunc VisitorFunc) error {
-	var persistErrs []error
 	err := RunInTransaction(ctx, r.db, func(tx *sql.Tx) error {
 		// Select unprocessed messages with row-level locks. SKIP LOCKED allows
 		// multiple relay workers to process different messages concurrently
@@ -59,8 +59,8 @@ func (r *Repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32
 						fmt.Errorf("rollback to savepoint: %w", rbErr),
 					)
 				}
-				// Collect the error but continue with the next message.
-				persistErrs = append(persistErrs, fmt.Errorf("persist message %s: %w", msg.ID(), err))
+				// Log the persist error and continue with the next message.
+				slog.ErrorContext(ctx, "failed to persist message", "message_id", msg.ID().String(), "error", err.Error())
 				continue
 			}
 
@@ -73,11 +73,10 @@ func (r *Repository) ProcessUnprocessedWithLock(ctx context.Context, limit int32
 		}
 		return nil
 	})
-	// Join per-message persist errors with any transaction-level error
-	// (e.g., commit failure). This surfaces failures to the caller even
-	// though the transaction committed (successfully persisted messages
-	// are kept).
-	return errors.Join(append(persistErrs, err)...)
+	// Return only transaction-level errors (e.g., commit failure).
+	// Per-message persist failures are logged and recovered via
+	// savepoint rollback; they do not propagate to the caller.
+	return err
 }
 
 // fetchUnprocessed fetches unprocessed messages from the outbox table with row-level locks.
