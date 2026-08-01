@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"math/rand"
 	"net/http"
 	"time"
@@ -13,6 +14,8 @@ import (
 )
 
 func startSandService() *trace.TracerProvider {
+	logger := newLogger("sand-service")
+
 	otlpExp, err := newOLTPExporter()
 	if err != nil {
 		log.Fatal(err)
@@ -20,7 +23,7 @@ func startSandService() *trace.TracerProvider {
 	tp := newTracerProvider("sand-service", otlpExp)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/get-sand", handleGetSand)
+	mux.HandleFunc("/get-sand", handleGetSand(logger))
 
 	go func() {
 		log.Fatal(http.ListenAndServe(":8082",
@@ -30,14 +33,17 @@ func startSandService() *trace.TracerProvider {
 	return tp
 }
 
-func handleGetSand(w http.ResponseWriter, r *http.Request) {
-	time.Sleep(750 * time.Millisecond)
-	if rand.Intn(2) == 0 {
-		apitrace.SpanFromContext(r.Context()).RecordError(
-			fmt.Errorf("dump track crashed"),
-		)
-		http.Error(w, "dump track crashed", http.StatusInternalServerError)
-		return
+func handleGetSand(logger *slog.Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		logger.InfoContext(r.Context(), "request received", "url", r.URL.String())
+		time.Sleep(750 * time.Millisecond)
+		if rand.Intn(2) == 0 {
+			apitrace.SpanFromContext(r.Context()).RecordError(
+				fmt.Errorf("dump track crashed"),
+			)
+			http.Error(w, "dump track crashed", http.StatusInternalServerError)
+			return
+		}
+		w.Write([]byte("sand delivered"))
 	}
-	w.Write([]byte("sand delivered"))
 }

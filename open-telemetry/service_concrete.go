@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -12,6 +13,8 @@ import (
 )
 
 func startConcreteService() *trace.TracerProvider {
+	logger := newLogger("concrete-service")
+
 	otlpExp, err := newOLTPExporter()
 	if err != nil {
 		log.Fatal(err)
@@ -24,7 +27,7 @@ func startConcreteService() *trace.TracerProvider {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/provide-concrete", handleProvideConcrete(client))
+	mux.HandleFunc("/provide-concrete", handleProvideConcrete(logger, client))
 
 	go func() {
 		log.Fatal(http.ListenAndServe(":8081",
@@ -34,8 +37,9 @@ func startConcreteService() *trace.TracerProvider {
 	return tp
 }
 
-func handleProvideConcrete(client *http.Client) http.HandlerFunc {
+func handleProvideConcrete(logger *slog.Logger, client *http.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		logger.InfoContext(r.Context(), "request received", "url", r.URL.String())
 		time.Sleep(250 * time.Millisecond)
 		req, err := http.NewRequestWithContext(r.Context(), "GET", "http://localhost:8082/get-sand", nil)
 		if err != nil {

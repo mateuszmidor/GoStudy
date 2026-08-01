@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -12,6 +13,8 @@ import (
 )
 
 func startConstructionService() *trace.TracerProvider {
+	logger := newLogger("construction-service")
+
 	otlpExp, err := newOLTPExporter()
 	if err != nil {
 		log.Fatal(err)
@@ -24,7 +27,7 @@ func startConstructionService() *trace.TracerProvider {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/build-house", handleBuildHouse(client))
+	mux.HandleFunc("/build-house", handleBuildHouse(logger, client))
 
 	go func() {
 		log.Fatal(http.ListenAndServe(":8080",
@@ -34,8 +37,9 @@ func startConstructionService() *trace.TracerProvider {
 	return tp
 }
 
-func handleBuildHouse(client *http.Client) http.HandlerFunc {
+func handleBuildHouse(logger *slog.Logger, client *http.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		logger.InfoContext(r.Context(), "request received", "url", r.URL.String())
 		time.Sleep(500 * time.Millisecond)
 		req, err := http.NewRequestWithContext(r.Context(), "GET", "http://localhost:8081/provide-concrete", nil)
 		if err != nil {
