@@ -1,187 +1,15 @@
 {
-	"Name": "GET /get-sand",
-	"SpanContext": {
-		"TraceID": "cbb2ab170afdf9e392b54e556209082a",
-		"SpanID": "26244cf457a05a4f",
-		"TraceFlags": "01",
-		"TraceState": "",
-		"Remote": false
-	},
-	"Parent": {
-		"TraceID": "cbb2ab170afdf9e392b54e556209082a",
-		"SpanID": "7241753f5b5acc9c",
-		"TraceFlags": "01",
-		"TraceState": "",
-		"Remote": true
-	},
-	"SpanKind": 2,
-	"StartTime": "0001-01-01T00:00:00Z",
-	"EndTime": "0001-01-01T00:00:00Z",
-	"Attributes": [
-		{
-			"Key": "server.address",
-			"Value": {
-				"Type": "STRING",
-				"Value": "localhost"
-			}
-		},
-		{
-			"Key": "http.request.method",
-			"Value": {
-				"Type": "STRING",
-				"Value": "GET"
-			}
-		},
-		{
-			"Key": "url.scheme",
-			"Value": {
-				"Type": "STRING",
-				"Value": "http"
-			}
-		},
-		{
-			"Key": "server.port",
-			"Value": {
-				"Type": "INT64",
-				"Value": 8082
-			}
-		},
-		{
-			"Key": "network.peer.address",
-			"Value": {
-				"Type": "STRING",
-				"Value": "::1"
-			}
-		},
-		{
-			"Key": "network.peer.port",
-			"Value": {
-				"Type": "INT64",
-				"Value": 44672
-			}
-		},
-		{
-			"Key": "user_agent.original",
-			"Value": {
-				"Type": "STRING",
-				"Value": "Go-http-client/1.1"
-			}
-		},
-		{
-			"Key": "client.address",
-			"Value": {
-				"Type": "STRING",
-				"Value": "::1"
-			}
-		},
-		{
-			"Key": "url.path",
-			"Value": {
-				"Type": "STRING",
-				"Value": "/get-sand"
-			}
-		},
-		{
-			"Key": "network.protocol.version",
-			"Value": {
-				"Type": "STRING",
-				"Value": "1.1"
-			}
-		},
-		{
-			"Key": "http.response.body.size",
-			"Value": {
-				"Type": "INT64",
-				"Value": 14
-			}
-		},
-		{
-			"Key": "http.response.status_code",
-			"Value": {
-				"Type": "INT64",
-				"Value": 200
-			}
-		}
-	],
-	"Events": null,
-	"Links": null,
-	"Status": {
-		"Code": "Unset",
-		"Description": ""
-	},
-	"DroppedAttributes": 0,
-	"DroppedEvents": 0,
-	"DroppedLinks": 0,
-	"ChildSpanCount": 0,
-	"Resource": [
-		{
-			"Key": "environment",
-			"Value": {
-				"Type": "STRING",
-				"Value": "demo"
-			}
-		},
-		{
-			"Key": "service.name",
-			"Value": {
-				"Type": "STRING",
-				"Value": "sand-service"
-			}
-		},
-		{
-			"Key": "service.version",
-			"Value": {
-				"Type": "STRING",
-				"Value": "v0.1.0"
-			}
-		},
-		{
-			"Key": "telemetry.sdk.language",
-			"Value": {
-				"Type": "STRING",
-				"Value": "go"
-			}
-		},
-		{
-			"Key": "telemetry.sdk.name",
-			"Value": {
-				"Type": "STRING",
-				"Value": "opentelemetry"
-			}
-		},
-		{
-			"Key": "telemetry.sdk.version",
-			"Value": {
-				"Type": "STRING",
-				"Value": "1.44.0"
-			}
-		}
-	],
-	"InstrumentationScope": {
-		"Name": "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp",
-		"Version": "0.69.0",
-		"SchemaURL": "",
-		"Attributes": null
-	},
-	"InstrumentationLibrary": {
-		"Name": "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp",
-		"Version": "0.69.0",
-		"SchemaURL": "",
-		"Attributes": null
-	}
-}
-{
 	"Name": "HTTP GET",
 	"SpanContext": {
-		"TraceID": "cbb2ab170afdf9e392b54e556209082a",
-		"SpanID": "7241753f5b5acc9c",
+		"TraceID": "0fea4be961d9367c8a943e67077dc10a",
+		"SpanID": "e58308077398bee6",
 		"TraceFlags": "01",
 		"TraceState": "",
 		"Remote": false
 	},
 	"Parent": {
-		"TraceID": "cbb2ab170afdf9e392b54e556209082a",
-		"SpanID": "17bbc6636f4d8acf",
+		"TraceID": "0fea4be961d9367c8a943e67077dc10a",
+		"SpanID": "885c771b4a1f5673",
 		"TraceFlags": "01",
 		"TraceState": "",
 		"Remote": false
@@ -303,15 +131,15 @@
 {
 	"Name": "GET /provide-concrete",
 	"SpanContext": {
-		"TraceID": "cbb2ab170afdf9e392b54e556209082a",
-		"SpanID": "17bbc6636f4d8acf",
+		"TraceID": "0fea4be961d9367c8a943e67077dc10a",
+		"SpanID": "885c771b4a1f5673",
 		"TraceFlags": "01",
 		"TraceState": "",
 		"Remote": false
 	},
 	"Parent": {
-		"TraceID": "cbb2ab170afdf9e392b54e556209082a",
-		"SpanID": "c8e1f70e1f0deec1",
+		"TraceID": "0fea4be961d9367c8a943e67077dc10a",
+		"SpanID": "f669559069a54449",
 		"TraceFlags": "01",
 		"TraceState": "",
 		"Remote": true
@@ -359,7 +187,7 @@
 			"Key": "network.peer.port",
 			"Value": {
 				"Type": "INT64",
-				"Value": 46540
+				"Value": 45314
 			}
 		},
 		{
@@ -473,17 +301,189 @@
 	}
 }
 {
-	"Name": "HTTP GET",
+	"Name": "GET /get-sand",
 	"SpanContext": {
-		"TraceID": "cbb2ab170afdf9e392b54e556209082a",
-		"SpanID": "c8e1f70e1f0deec1",
+		"TraceID": "0fea4be961d9367c8a943e67077dc10a",
+		"SpanID": "3b31c0fdc2810c39",
 		"TraceFlags": "01",
 		"TraceState": "",
 		"Remote": false
 	},
 	"Parent": {
-		"TraceID": "cbb2ab170afdf9e392b54e556209082a",
-		"SpanID": "beb76b84ab0e33b7",
+		"TraceID": "0fea4be961d9367c8a943e67077dc10a",
+		"SpanID": "e58308077398bee6",
+		"TraceFlags": "01",
+		"TraceState": "",
+		"Remote": true
+	},
+	"SpanKind": 2,
+	"StartTime": "0001-01-01T00:00:00Z",
+	"EndTime": "0001-01-01T00:00:00Z",
+	"Attributes": [
+		{
+			"Key": "server.address",
+			"Value": {
+				"Type": "STRING",
+				"Value": "localhost"
+			}
+		},
+		{
+			"Key": "http.request.method",
+			"Value": {
+				"Type": "STRING",
+				"Value": "GET"
+			}
+		},
+		{
+			"Key": "url.scheme",
+			"Value": {
+				"Type": "STRING",
+				"Value": "http"
+			}
+		},
+		{
+			"Key": "server.port",
+			"Value": {
+				"Type": "INT64",
+				"Value": 8082
+			}
+		},
+		{
+			"Key": "network.peer.address",
+			"Value": {
+				"Type": "STRING",
+				"Value": "::1"
+			}
+		},
+		{
+			"Key": "network.peer.port",
+			"Value": {
+				"Type": "INT64",
+				"Value": 47314
+			}
+		},
+		{
+			"Key": "user_agent.original",
+			"Value": {
+				"Type": "STRING",
+				"Value": "Go-http-client/1.1"
+			}
+		},
+		{
+			"Key": "client.address",
+			"Value": {
+				"Type": "STRING",
+				"Value": "::1"
+			}
+		},
+		{
+			"Key": "url.path",
+			"Value": {
+				"Type": "STRING",
+				"Value": "/get-sand"
+			}
+		},
+		{
+			"Key": "network.protocol.version",
+			"Value": {
+				"Type": "STRING",
+				"Value": "1.1"
+			}
+		},
+		{
+			"Key": "http.response.body.size",
+			"Value": {
+				"Type": "INT64",
+				"Value": 14
+			}
+		},
+		{
+			"Key": "http.response.status_code",
+			"Value": {
+				"Type": "INT64",
+				"Value": 200
+			}
+		}
+	],
+	"Events": null,
+	"Links": null,
+	"Status": {
+		"Code": "Unset",
+		"Description": ""
+	},
+	"DroppedAttributes": 0,
+	"DroppedEvents": 0,
+	"DroppedLinks": 0,
+	"ChildSpanCount": 0,
+	"Resource": [
+		{
+			"Key": "environment",
+			"Value": {
+				"Type": "STRING",
+				"Value": "demo"
+			}
+		},
+		{
+			"Key": "service.name",
+			"Value": {
+				"Type": "STRING",
+				"Value": "sand-service"
+			}
+		},
+		{
+			"Key": "service.version",
+			"Value": {
+				"Type": "STRING",
+				"Value": "v0.1.0"
+			}
+		},
+		{
+			"Key": "telemetry.sdk.language",
+			"Value": {
+				"Type": "STRING",
+				"Value": "go"
+			}
+		},
+		{
+			"Key": "telemetry.sdk.name",
+			"Value": {
+				"Type": "STRING",
+				"Value": "opentelemetry"
+			}
+		},
+		{
+			"Key": "telemetry.sdk.version",
+			"Value": {
+				"Type": "STRING",
+				"Value": "1.44.0"
+			}
+		}
+	],
+	"InstrumentationScope": {
+		"Name": "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp",
+		"Version": "0.69.0",
+		"SchemaURL": "",
+		"Attributes": null
+	},
+	"InstrumentationLibrary": {
+		"Name": "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp",
+		"Version": "0.69.0",
+		"SchemaURL": "",
+		"Attributes": null
+	}
+}
+{
+	"Name": "HTTP GET",
+	"SpanContext": {
+		"TraceID": "0fea4be961d9367c8a943e67077dc10a",
+		"SpanID": "f669559069a54449",
+		"TraceFlags": "01",
+		"TraceState": "",
+		"Remote": false
+	},
+	"Parent": {
+		"TraceID": "0fea4be961d9367c8a943e67077dc10a",
+		"SpanID": "78ac249caac08ee1",
 		"TraceFlags": "01",
 		"TraceState": "",
 		"Remote": false
@@ -605,8 +605,8 @@
 {
 	"Name": "GET /build-house",
 	"SpanContext": {
-		"TraceID": "cbb2ab170afdf9e392b54e556209082a",
-		"SpanID": "beb76b84ab0e33b7",
+		"TraceID": "0fea4be961d9367c8a943e67077dc10a",
+		"SpanID": "78ac249caac08ee1",
 		"TraceFlags": "01",
 		"TraceState": "",
 		"Remote": false
@@ -661,7 +661,7 @@
 			"Key": "network.peer.port",
 			"Value": {
 				"Type": "INT64",
-				"Value": 44994
+				"Value": 44688
 			}
 		},
 		{
