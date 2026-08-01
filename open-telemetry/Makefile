@@ -1,6 +1,7 @@
 jaeger-up:
 	docker run --name jaeger \
 	-d \
+	--rm \
 	-e COLLECTOR_OTLP_ENABLED=true \
 	-p 16686:16686 \
 	-p 4317:4317 \
@@ -12,3 +13,6 @@ run:
 
 jaeger-down:
 	docker stop jaeger
+
+build:
+	curl -s http://localhost:8080/build-house
