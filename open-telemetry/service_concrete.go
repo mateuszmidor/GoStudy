@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -104,10 +103,5 @@ func (s *ConcreteService) produceConcrete(ctx context.Context) (result string, e
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("failed to produce concrete: %s", string(body))
 	}
-
-	_, span := s.tp.Tracer("concrete-service").Start(ctx, "get-water")
-	span.SetStatus(codes.Error, "out of water")
-	span.RecordError(errors.New("out-of-water"))
-	span.End()
-	return "", errors.New("out of water")
+	return fmt.Sprintf("mixed 2m3 of concrete from %s", body), nil
 }
