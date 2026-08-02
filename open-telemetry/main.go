@@ -6,30 +6,26 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 func main() {
+	// Configure global propagator to extract and inject W3C trace context: trace id, parent span id, trace flags
+	// on incoming and outgoing HTTP requests; otelhttp middleware will automatically use this:
+	// otelhttp.NewTransport for http client, otelhttp.NewHandler for http server
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
 		propagation.TraceContext{},
-		propagation.Baggage{},
 	))
 
-	sandTp := startSandService()
-	concreteTp := startConcreteService()
-	constructionTp := startConstructionService()
+	sandSvc := NewSandService(context.Background())
+	go sandSvc.Start()
+	defer sandSvc.Shutdown(context.Background())
+	concreteSvc := NewConcreteService(context.Background())
+	go concreteSvc.Start()
+	defer concreteSvc.Shutdown(context.Background())
+	constructionSvc := NewConstructionService(context.Background())
+	go constructionSvc.Start()
+	defer constructionSvc.Shutdown(context.Background())
 
-	defer shutdown(sandTp, concreteTp, constructionTp)
-	
 	log.Println("Services up: :8080/build-house, :8081/provide-concrete, :8082/get-sand")
 	select {}
-}
-
-
-func shutdown(providers ...*trace.TracerProvider) {
-	for _, tp := range providers {
-		if err := tp.Shutdown(context.Background()); err != nil {
-			log.Printf("shutdown error: %v", err)
-		}
-	}
 }

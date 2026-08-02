@@ -10,7 +10,16 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 )
 
-func newTracerProvider(name string, exp trace.SpanExporter) *trace.TracerProvider {
+func newTracerProvider(name string) (*trace.TracerProvider, error) {
+	exp, err := otlptracehttp.New(
+		context.Background(),
+		otlptracehttp.WithEndpoint("localhost:4318"), // jaeger collector endpoint
+		otlptracehttp.WithInsecure(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	r, _ := resource.Merge(
 		resource.Default(),
 		resource.NewWithAttributes(
@@ -21,11 +30,8 @@ func newTracerProvider(name string, exp trace.SpanExporter) *trace.TracerProvide
 		),
 	)
 	return trace.NewTracerProvider(
+		trace.WithSampler(trace.AlwaysSample()),
 		trace.WithBatcher(exp),
 		trace.WithResource(r),
-	)
-}
-
-func newOLTPExporter() (trace.SpanExporter, error) {
-	return otlptracehttp.New(context.Background(), otlptracehttp.WithInsecure())
+	), nil
 }
