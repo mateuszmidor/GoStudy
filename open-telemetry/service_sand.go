@@ -17,8 +17,8 @@ import (
 
 // SandService represents both: http controller and business logic, for brevity.
 type SandService struct {
-	logger     *slog.Logger // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
-	tp         *trace.TracerProvider // tracer provider that sends traces to open telemetry collector
+	logger     *slog.Logger                // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
+	tp         *trace.TracerProvider       // tracer provider that sends traces to open telemetry collector
 	logCleanup func(context.Context) error // flush logs from open telemetry log batcher
 }
 
@@ -56,18 +56,18 @@ func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
 	// log the request with context, so trace ID and span ID are included in the log output
 	// note: trace span is automatically created by otelhttp middleware so nothing to do here
 	s.logger.InfoContext(r.Context(), "request received", "url", r.URL.String())
-	
+
 	// call business logic
 	result, err := gatherSand()
-	
+
 	// handle error
 	if err != nil {
-		s.logger.ErrorContext(r.Context(), err.Error()) // log the error
+		s.logger.ErrorContext(r.Context(), err.Error())                           // log the error
 		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error()) // set the span status to error
-		apitrace.SpanFromContext(r.Context()).RecordError(err) // trace the error
-		http.Error(w, err.Error(), http.StatusInternalServerError) // return the error
+		apitrace.SpanFromContext(r.Context()).RecordError(err)                    // trace the error
+		http.Error(w, err.Error(), http.StatusInternalServerError)                // return the error
 		return
-	} 
+	}
 
 	// handle success
 	w.Write([]byte(result))
@@ -77,7 +77,7 @@ func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
 func gatherSand() (result string, err error) {
 	// simulate random failure 50% of the time
 	if rand.Intn(2) == 0 {
-		err := fmt.Errorf("failed to gather sand")
+		err := fmt.Errorf("failed to gather sand - dump track crashed")
 		return "", err
 	}
 	return "1 ton of sand", nil

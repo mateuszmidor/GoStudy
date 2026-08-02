@@ -16,10 +16,10 @@ import (
 
 // BuildingService represents both: http controller and business logic, for brevity.
 type BuildingService struct {
-	logger     *slog.Logger                 // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
-	tp         *trace.TracerProvider         // tracer provider that sends traces to open telemetry collector
-	client     *http.Client                 // http client that automatically creates trace spans for outgoing requests
-	logCleanup func(context.Context) error  // flush logs from open telemetry log batcher
+	logger     *slog.Logger                // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
+	tp         *trace.TracerProvider       // tracer provider that sends traces to open telemetry collector
+	client     *http.Client                // http client that automatically creates trace spans for outgoing requests
+	logCleanup func(context.Context) error // flush logs from open telemetry log batcher
 }
 
 func NewBuildingService(ctx context.Context) *BuildingService {
@@ -67,12 +67,12 @@ func (s *BuildingService) handleBuildHouse(w http.ResponseWriter, r *http.Reques
 
 	// handle error
 	if err != nil {
-		s.logger.ErrorContext(r.Context(), err.Error()) // log the error
+		s.logger.ErrorContext(r.Context(), err.Error())                           // log the error
 		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error()) // set the span status to error
-		apitrace.SpanFromContext(r.Context()).RecordError(err) // attach the error to the span
-		http.Error(w, err.Error(), http.StatusInternalServerError) // return the error
+		apitrace.SpanFromContext(r.Context()).RecordError(err)                    // attach the error to the span
+		http.Error(w, err.Error(), http.StatusInternalServerError)                // return the error
 		return
-	} 
+	}
 
 	// handle success
 	w.Write([]byte(result))
@@ -92,8 +92,9 @@ func (s *BuildingService) buildHouse(ctx context.Context) (string, error) {
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
 
+	// handle response
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("failed to build a house: %s", string(body))
 	}
-	return string(body), nil
+	return fmt.Sprintf("built 1 house from %s", body), nil
 }

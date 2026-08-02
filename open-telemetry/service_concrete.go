@@ -17,10 +17,10 @@ import (
 
 // ConcreteService represents both: http controller and business logic, for brevity.
 type ConcreteService struct {
-	logger     *slog.Logger                   // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
-	tp         *trace.TracerProvider           // tracer provider that sends traces to open telemetry collector
-	client     *http.Client                   // http client that automatically creates trace spans for outgoing requests
-	logCleanup func(context.Context) error    // flush logs from open telemetry log batcher
+	logger     *slog.Logger                // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
+	tp         *trace.TracerProvider       // tracer provider that sends traces to open telemetry collector
+	client     *http.Client                // http client that automatically creates trace spans for outgoing requests
+	logCleanup func(context.Context) error // flush logs from open telemetry log batcher
 }
 
 func NewConcreteService(ctx context.Context) *ConcreteService {
@@ -68,10 +68,10 @@ func (s *ConcreteService) handleProvideConcrete(w http.ResponseWriter, r *http.R
 
 	// handle error
 	if err != nil {
-		s.logger.ErrorContext(r.Context(), err.Error()) // log the error
+		s.logger.ErrorContext(r.Context(), err.Error())                           // log the error
 		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error()) // set the span status to error
-		apitrace.SpanFromContext(r.Context()).RecordError(err)                         // trace the error
-		http.Error(w, err.Error(), http.StatusInternalServerError)                     // return the error
+		apitrace.SpanFromContext(r.Context()).RecordError(err)                    // trace the error
+		http.Error(w, err.Error(), http.StatusInternalServerError)                // return the error
 		return
 	}
 
@@ -92,8 +92,9 @@ func (s *ConcreteService) produceConcrete(ctx context.Context) (result string, e
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
 
+	// handle response
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("failed to produce concrete: %s", string(body))
 	}
-	return fmt.Sprintf("concrete + %s", body), nil
+	return fmt.Sprintf("mixed 2m3 of concrete from %s", body), nil
 }

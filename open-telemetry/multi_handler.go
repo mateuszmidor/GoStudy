@@ -9,6 +9,7 @@ func newMultiHandler(handlers ...slog.Handler) slog.Handler {
 	return &multiHandler{handlers: handlers}
 }
 
+// multiHandler implements slog.Handler interface and forwards log records to multiple handlers.
 type multiHandler struct {
 	handlers []slog.Handler
 }
