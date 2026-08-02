@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/sdk/trace"
 
 	apitrace "go.opentelemetry.io/otel/trace"
@@ -57,11 +58,12 @@ func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
 	s.logger.InfoContext(r.Context(), "request received", "url", r.URL.String())
 	
 	// call business logic
-	result, err := getSand()
+	result, err := gatherSand()
 	
 	// handle error
 	if err != nil {
-		s.logger.ErrorContext(r.Context(), "failed to get sand", "error", err) // log the error
+		s.logger.ErrorContext(r.Context(), err.Error()) // log the error
+		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error()) // set the span status to error
 		apitrace.SpanFromContext(r.Context()).RecordError(err) // trace the error
 		http.Error(w, err.Error(), http.StatusInternalServerError) // return the error
 		return
@@ -72,10 +74,10 @@ func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
 }
 
 // BUSINESS LOGIC
-func getSand() (result string, err error) {
+func gatherSand() (result string, err error) {
 	// simulate random failure 50% of the time
 	if rand.Intn(2) == 0 {
-		err := fmt.Errorf("dump track crashed")
+		err := fmt.Errorf("failed to gather sand")
 		return "", err
 	}
 	return "1 ton of sand", nil

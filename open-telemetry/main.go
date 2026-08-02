@@ -22,9 +22,9 @@ func main() {
 	concreteSvc := NewConcreteService(context.Background())
 	go concreteSvc.Start()
 	defer concreteSvc.Shutdown(context.Background())
-	constructionSvc := NewConstructionService(context.Background())
-	go constructionSvc.Start()
-	defer constructionSvc.Shutdown(context.Background())
+	buildingSvc := NewBuildingService(context.Background())
+	go buildingSvc.Start()
+	defer buildingSvc.Shutdown(context.Background())
 
 	log.Println("Services up: :8080/build-house, :8081/provide-concrete, :8082/get-sand")
 	select {}

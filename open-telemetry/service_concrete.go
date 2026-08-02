@@ -64,11 +64,11 @@ func (s *ConcreteService) handleProvideConcrete(w http.ResponseWriter, r *http.R
 	s.logger.InfoContext(r.Context(), "request received", "url", r.URL.String())
 
 	// call business logic
-	result, err := s.provideConcrete(r.Context())
+	result, err := s.produceConcrete(r.Context())
 
 	// handle error
 	if err != nil {
-		s.logger.ErrorContext(r.Context(), "failed to provide concrete", "error", err) // log the error
+		s.logger.ErrorContext(r.Context(), err.Error()) // log the error
 		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error()) // set the span status to error
 		apitrace.SpanFromContext(r.Context()).RecordError(err)                         // trace the error
 		http.Error(w, err.Error(), http.StatusInternalServerError)                     // return the error
@@ -80,7 +80,7 @@ func (s *ConcreteService) handleProvideConcrete(w http.ResponseWriter, r *http.R
 }
 
 // BUSINESS LOGIC
-func (s *ConcreteService) provideConcrete(ctx context.Context) (result string, err error) {
+func (s *ConcreteService) produceConcrete(ctx context.Context) (result string, err error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", "http://localhost:8082/get-sand", nil)
 	if err != nil {
 		return "", err
@@ -92,5 +92,8 @@ func (s *ConcreteService) provideConcrete(ctx context.Context) (result string, e
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
 
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("failed to produce concrete: %s", string(body))
+	}
 	return fmt.Sprintf("concrete + %s", body), nil
 }

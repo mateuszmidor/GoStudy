@@ -18,7 +18,7 @@ func newLogger(scopeName string) (*slog.Logger, func(context.Context) error) {
 	}
 	lp := sdklog.NewLoggerProvider(sdklog.WithProcessor(sdklog.NewBatchProcessor(exp)))
 	handler := newMultiHandler(
-		slog.NewJSONHandler(os.Stdout, nil),
+		slog.NewJSONHandler(os.Stdout, nil).WithAttrs([]slog.Attr{slog.String("service", scopeName)}),
 		otelslog.NewHandler(scopeName, otelslog.WithLoggerProvider(lp)),
 	)
 	return slog.New(handler), lp.Shutdown
