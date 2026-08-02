@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/trace/noop"
 
 	apitrace "go.opentelemetry.io/otel/trace"
 )
@@ -31,8 +33,13 @@ func NewConcreteService(ctx context.Context) *ConcreteService {
 		log.Fatal(err)
 	}
 
+	// client := &http.Client{
+	// 	Transport: otelhttp.NewTransport(http.DefaultTransport, otelhttp.WithTracerProvider(tp)),
+	// }
 	client := &http.Client{
-		Transport: otelhttp.NewTransport(http.DefaultTransport, otelhttp.WithTracerProvider(tp)),
+		Transport: otelhttp.NewTransport(http.DefaultTransport,
+			otelhttp.WithTracerProvider(noop.NewTracerProvider()),
+		),
 	}
 
 	return &ConcreteService{
@@ -81,6 +88,7 @@ func (s *ConcreteService) handleProvideConcrete(w http.ResponseWriter, r *http.R
 
 // BUSINESS LOGIC
 func (s *ConcreteService) produceConcrete(ctx context.Context) (result string, err error) {
+	// call another service to get sand
 	req, err := http.NewRequestWithContext(ctx, "GET", "http://localhost:8082/get-sand", nil)
 	if err != nil {
 		return "", err
@@ -96,5 +104,10 @@ func (s *ConcreteService) produceConcrete(ctx context.Context) (result string, e
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("failed to produce concrete: %s", string(body))
 	}
-	return fmt.Sprintf("mixed 2m3 of concrete from %s", body), nil
+
+	_, span := s.tp.Tracer("concrete-service").Start(ctx, "get-water")
+	span.SetStatus(codes.Error, "out of water")
+	span.RecordError(errors.New("out-of-water"))
+	span.End()
+	return "", errors.New("out of water")
 }

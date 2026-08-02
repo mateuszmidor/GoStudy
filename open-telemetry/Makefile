@@ -14,5 +14,5 @@ run:
 jaeger-down:
 	docker stop jaeger
 
-build:
+house:
 	curl -s http://localhost:8080/build-house

@@ -12,6 +12,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/sdk/trace"
 	apitrace "go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/trace/noop"
 )
 
 // BuildingService represents both: http controller and business logic, for brevity.
@@ -30,8 +31,13 @@ func NewBuildingService(ctx context.Context) *BuildingService {
 		log.Fatal(err)
 	}
 
+	// client := &http.Client{
+	// 	Transport: otelhttp.NewTransport(http.DefaultTransport, otelhttp.WithTracerProvider(tp)),
+	// }
 	client := &http.Client{
-		Transport: otelhttp.NewTransport(http.DefaultTransport, otelhttp.WithTracerProvider(tp)),
+		Transport: otelhttp.NewTransport(http.DefaultTransport,
+			otelhttp.WithTracerProvider(noop.NewTracerProvider()),
+		),
 	}
 
 	return &BuildingService{
