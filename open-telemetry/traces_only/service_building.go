@@ -61,7 +61,7 @@ func (s *BuildingService) Shutdown(ctx context.Context) {
 func (s *BuildingService) handleBuildHouse(w http.ResponseWriter, r *http.Request) {
 	// log the request with context, so trace ID and span ID are included in the log output
 	// note: trace span is automatically created by otelhttp middleware so nothing to do here
-	buildingLogger.InfoContext(r.Context(), "request received", "url", r.URL.String())
+	buildingLogger.InfoContext(r.Context(), r.Method + " " + r.URL.RequestURI())
 
 	// call business logic
 	result, err := s.buildHouse(r.Context())

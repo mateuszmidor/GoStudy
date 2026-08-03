@@ -67,7 +67,7 @@ func (s *ConcreteService) Shutdown(ctx context.Context) {
 func (s *ConcreteService) handleProvideConcrete(w http.ResponseWriter, r *http.Request) {
 	// log the request with context, so trace ID and span ID are included in the log output
 	// note: trace span is automatically created by otelhttp middleware so nothing to do here
-	s.logger.InfoContext(r.Context(), "request received", "url", r.URL.String())
+	s.logger.InfoContext(r.Context(), r.Method + " " + r.URL.RequestURI())
 
 	// call business logic
 	result, err := s.produceConcrete(r.Context())
