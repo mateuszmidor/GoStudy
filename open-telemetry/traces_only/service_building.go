@@ -15,17 +15,15 @@ import (
 	"go.opentelemetry.io/otel/trace/noop"
 )
 
+var buildingLogger = slog.With("service", "building-service")
+
 // BuildingService represents both: http controller and business logic, for brevity.
 type BuildingService struct {
-	logger     *slog.Logger                // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
-	tp         *trace.TracerProvider       // tracer provider that sends traces to open telemetry collector
-	client     *http.Client                // http client that automatically creates trace spans for outgoing requests
-	logCleanup func(context.Context) error // flush logs from open telemetry log batcher
+	tp     *trace.TracerProvider // tracer provider that sends traces to open telemetry collector
+	client *http.Client          // http client that automatically creates trace spans for outgoing requests
 }
 
 func NewBuildingService(ctx context.Context) *BuildingService {
-	logger, logCleanup := newLogger("building-service") // or just set logger globally with: slog.SetDefault(logger)
-
 	tp, err := newTracerProvider("building-service")
 	if err != nil {
 		log.Fatal(err)
@@ -41,10 +39,8 @@ func NewBuildingService(ctx context.Context) *BuildingService {
 	}
 
 	return &BuildingService{
-		logger:     logger,
-		tp:         tp,
-		client:     client,
-		logCleanup: logCleanup,
+		tp:     tp,
+		client: client,
 	}
 }
 
@@ -56,9 +52,8 @@ func (s *BuildingService) Start() {
 	log.Fatal(http.ListenAndServe(":8080", muxWithTracing))
 }
 
-// Shutdown gracefully shuts down the service, flushing logs and traces.
+// Shutdown gracefully shuts down the service, flushing traces.
 func (s *BuildingService) Shutdown(ctx context.Context) {
-	s.logCleanup(ctx)
 	s.tp.Shutdown(ctx)
 }
 
@@ -66,14 +61,14 @@ func (s *BuildingService) Shutdown(ctx context.Context) {
 func (s *BuildingService) handleBuildHouse(w http.ResponseWriter, r *http.Request) {
 	// log the request with context, so trace ID and span ID are included in the log output
 	// note: trace span is automatically created by otelhttp middleware so nothing to do here
-	s.logger.InfoContext(r.Context(), "request received", "url", r.URL.String())
+	buildingLogger.InfoContext(r.Context(), "request received", "url", r.URL.String())
 
 	// call business logic
 	result, err := s.buildHouse(r.Context())
 
 	// handle error
 	if err != nil {
-		s.logger.ErrorContext(r.Context(), err.Error())                           // log the error
+		buildingLogger.ErrorContext(r.Context(), err.Error())                     // log the error
 		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error()) // set the span status to error
 		apitrace.SpanFromContext(r.Context()).RecordError(err)                    // attach the error to the span
 		http.Error(w, err.Error(), http.StatusInternalServerError)                // return the error

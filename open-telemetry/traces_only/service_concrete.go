@@ -16,17 +16,15 @@ import (
 	apitrace "go.opentelemetry.io/otel/trace"
 )
 
+var concreteLogger = slog.With("service", "concrete-service")
+
 // ConcreteService represents both: http controller and business logic, for brevity.
 type ConcreteService struct {
-	logger     *slog.Logger                // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
-	tp         *trace.TracerProvider       // tracer provider that sends traces to open telemetry collector
-	client     *http.Client                // http client that automatically creates trace spans for outgoing requests
-	logCleanup func(context.Context) error // flush logs from open telemetry log batcher
+	tp     *trace.TracerProvider // tracer provider that sends traces to open telemetry collector
+	client *http.Client          // http client that automatically creates trace spans for outgoing requests
 }
 
 func NewConcreteService(ctx context.Context) *ConcreteService {
-	logger, logCleanup := newLogger("concrete-service") // or just set logger globally with: slog.SetDefault(logger)
-
 	tp, err := newTracerProvider("concrete-service")
 	if err != nil {
 		log.Fatal(err)
@@ -42,10 +40,8 @@ func NewConcreteService(ctx context.Context) *ConcreteService {
 	}
 
 	return &ConcreteService{
-		logger:     logger,
-		tp:         tp,
-		client:     client,
-		logCleanup: logCleanup,
+		tp:     tp,
+		client: client,
 	}
 }
 
@@ -57,9 +53,8 @@ func (s *ConcreteService) Start() {
 	log.Fatal(http.ListenAndServe(":8081", muxWithTracing))
 }
 
-// Shutdown gracefully shuts down the service, flushing logs and traces.
+// Shutdown gracefully shuts down the service, flushing traces.
 func (s *ConcreteService) Shutdown(ctx context.Context) {
-	s.logCleanup(ctx)
 	s.tp.Shutdown(ctx)
 }
 
@@ -67,14 +62,14 @@ func (s *ConcreteService) Shutdown(ctx context.Context) {
 func (s *ConcreteService) handleProvideConcrete(w http.ResponseWriter, r *http.Request) {
 	// log the request with context, so trace ID and span ID are included in the log output
 	// note: trace span is automatically created by otelhttp middleware so nothing to do here
-	s.logger.InfoContext(r.Context(), "request received", "url", r.URL.String())
+	concreteLogger.InfoContext(r.Context(), "request received", "url", r.URL.String())
 
 	// call business logic
 	result, err := s.produceConcrete(r.Context())
 
 	// handle error
 	if err != nil {
-		s.logger.ErrorContext(r.Context(), err.Error())                           // log the error
+		concreteLogger.ErrorContext(r.Context(), err.Error())                     // log the error
 		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error()) // set the span status to error
 		apitrace.SpanFromContext(r.Context()).RecordError(err)                    // trace the error
 		http.Error(w, err.Error(), http.StatusInternalServerError)                // return the error

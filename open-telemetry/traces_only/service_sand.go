@@ -15,25 +15,21 @@ import (
 	apitrace "go.opentelemetry.io/otel/trace"
 )
 
+var sandLogger = slog.With("service", "sand-service")
+
 // SandService represents both: http controller and business logic, for brevity.
 type SandService struct {
-	logger     *slog.Logger                // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
-	tp         *trace.TracerProvider       // tracer provider that sends traces to open telemetry collector
-	logCleanup func(context.Context) error // flush logs from open telemetry log batcher
+	tp *trace.TracerProvider // tracer provider that sends traces to open telemetry collector
 }
 
 func NewSandService(ctx context.Context) *SandService {
-	logger, logCleanup := newLogger("sand-service") // or just set logger globally with: slog.SetDefault(logger)
-
 	tp, err := newTracerProvider("sand-service")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	return &SandService{
-		logger:     logger,
-		tp:         tp,
-		logCleanup: logCleanup,
+		tp: tp,
 	}
 }
 
@@ -45,9 +41,8 @@ func (s *SandService) Start() {
 	log.Fatal(http.ListenAndServe(":8082", muxWithTracing))
 }
 
-// Shutdown gracefully shuts down the service, flushing logs and traces.
+// Shutdown gracefully shuts down the service, flushing traces.
 func (s *SandService) Shutdown(ctx context.Context) {
-	s.logCleanup(ctx)
 	s.tp.Shutdown(ctx)
 }
 
@@ -55,14 +50,14 @@ func (s *SandService) Shutdown(ctx context.Context) {
 func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
 	// log the request with context, so trace ID and span ID are included in the log output
 	// note: trace span is automatically created by otelhttp middleware so nothing to do here
-	s.logger.InfoContext(r.Context(), "request received", "url", r.URL.String())
+	sandLogger.InfoContext(r.Context(), "request received", "url", r.URL.String())
 
 	// call business logic
 	result, err := gatherSand()
 
 	// handle error
 	if err != nil {
-		s.logger.ErrorContext(r.Context(), err.Error())                           // log the error
+		sandLogger.ErrorContext(r.Context(), err.Error())                         // log the error
 		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error()) // set the span status to error
 		apitrace.SpanFromContext(r.Context()).RecordError(err)                    // trace the error
 		http.Error(w, err.Error(), http.StatusInternalServerError)                // return the error

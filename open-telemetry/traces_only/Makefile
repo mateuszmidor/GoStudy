@@ -1,4 +1,4 @@
-jaeger-up:
+up:
 	docker run --name jaeger \
 	-d \
 	--rm \
@@ -11,7 +11,7 @@ jaeger-up:
 run:
 	go run .
 
-jaeger-down:
+down:
 	docker stop jaeger
 
 house:
