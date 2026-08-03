@@ -19,7 +19,7 @@ import (
 func newTracerProvider(serviceName string) (*trace.TracerProvider, error) {
 	exp, err := otlptracehttp.New(
 		context.Background(),
-		otlptracehttp.WithEndpoint("localhost:4318"), // jaeger collector endpoint
+		otlptracehttp.WithEndpoint("localhost:4318"), // OTel collector endpoint (same as logs)
 		otlptracehttp.WithInsecure(),
 	)
 	if err != nil {
@@ -56,15 +56,19 @@ func newLogger(serviceName string) (*slog.Logger, func(context.Context) error) {
 		resource.NewWithAttributes(
 			semconv.SchemaURL,
 			semconv.ServiceName(serviceName),
+			semconv.ServiceVersion("v0.1.0"),
+			attribute.String("environment", "demo"),
 		),
 	)
 	lp := sdklog.NewLoggerProvider(
 		sdklog.WithProcessor(sdklog.NewBatchProcessor(exp)),
 		sdklog.WithResource(r),
 	)
+	otelLogger := otelslog.NewHandler(serviceName, otelslog.WithLoggerProvider(lp))
+	stdoutLogger := slog.NewJSONHandler(os.Stdout, nil).WithAttrs([]slog.Attr{slog.String("service", serviceName)})
 	handler := newMultiHandler(
-		slog.NewJSONHandler(os.Stdout, nil).WithAttrs([]slog.Attr{slog.String("service", serviceName)}),
-		otelslog.NewHandler(serviceName, otelslog.WithLoggerProvider(lp)),
+		otelLogger,   // send to OTel collector
+		stdoutLogger, // but also log to stdout
 	)
 	return slog.New(handler), lp.Shutdown
 }
