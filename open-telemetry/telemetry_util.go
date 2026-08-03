@@ -45,13 +45,23 @@ func newTracerProvider(serviceName string) (*trace.TracerProvider, error) {
 func newLogger(serviceName string) (*slog.Logger, func(context.Context) error) {
 	exp, err := otlploghttp.New(
 		context.Background(),
-		otlploghttp.WithEndpoint("localhost:666"), // some log collector endpoint
+		otlploghttp.WithEndpoint("localhost:4318"), // OTel Collector endpoint (same as traces)
 		otlploghttp.WithInsecure(),
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
-	lp := sdklog.NewLoggerProvider(sdklog.WithProcessor(sdklog.NewBatchProcessor(exp)))
+	r, _ := resource.Merge(
+		resource.Default(),
+		resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceName(serviceName),
+		),
+	)
+	lp := sdklog.NewLoggerProvider(
+		sdklog.WithProcessor(sdklog.NewBatchProcessor(exp)),
+		sdklog.WithResource(r),
+	)
 	handler := newMultiHandler(
 		slog.NewJSONHandler(os.Stdout, nil).WithAttrs([]slog.Attr{slog.String("service", serviceName)}),
 		otelslog.NewHandler(serviceName, otelslog.WithLoggerProvider(lp)),
