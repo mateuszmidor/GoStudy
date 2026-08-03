@@ -24,7 +24,7 @@ type BuildingService struct {
 }
 
 func NewBuildingService(ctx context.Context) *BuildingService {
-	logger, logCleanup := newLogger("building-service")
+	logger, logCleanup := newLogger("building-service") // or just set logger globally with: slog.SetDefault(logger)
 
 	tp, err := newTracerProvider("building-service")
 	if err != nil {

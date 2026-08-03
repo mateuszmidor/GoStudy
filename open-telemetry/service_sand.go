@@ -23,7 +23,7 @@ type SandService struct {
 }
 
 func NewSandService(ctx context.Context) *SandService {
-	logger, logCleanup := newLogger("sand-service")
+	logger, logCleanup := newLogger("sand-service") // or just set logger globally with: slog.SetDefault(logger)
 
 	tp, err := newTracerProvider("sand-service")
 	if err != nil {
