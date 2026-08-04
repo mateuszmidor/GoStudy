@@ -14,16 +14,23 @@ func main() {
 	// otelhttp.NewTransport for http client, otelhttp.NewHandler for http server
 	otel.SetTextMapPropagator(propagation.TraceContext{})
 
+	// Start services:
+	// Sand service
 	sandSvc := NewSandService(context.Background())
 	go sandSvc.Start()
 	defer sandSvc.Shutdown(context.Background())
+
+	// Concrete service
 	concreteSvc := NewConcreteService(context.Background())
 	go concreteSvc.Start()
 	defer concreteSvc.Shutdown(context.Background())
+
+	// Building service
 	buildingSvc := NewBuildingService(context.Background())
 	go buildingSvc.Start()
 	defer buildingSvc.Shutdown(context.Background())
 
+	// Wait for CTRL+C
 	log.Println("Services up: :8080/build-house, :8081/provide-concrete, :8082/get-sand")
 	select {}
 }
