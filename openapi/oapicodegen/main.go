@@ -12,12 +12,14 @@ import (
 	generatedserver "github.com/mateuszmidor/GoStudy/openapi/oapicodegen/generated_server"
 )
 
+// Swagger spec for the fridge API; this is to expose the API via Swagger UI
+//
 //go:embed fridge_api.yaml
 var swaggerSpec []byte
 
 // FridgeServer implements the generated http server interface: generatedserver.ServerInterface
 type FridgeServer struct {
-	products map[string]float32
+	products map[string]float32 // product name -> quantity
 }
 
 func NewFridgeServer() *FridgeServer {

@@ -26,7 +26,7 @@ Both demos implement the same Fridge API:
 
 ```bash
 cd oapicodegen
-go run ./cmd/server/main.go &
+go run main.go &
 # Test with curl:
 curl -X POST http://localhost:8080/products -H "Content-Type: application/json" -d '{"name": "Milk", "quantity": 2}'
 curl http://localhost:8080/products
