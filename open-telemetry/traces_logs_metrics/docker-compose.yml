@@ -1,12 +1,14 @@
 services:
-  # OpenTelemetry Collector: receives telemetry data (traces, logs) from the app
-  # via OTLP/HTTP on port 4318, then forwards them to Tempo (traces) and Loki (logs).
+  # OpenTelemetry Collector: receives telemetry data (traces, logs, metrics) from the app
+  # via OTLP/HTTP on port 4318, then forwards them to Tempo (traces), Loki (logs),
+  # and exposes a Prometheus scrape endpoint on port 8889 (metrics).
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     volumes:
       - ./config-otel-collector.yaml:/etc/otelcol-contrib/config.yaml
     ports:
       - "4318:4318"
+      - "8889:8889" # Prometheus will scrape metrics from this endpoint
     depends_on:
       - tempo
       - loki
@@ -26,8 +28,19 @@ services:
     ports:
       - "3100:3100"
 
+  # Prometheus: metrics storage and query engine.
+  # Scrapes the OTel Collector's prometheus exporter endpoint every 5s.
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./config-prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - otel-collector
+
   # Grafana: visualization and dashboarding UI.
-  # Connects to Tempo and Loki as datasources; accessible at http://localhost:3000.
+  # Connects to Tempo, Loki, and Prometheus as datasources; accessible at http://localhost:3000.
   # Anonymous access is enabled with Admin role for convenience in development.
   grafana:
     image: grafana/grafana:latest
@@ -41,3 +54,4 @@ services:
     depends_on:
       - tempo
       - loki
+      - prometheus

@@ -1,4 +1,4 @@
-# Receive OTLP data (traces + logs) from the Go app over HTTP
+# Receive OTLP data (traces + logs + metrics) from the Go app over HTTP
 receivers:
   otlp:
     protocols:
@@ -13,7 +13,10 @@ exporters:
   otlp_http/loki:
     endpoint: "http://loki:3100/otlp"  # Loki OTLP ingest path
 
-# Batch spans/logs before exporting to reduce network overhead
+  prometheus:
+    endpoint: "0.0.0.0:8889"  # Prometheus scrapes /metrics from this port
+
+# Batch spans/logs/metrics before exporting to reduce network overhead
 processors:
   batch:
 
@@ -28,3 +31,7 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [otlp_http/loki]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus]

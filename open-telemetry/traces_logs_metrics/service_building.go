@@ -11,6 +11,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/codes"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/trace"
 	apitrace "go.opentelemetry.io/otel/trace"
 	"go.opentelemetry.io/otel/trace/noop"
@@ -18,10 +19,11 @@ import (
 
 // BuildingService represents both: http controller and business logic, for brevity.
 type BuildingService struct {
-	logger *slog.Logger           // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
-	tp     *trace.TracerProvider  // tracer provider that sends traces to open telemetry collector
-	client *http.Client           // http client that automatically creates trace spans for outgoing requests
-	lp     *sdklog.LoggerProvider // logger provider that sends logs to open telemetry collector
+	client *http.Client              // http client that automatically creates trace spans for outgoing requests
+	logger *slog.Logger              // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
+	lp     *sdklog.LoggerProvider    // logger provider that sends logs to open telemetry collector
+	tp     *trace.TracerProvider     // tracer provider that sends traces to open telemetry collector
+	mp     *sdkmetric.MeterProvider  // meter provider that sends metrics to open telemetry collector
 }
 
 func NewBuildingService(ctx context.Context) *BuildingService {
@@ -31,6 +33,11 @@ func NewBuildingService(ctx context.Context) *BuildingService {
 	}
 
 	tp, err := newTracerProvider("building-service")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	mp, err := newMeterProvider("building-service")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,6 +57,7 @@ func NewBuildingService(ctx context.Context) *BuildingService {
 		logger: logger, // or in actual microservice just set logger globally with: slog.SetDefault(logger)
 		lp:     lp,     // or in actual microservice just set lp globally with: global.SetLoggerProvider(lp)
 		tp:     tp,     // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
+		mp:     mp,     // or in actual microservice just set mp globally with: otel.SetMeterProvider(mp)
 		client: client,
 	}
 }
@@ -58,14 +66,18 @@ func NewBuildingService(ctx context.Context) *BuildingService {
 func (s *BuildingService) Start() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/build-house", s.handleBuildHouse)
-	muxWithTracing := otelhttp.NewHandler(mux, "building-service", otelhttp.WithTracerProvider(s.tp)) // automatically creates trace spans for incoming requests
+	muxWithTracing := otelhttp.NewHandler(mux, "building-service",
+		otelhttp.WithTracerProvider(s.tp),
+		otelhttp.WithMeterProvider(s.mp), // automatically records http.server.request.duration histogram
+	)
 	log.Fatal(http.ListenAndServe(":8080", muxWithTracing))
 }
 
-// Shutdown gracefully shuts down the service, flushing logs and traces.
+// Shutdown gracefully shuts down the service, flushing logs, traces, and metrics.
 func (s *BuildingService) Shutdown(ctx context.Context) {
 	s.lp.Shutdown(ctx)
 	s.tp.Shutdown(ctx)
+	s.mp.Shutdown(ctx)
 }
 
 // HTTP CONTROLLER

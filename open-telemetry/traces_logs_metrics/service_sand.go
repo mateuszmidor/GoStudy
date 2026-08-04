@@ -11,6 +11,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/codes"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/trace"
 
 	apitrace "go.opentelemetry.io/otel/trace"
@@ -18,9 +19,10 @@ import (
 
 // SandService represents both: http controller and business logic, for brevity.
 type SandService struct {
-	logger *slog.Logger           // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
-	tp     *trace.TracerProvider  // tracer provider that sends traces to open telemetry collector
-	lp     *sdklog.LoggerProvider // logger provider that sends logs to open telemetry collector
+	logger *slog.Logger              // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
+	lp     *sdklog.LoggerProvider    // logger provider that sends logs to open telemetry collector
+	tp     *trace.TracerProvider     // tracer provider that sends traces to open telemetry collector
+	mp     *sdkmetric.MeterProvider  // meter provider that sends metrics to open telemetry collector
 }
 
 func NewSandService(ctx context.Context) *SandService {
@@ -34,9 +36,15 @@ func NewSandService(ctx context.Context) *SandService {
 		log.Fatal(err)
 	}
 
+	mp, err := newMeterProvider("sand-service")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return &SandService{
 		logger: logger, // or in actual microservice just set logger globally with: slog.SetDefault(logger)
 		tp:     tp,     // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
+		mp:     mp,     // or in actual microservice just set mp globally with: otel.SetMeterProvider(mp)
 		lp:     lp,     // or in actual microservice just set lp globally with: global.SetLoggerProvider(lp)
 	}
 }
@@ -45,14 +53,18 @@ func NewSandService(ctx context.Context) *SandService {
 func (s *SandService) Start() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/get-sand", s.handleGetSand)
-	muxWithTracing := otelhttp.NewHandler(mux, "sand-service", otelhttp.WithTracerProvider(s.tp)) // automatically creates trace spans for incoming requests
+	muxWithTracing := otelhttp.NewHandler(mux, "sand-service",
+		otelhttp.WithTracerProvider(s.tp),
+		otelhttp.WithMeterProvider(s.mp), // automatically records http.server.request.duration histogram
+	)
 	log.Fatal(http.ListenAndServe(":8082", muxWithTracing))
 }
 
-// Shutdown gracefully shuts down the service, flushing logs and traces.
+// Shutdown gracefully shuts down the service, flushing logs, traces, and metrics.
 func (s *SandService) Shutdown(ctx context.Context) {
 	s.lp.Shutdown(ctx)
 	s.tp.Shutdown(ctx)
+	s.mp.Shutdown(ctx)
 }
 
 // HTTP CONTROLLER

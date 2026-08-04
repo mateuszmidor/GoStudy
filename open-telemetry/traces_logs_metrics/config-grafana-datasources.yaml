@@ -23,3 +23,8 @@ datasources:
           type: label                # match a Loki label or structured metadata field
           matcherRegex: 'trace[_]?id' # regex against label keys; matches trace_id / traceid
           url: '${__value.raw}'
+
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090   # Prometheus HTTP API for PromQL queries

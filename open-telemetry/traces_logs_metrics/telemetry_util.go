@@ -9,8 +9,10 @@ import (
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
@@ -61,6 +63,24 @@ func newLoggerProvider(serviceName string) (*sdklog.LoggerProvider, *slog.Logger
 	// global.SetLoggerProvider(lp) // call this in microservice to set global log provider
 	// slog.SetDefault(logger) // call this in microservice to set global logger
 	return lp, logger, nil
+}
+
+func newMeterProvider(serviceName string) (*sdkmetric.MeterProvider, error) {
+	exp, err := otlpmetrichttp.New(
+		context.Background(),
+		otlpmetrichttp.WithEndpoint("localhost:4318"), // OTel Collector endpoint (same as traces + logs)
+		otlpmetrichttp.WithInsecure(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	r := makeResource(serviceName)
+	mp := sdkmetric.NewMeterProvider(
+		sdkmetric.WithReader(sdkmetric.NewPeriodicReader(exp)),
+		sdkmetric.WithResource(r),
+	)
+	return mp, nil
 }
 
 func makeResource(serviceName string) *resource.Resource {
