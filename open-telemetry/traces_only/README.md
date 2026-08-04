@@ -35,6 +35,14 @@ make down    # stop Jaeger
 ## What changes in case of microservice?
 - set global trace provider with `otel.SetTracerProvider(tp)` instead of storing it in the service struct
 
+## Custom spans
+
+```go
+ctx, span :=  s.tp.Tracer("sand-service").Start(r.Context(), "gather-sand") // tp is *trace.TracerProvider
+result, err := gatherSand()
+span.End()
+```
+
 ## Reference
 
 https://medium.com/jaegertracing/introducing-native-support-for-opentelemetry-in-jaeger-eb661be8183c
