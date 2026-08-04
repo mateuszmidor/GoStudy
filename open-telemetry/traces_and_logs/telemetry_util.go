@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"log/slog"
 	"os"
 
@@ -37,14 +36,14 @@ func newTracerProvider(serviceName string) (*trace.TracerProvider, error) {
 	return tp, nil
 }
 
-func newLogger(serviceName string) (*slog.Logger, func(context.Context) error) {
+func newLoggerProvider(serviceName string) (*sdklog.LoggerProvider, *slog.Logger, error) {
 	exp, err := otlploghttp.New(
 		context.Background(),
 		otlploghttp.WithEndpoint("localhost:4318"), // OTel Collector endpoint (same as traces)
 		otlploghttp.WithInsecure(),
 	)
 	if err != nil {
-		log.Fatal(err)
+		return nil, nil, err
 	}
 	r := makeResource(serviceName)
 	lp := sdklog.NewLoggerProvider(
@@ -61,7 +60,7 @@ func newLogger(serviceName string) (*slog.Logger, func(context.Context) error) {
 	logger := slog.New(handler)
 	// global.SetLoggerProvider(lp) // call this in microservice to set global log provider
 	// slog.SetDefault(logger) // call this in microservice to set global logger
-	return logger, lp.Shutdown
+	return lp, logger, nil
 }
 
 func makeResource(serviceName string) *resource.Resource {

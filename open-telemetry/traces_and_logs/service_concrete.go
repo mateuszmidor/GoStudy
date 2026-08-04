@@ -10,6 +10,7 @@ import (
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/codes"
+	sdklog "go.opentelemetry.io/otel/sdk/log"
 	"go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace/noop"
 
@@ -18,14 +19,17 @@ import (
 
 // ConcreteService represents both: http controller and business logic, for brevity.
 type ConcreteService struct {
-	logger     *slog.Logger                // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
-	tp         *trace.TracerProvider       // tracer provider that sends traces to open telemetry collector
-	client     *http.Client                // http client that automatically creates trace spans for outgoing requests
-	logCleanup func(context.Context) error // flush logs from open telemetry log batcher
+	logger *slog.Logger           // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
+	tp     *trace.TracerProvider  // tracer provider that sends traces to open telemetry collector
+	client *http.Client           // http client that automatically creates trace spans for outgoing requests
+	lp     *sdklog.LoggerProvider // logger provider that sends logs to open telemetry collector
 }
 
 func NewConcreteService(ctx context.Context) *ConcreteService {
-	logger, logCleanup := newLogger("concrete-service")
+	lp, logger, err := newLoggerProvider("concrete-service")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	tp, err := newTracerProvider("concrete-service")
 	if err != nil {
@@ -44,10 +48,10 @@ func NewConcreteService(ctx context.Context) *ConcreteService {
 	}
 
 	return &ConcreteService{
-		logger:     logger, // or in actual microservice just set logger globally with: slog.SetDefault(logger)
-		tp:         tp,     // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
-		client:     client,
-		logCleanup: logCleanup,
+		logger: logger, // or in actual microservice just set logger globally with: slog.SetDefault(logger)
+		tp:     tp,     // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
+		lp:     lp,     // or in actual microservice just set lp globally with: global.SetLoggerProvider(lp)
+		client: client,
 	}
 }
 
@@ -61,7 +65,7 @@ func (s *ConcreteService) Start() {
 
 // Shutdown gracefully shuts down the service, flushing logs and traces.
 func (s *ConcreteService) Shutdown(ctx context.Context) {
-	s.logCleanup(ctx)
+	s.lp.Shutdown(ctx)
 	s.tp.Shutdown(ctx)
 }
 

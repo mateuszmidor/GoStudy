@@ -10,6 +10,7 @@ import (
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/codes"
+	sdklog "go.opentelemetry.io/otel/sdk/log"
 	"go.opentelemetry.io/otel/sdk/trace"
 
 	apitrace "go.opentelemetry.io/otel/trace"
@@ -17,13 +18,16 @@ import (
 
 // SandService represents both: http controller and business logic, for brevity.
 type SandService struct {
-	logger     *slog.Logger                // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
-	tp         *trace.TracerProvider       // tracer provider that sends traces to open telemetry collector
-	logCleanup func(context.Context) error // flush logs from open telemetry log batcher
+	logger *slog.Logger           // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
+	tp     *trace.TracerProvider  // tracer provider that sends traces to open telemetry collector
+	lp     *sdklog.LoggerProvider // logger provider that sends logs to open telemetry collector
 }
 
 func NewSandService(ctx context.Context) *SandService {
-	logger, logCleanup := newLogger("sand-service")
+	lp, logger, err := newLoggerProvider("sand-service")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	tp, err := newTracerProvider("sand-service")
 	if err != nil {
@@ -31,9 +35,9 @@ func NewSandService(ctx context.Context) *SandService {
 	}
 
 	return &SandService{
-		logger:     logger, // or in actual microservice just set logger globally with: slog.SetDefault(logger)
-		tp:         tp,     // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
-		logCleanup: logCleanup,
+		logger: logger, // or in actual microservice just set logger globally with: slog.SetDefault(logger)
+		tp:     tp,     // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
+		lp:     lp,     // or in actual microservice just set lp globally with: global.SetLoggerProvider(lp)
 	}
 }
 
@@ -47,7 +51,7 @@ func (s *SandService) Start() {
 
 // Shutdown gracefully shuts down the service, flushing logs and traces.
 func (s *SandService) Shutdown(ctx context.Context) {
-	s.logCleanup(ctx)
+	s.lp.Shutdown(ctx)
 	s.tp.Shutdown(ctx)
 }
 
