@@ -23,7 +23,7 @@ type SandService struct {
 }
 
 func NewSandService(ctx context.Context) *SandService {
-	logger, logCleanup := newLogger("sand-service") // or just set logger globally with: slog.SetDefault(logger)
+	logger, logCleanup := newLogger("sand-service")
 
 	tp, err := newTracerProvider("sand-service")
 	if err != nil {
@@ -31,8 +31,8 @@ func NewSandService(ctx context.Context) *SandService {
 	}
 
 	return &SandService{
-		logger:     logger,
-		tp:         tp,
+		logger:     logger, // or in actual microservice just set logger globally with: slog.SetDefault(logger)
+		tp:         tp,     // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
 		logCleanup: logCleanup,
 	}
 }
@@ -53,10 +53,10 @@ func (s *SandService) Shutdown(ctx context.Context) {
 
 // HTTP CONTROLLER
 func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
-	// log the request with context, so trace ID and span ID are included in the log output
+	// log the request with context, so trace ID and span ID are included in the OTel log output
 	// note: trace span is automatically created by otelhttp middleware so nothing to do here
-	s.logger.InfoContext(r.Context(), r.Method + " " + r.URL.RequestURI())
-	
+	s.logger.InfoContext(r.Context(), r.Method+" "+r.URL.RequestURI())
+
 	// call business logic
 	result, err := gatherSand()
 

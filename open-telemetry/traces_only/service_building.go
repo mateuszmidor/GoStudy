@@ -29,9 +29,11 @@ func NewBuildingService(ctx context.Context) *BuildingService {
 		log.Fatal(err)
 	}
 
+	// option A: create new trace span for outgoing requests
 	// client := &http.Client{
 	// 	Transport: otelhttp.NewTransport(http.DefaultTransport, otelhttp.WithTracerProvider(tp)),
 	// }
+	// option B: use noop tracer provider to avoid creating new trace spans for outgoing requests, they will be created by the upstream service anyway
 	client := &http.Client{
 		Transport: otelhttp.NewTransport(http.DefaultTransport,
 			otelhttp.WithTracerProvider(noop.NewTracerProvider()),
@@ -39,7 +41,7 @@ func NewBuildingService(ctx context.Context) *BuildingService {
 	}
 
 	return &BuildingService{
-		tp:     tp,
+		tp:     tp,     // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
 		client: client,
 	}
 }
@@ -59,9 +61,9 @@ func (s *BuildingService) Shutdown(ctx context.Context) {
 
 // HTTP CONTROLLER
 func (s *BuildingService) handleBuildHouse(w http.ResponseWriter, r *http.Request) {
-	// log the request with context, so trace ID and span ID are included in the log output
+	// log the request with context, so trace ID and span ID are included in the OTel log output
 	// note: trace span is automatically created by otelhttp middleware so nothing to do here
-	buildingLogger.InfoContext(r.Context(), r.Method + " " + r.URL.RequestURI())
+	buildingLogger.InfoContext(r.Context(), r.Method+" "+r.URL.RequestURI())
 
 	// call business logic
 	result, err := s.buildHouse(r.Context())

@@ -19,11 +19,6 @@ Go App (building:8080 → concrete:8081 → sand:8082)
                       Loki  :3100 (HTTP queries)  ◄──┴── Grafana :3000 (web ui)
 ```
 
-## Prerequisites
-
-- Go 1.25+
-- Docker with Compose
-
 ## Run
 
 ```bash
@@ -42,3 +37,7 @@ make house   # trigger a chain of service→service→service requests
 ```bash
 make down    # tear down the observability stack
 ```
+
+## What changes in case of microservice?
+- set global logger with `slog.SetDefault(logger)` instead of storing it in the service struct
+- set global trace provider with `otel.SetTracerProvider(tp)` instead of storing it in the service struct

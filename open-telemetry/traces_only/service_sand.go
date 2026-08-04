@@ -29,7 +29,7 @@ func NewSandService(ctx context.Context) *SandService {
 	}
 
 	return &SandService{
-		tp: tp,
+		tp: tp, // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
 	}
 }
 
@@ -48,9 +48,10 @@ func (s *SandService) Shutdown(ctx context.Context) {
 
 // HTTP CONTROLLER
 func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
-	// log the request with context, so trace ID and span ID are included in the log output
+	// log the request with context, so trace ID and span ID are included in the OTel log output
 	// note: trace span is automatically created by otelhttp middleware so nothing to do here
-	sandLogger.InfoContext(r.Context(), r.Method + " " + r.URL.RequestURI())
+	sandLogger.InfoContext(r.Context(), r.Method+" "+r.URL.RequestURI())
+
 
 	// call business logic
 	result, err := gatherSand()

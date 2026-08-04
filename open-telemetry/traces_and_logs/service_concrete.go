@@ -32,9 +32,11 @@ func NewConcreteService(ctx context.Context) *ConcreteService {
 		log.Fatal(err)
 	}
 
+	// option A: create new trace span for outgoing requests
 	// client := &http.Client{
 	// 	Transport: otelhttp.NewTransport(http.DefaultTransport, otelhttp.WithTracerProvider(tp)),
 	// }
+	// option B: use noop tracer provider to avoid creating new trace spans for outgoing requests, they will be created by the upstream service anyway
 	client := &http.Client{
 		Transport: otelhttp.NewTransport(http.DefaultTransport,
 			otelhttp.WithTracerProvider(noop.NewTracerProvider()),
@@ -42,8 +44,8 @@ func NewConcreteService(ctx context.Context) *ConcreteService {
 	}
 
 	return &ConcreteService{
-		logger:     logger,
-		tp:         tp,
+		logger:     logger, // or in actual microservice just set logger globally with: slog.SetDefault(logger)
+		tp:         tp,     // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
 		client:     client,
 		logCleanup: logCleanup,
 	}
@@ -65,9 +67,9 @@ func (s *ConcreteService) Shutdown(ctx context.Context) {
 
 // HTTP CONTROLLER
 func (s *ConcreteService) handleProvideConcrete(w http.ResponseWriter, r *http.Request) {
-	// log the request with context, so trace ID and span ID are included in the log output
+	// log the request with context, so trace ID and span ID are included in the OTel log output
 	// note: trace span is automatically created by otelhttp middleware so nothing to do here
-	s.logger.InfoContext(r.Context(), r.Method + " " + r.URL.RequestURI())
+	s.logger.InfoContext(r.Context(), r.Method+" "+r.URL.RequestURI())
 
 	// call business logic
 	result, err := s.produceConcrete(r.Context())

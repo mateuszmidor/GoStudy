@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 
+	slogmulti "github.com/samber/slog-multi"
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
@@ -66,7 +67,7 @@ func newLogger(serviceName string) (*slog.Logger, func(context.Context) error) {
 	)
 	otelLogger := otelslog.NewHandler(serviceName, otelslog.WithLoggerProvider(lp))
 	stdoutLogger := slog.NewJSONHandler(os.Stdout, nil).WithAttrs([]slog.Attr{slog.String("service", serviceName)})
-	handler := newMultiHandler(
+	handler := slogmulti.Fanout(
 		otelLogger,   // send to OTel collector
 		stdoutLogger, // but also log to stdout
 	)
