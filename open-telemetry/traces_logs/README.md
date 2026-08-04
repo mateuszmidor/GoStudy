@@ -42,3 +42,11 @@ make down    # tear down the observability stack
 - set global log provider with `global.SetLoggerProvider(lp)`
 - set global logger with `slog.SetDefault(logger)` instead of storing it in the service struct
 - set global trace provider with `otel.SetTracerProvider(tp)` instead of storing it in the service struct
+
+## Custom spans
+
+```go
+ctx, span :=  s.tp.Tracer("sand-service").Start(r.Context(), "gather-sand") // tp is *trace.TracerProvider
+result, err := gatherSand()
+span.End()
+```
