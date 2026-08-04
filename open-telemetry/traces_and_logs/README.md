@@ -39,5 +39,6 @@ make down    # tear down the observability stack
 ```
 
 ## What changes in case of microservice?
+- set global log provider with `global.SetLoggerProvider(lp)`
 - set global logger with `slog.SetDefault(logger)` instead of storing it in the service struct
 - set global trace provider with `otel.SetTracerProvider(tp)` instead of storing it in the service struct

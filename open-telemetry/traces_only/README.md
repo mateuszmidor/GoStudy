@@ -16,11 +16,6 @@ Go App (building:8080 → concrete:8081 → sand:8082)
 stdout ← logs (JSON, per-service name)
 ```
 
-## Prerequisites
-
-- Go 1.25+
-- Docker
-
 ## Run
 
 ```bash
@@ -35,6 +30,10 @@ make house   # trigger a chain of service→service→service requests
 ```bash
 make down    # stop Jaeger
 ```
+
+
+## What changes in case of microservice?
+- set global trace provider with `otel.SetTracerProvider(tp)` instead of storing it in the service struct
 
 ## Reference
 

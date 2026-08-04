@@ -27,20 +27,14 @@ func newTracerProvider(serviceName string) (*trace.TracerProvider, error) {
 		return nil, err
 	}
 
-	r, _ := resource.Merge(
-		resource.Default(),
-		resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceName(serviceName),
-			semconv.ServiceVersion("v0.1.0"),
-			attribute.String("environment", "demo"),
-		),
-	)
-	return trace.NewTracerProvider(
+	r := makeResource(serviceName)
+	tp := trace.NewTracerProvider(
 		trace.WithSampler(trace.AlwaysSample()),
 		trace.WithBatcher(exp),
 		trace.WithResource(r),
-	), nil
+	)
+	// otel.SetTracerProvider(tp) // call this in microservice to set global trace provider
+	return tp, nil
 }
 
 func newLogger(serviceName string) (*slog.Logger, func(context.Context) error) {
@@ -52,6 +46,25 @@ func newLogger(serviceName string) (*slog.Logger, func(context.Context) error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	r := makeResource(serviceName)
+	lp := sdklog.NewLoggerProvider(
+		sdklog.WithProcessor(sdklog.NewBatchProcessor(exp)),
+		sdklog.WithResource(r),
+	)
+
+	otelLogHandler := otelslog.NewHandler(serviceName, otelslog.WithLoggerProvider(lp))
+	stdoutLogHandler := slog.NewJSONHandler(os.Stdout, nil).WithAttrs([]slog.Attr{slog.String("service", serviceName)})
+	handler := slogmulti.Fanout(
+		otelLogHandler,   // send to OTel collector
+		stdoutLogHandler, // but also log to stdout
+	)
+	logger := slog.New(handler)
+	// global.SetLoggerProvider(lp) // call this in microservice to set global log provider
+	// slog.SetDefault(logger) // call this in microservice to set global logger
+	return logger, lp.Shutdown
+}
+
+func makeResource(serviceName string) *resource.Resource {
 	r, _ := resource.Merge(
 		resource.Default(),
 		resource.NewWithAttributes(
@@ -61,15 +74,5 @@ func newLogger(serviceName string) (*slog.Logger, func(context.Context) error) {
 			attribute.String("environment", "demo"),
 		),
 	)
-	lp := sdklog.NewLoggerProvider(
-		sdklog.WithProcessor(sdklog.NewBatchProcessor(exp)),
-		sdklog.WithResource(r),
-	)
-	otelLogger := otelslog.NewHandler(serviceName, otelslog.WithLoggerProvider(lp))
-	stdoutLogger := slog.NewJSONHandler(os.Stdout, nil).WithAttrs([]slog.Attr{slog.String("service", serviceName)})
-	handler := slogmulti.Fanout(
-		otelLogger,   // send to OTel collector
-		stdoutLogger, // but also log to stdout
-	)
-	return slog.New(handler), lp.Shutdown
+	return r
 }

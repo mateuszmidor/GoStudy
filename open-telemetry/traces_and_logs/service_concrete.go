@@ -25,7 +25,7 @@ type ConcreteService struct {
 }
 
 func NewConcreteService(ctx context.Context) *ConcreteService {
-	logger, logCleanup := newLogger("concrete-service") // or just set logger globally with: slog.SetDefault(logger)
+	logger, logCleanup := newLogger("concrete-service")
 
 	tp, err := newTracerProvider("concrete-service")
 	if err != nil {
