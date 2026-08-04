@@ -4,7 +4,6 @@ go 1.25.0
 
 require (
 	github.com/oapi-codegen/runtime v1.6.0
-	github.com/rs/cors v1.11.1
 	github.com/swaggo/http-swagger v1.3.4
 )
 

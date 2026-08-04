@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/rs/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	generatedserver "github.com/mateuszmidor/GoStudy/openapi/oapicodegen/generated_server"
@@ -135,7 +134,8 @@ func main() {
 		httpSwagger.URL("/swagger/swagger.yaml"),
 	))
 
+	// 4. Start the server
 	log.Println("Server starting on :8080")
 	log.Println("Swagger UI available at http://localhost:8080/swagger/")
-	log.Fatal(http.ListenAndServe(":8080", cors.Default().Handler(mux))) // cors needed for swagger UI to work
+	log.Fatal(http.ListenAndServe("localhost:8080", mux))
 }
