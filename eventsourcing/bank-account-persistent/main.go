@@ -50,7 +50,7 @@ func main() {
 	// initialize postgres-backed event bus
 	bus := pgbus.NewEventBus(pool, time.Second)
 
-	// initialize event bus subscriptions
+	// initialize event bus subscriptions - bus will read events from postgres and forward them to the projector automatically
 	projector := listaccounts.NewProjector()
 	if err := projector.RebuildFromStore(ctx, store); err != nil {
 		slog.Error("failed to rebuild projector from store", slog.Any("error", err))

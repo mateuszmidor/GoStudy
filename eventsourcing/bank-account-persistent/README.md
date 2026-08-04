@@ -3,6 +3,8 @@
 - simulates bank account; CreateAccount, FundAccount, ListAccounts, GetAccount
 - uses PostgreSQL event storage and event bus for reliability
 
+see: [./design.md](./design.md)
+
 ## Bug in KurrentDB eventsourcing lib
 The file github.com/terraskye/eventsourcing@v0.1.6/eventstore/kurrentdb/eventstore.go has a bug:  
 e.client.ReadAll reads with count=0 which means 'live reading' and newer return and the function hungs forever.  
