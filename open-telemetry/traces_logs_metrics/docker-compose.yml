@@ -1,0 +1,43 @@
+services:
+  # OpenTelemetry Collector: receives telemetry data (traces, logs) from the app
+  # via OTLP/HTTP on port 4318, then forwards them to Tempo (traces) and Loki (logs).
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    volumes:
+      - ./config-otel-collector.yaml:/etc/otelcol-contrib/config.yaml
+    ports:
+      - "4318:4318"
+    depends_on:
+      - tempo
+      - loki
+
+  # Tempo: distributed tracing backend by Grafana Labs.
+  # Stores trace data and exposes it to Grafana for visualization.
+  tempo:
+    image: grafana/tempo:latest
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./config-tempo.yaml:/etc/tempo.yaml
+
+  # Loki: log aggregation backend by Grafana Labs.
+  # Receives log streams and exposes them to Grafana for querying.
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+
+  # Grafana: visualization and dashboarding UI.
+  # Connects to Tempo and Loki as datasources; accessible at http://localhost:3000.
+  # Anonymous access is enabled with Admin role for convenience in development.
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config-grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    depends_on:
+      - tempo
+      - loki
