@@ -1,13 +1,20 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"log"
 	"net/http"
 	"sort"
 
-	server "github.com/mateuszmidor/GoStudy/openapi/oapicodegen/generated_server"
+	"github.com/rs/cors"
+	httpSwagger "github.com/swaggo/http-swagger"
+
+	generatedserver "github.com/mateuszmidor/GoStudy/openapi/oapicodegen/generated_server"
 )
+
+//go:embed fridge_api.yaml
+var swaggerSpec []byte
 
 type FridgeServer struct {
 	products map[string]float32
@@ -19,11 +26,11 @@ func NewFridgeServer() *FridgeServer {
 	}
 }
 
-func (s *FridgeServer) GetProducts(w http.ResponseWriter, r *http.Request, params server.GetProductsParams) {
-	products := make([]server.Product, 0, len(s.products))
+func (s *FridgeServer) GetProducts(w http.ResponseWriter, r *http.Request, params generatedserver.GetProductsParams) {
+	products := make([]generatedserver.Product, 0, len(s.products))
 	for name, quantity := range s.products {
-		pname := server.ProductName(name)
-		products = append(products, server.Product{
+		pname := generatedserver.ProductName(name)
+		products = append(products, generatedserver.Product{
 			Name:     &pname,
 			Quantity: &quantity,
 		})
@@ -38,7 +45,7 @@ func (s *FridgeServer) GetProducts(w http.ResponseWriter, r *http.Request, param
 }
 
 func (s *FridgeServer) PostProducts(w http.ResponseWriter, r *http.Request) {
-	var product server.Product
+	var product generatedserver.Product
 	if err := json.NewDecoder(r.Body).Decode(&product); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -58,14 +65,14 @@ func (s *FridgeServer) PostProducts(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (s *FridgeServer) GetProductsName(w http.ResponseWriter, r *http.Request, name server.ProductName) {
+func (s *FridgeServer) GetProductsName(w http.ResponseWriter, r *http.Request, name generatedserver.ProductName) {
 	quantity, ok := s.products[string(name)]
 	if !ok {
 		http.Error(w, "product not found", http.StatusNotFound)
 		return
 	}
 
-	product := server.Product{
+	product := generatedserver.Product{
 		Name:     &name,
 		Quantity: &quantity,
 	}
@@ -74,8 +81,8 @@ func (s *FridgeServer) GetProductsName(w http.ResponseWriter, r *http.Request, n
 	json.NewEncoder(w).Encode(product)
 }
 
-func (s *FridgeServer) PutProductsName(w http.ResponseWriter, r *http.Request, name server.ProductName) {
-	var req server.PutProductsNameJSONBody
+func (s *FridgeServer) PutProductsName(w http.ResponseWriter, r *http.Request, name generatedserver.ProductName) {
+	var req generatedserver.PutProductsNameJSONBody
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -101,7 +108,7 @@ func (s *FridgeServer) PutProductsName(w http.ResponseWriter, r *http.Request, n
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func sortProducts(products []server.Product) {
+func sortProducts(products []generatedserver.Product) {
 	sort.Slice(products, func(i, j int) bool {
 		if products[i].Name == nil || products[j].Name == nil {
 			return false
@@ -112,10 +119,23 @@ func sortProducts(products []server.Product) {
 
 func main() {
 	srv := NewFridgeServer()
-
 	mux := http.NewServeMux()
-	server.HandlerFromMux(srv, mux)
+
+	// 1. Register the generated fridge server handlers into the mux
+	generatedserver.HandlerFromMux(srv, mux)
+
+	// 2. Serve the raw OpenAPI spec at /swagger/swagger.yaml
+	mux.HandleFunc("/swagger/swagger.yaml", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/yaml")
+		w.Write(swaggerSpec)
+	})
+
+	// 3. Serve Swagger UI at /swagger/
+	mux.Handle("/swagger/", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/swagger.yaml"),
+	))
 
 	log.Println("Server starting on :8080")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	log.Println("Swagger UI available at http://localhost:8080/swagger/")
+	log.Fatal(http.ListenAndServe(":8080", cors.Default().Handler(mux))) // cors needed for swagger UI to work
 }

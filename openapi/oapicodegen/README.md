@@ -5,32 +5,29 @@ This demo shows how to generate Go code from OpenAPI 3.0.0 specs using [oapi-cod
 ## Install oapi-codegen
 
 ```bash
-go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v1.6.0
 ```
 
 ## Generate Go Code
 
 **Generate client:**
 ```bash
-./gen_client.sh
-# Or manually:
-oapi-codegen -package client -generate types,client fridge_api.yaml > generated_client/client.go
+make client
 ```
 
 **Generate server:**
 ```bash
-./gen_server.sh
-# Or manually:
-oapi-codegen -package server -generate types,std-http fridge_api.yaml > generated_server/server.go
+make server
 ```
 
 ## Run Server
 
 ```bash
-go run ./cmd/server/main.go
+make run
 ```
 
-The server will listen on port 8080.
+- The server will listen on port 8080.
+- Swagger UI available at http://localhost:8080/swagger/
 
 ## Test with curl
 
