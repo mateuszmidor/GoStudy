@@ -2,7 +2,7 @@
 
 - simulates bank account; CreateAccount, FundAccount, ListAccounts, GetAccount
 - uses in-memory event storage and event bus
-
+- uses CQRS architectural style
 
 ## Run
 
