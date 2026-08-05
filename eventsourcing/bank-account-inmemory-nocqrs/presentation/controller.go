@@ -109,10 +109,7 @@ func (c *HttpController) handleGetAccount(w http.ResponseWriter, req *http.Reque
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	payload := struct {
-		AccountID string `json:"account_id"`
-	}{AccountID: accountID.String()}
-	slog.Info(req.Method+" "+req.URL.Path, slog.Any("payload", payload))
+	slog.Info(req.Method+" "+req.URL.Path, slog.Any("payload", accountID.String()))
 
 	// Call business logic
 	account, err := c.repository.Get(accountID)
@@ -137,8 +134,7 @@ func (c *HttpController) handleGetAccount(w http.ResponseWriter, req *http.Reque
 // handleListAccounts returns every reconstructed account as a JSON array.
 func (c *HttpController) handleListAccounts(w http.ResponseWriter, req *http.Request) {
 	// HTTP preamble
-	payload := struct{}{}
-	slog.Info(req.Method+" "+req.URL.Path, slog.Any("payload", payload))
+	slog.Info(req.Method+" "+req.URL.Path)
 
 	// Call business logic
 	accounts, err := c.repository.List()
