@@ -46,6 +46,14 @@ func main() {
 				postURL = baseURL + postURL
 			}
 			fmt.Printf("  - %s\n    %s\n", post.Title, postURL)
+
+			transcriptURL, err := fetchTranscriptURL(client, postURL)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			if transcriptURL != "" {
+				fmt.Printf("    PDF: %s\n", transcriptURL)
+			}
 		}
 		fmt.Println()
 	}

@@ -93,3 +93,45 @@ func fetchSyllabusItems(client *http.Client, pageURL string) ([]SyllabusItem, er
 	extractSyllabusItems(doc, &items)
 	return items, nil
 }
+
+// extractTranscriptURL finds the first <a class="downloads__download"> whose
+// href contains "transkrypcja" and returns that href, or "" if not found.
+func extractTranscriptURL(n *html.Node) string {
+	if n.Type == html.ElementNode && n.Data == "a" {
+		var class, href string
+		for _, attr := range n.Attr {
+			if attr.Key == "class" {
+				class = attr.Val
+			}
+			if attr.Key == "href" {
+				href = attr.Val
+			}
+		}
+		if class == "downloads__download" && strings.Contains(href, "transkrypcja") {
+			return href
+		}
+	}
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		if url := extractTranscriptURL(c); url != "" {
+			return url
+		}
+	}
+	return ""
+}
+
+// fetchTranscriptURL fetches a post page and returns the transcript PDF URL,
+// or "" if the post has no transcript attached.
+func fetchTranscriptURL(client *http.Client, postURL string) (string, error) {
+	resp, err := doGet(client, postURL)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	doc, err := html.Parse(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return extractTranscriptURL(doc), nil
+}
