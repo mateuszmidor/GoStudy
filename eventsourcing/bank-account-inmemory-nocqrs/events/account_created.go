@@ -8,7 +8,7 @@ import (
 
 type AccountCreated struct {
 	AccountID uuid.UUID `json:"account_id"`
-	OwnerName string    `json:"ownerr_name"`
+	OwnerName string    `json:"owner_name"`
 	CreatedAt time.Time `json:"created_at"`
 }
 

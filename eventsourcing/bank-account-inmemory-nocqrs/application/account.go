@@ -46,6 +46,7 @@ func NewAccount(ownerName string) (*Account, error) {
 	acc.Events = append(acc.Events, &events.AccountCreated{
 		AccountID: acc.ID,
 		OwnerName: acc.OwnerName,
+		CreatedAt: acc.CreatedAt,
 	})
 
 	return acc, nil
