@@ -2,7 +2,7 @@
 create:
 	@curl -X POST http://localhost:8080/accounts \
 	-H "Content-Type: application/json" \
-	-d '{"owner_name": "Andrzej"}'
+	-d '{"owner_name": "Rysiek"}'
 
 fund:
 	@ACCOUNT_ID=$$(curl -s -X POST "http://localhost:8080/accounts" -H "Content-Type: application/json" -d '{"owner_name": "Andrzej"}' | jq '.account_id') && \
