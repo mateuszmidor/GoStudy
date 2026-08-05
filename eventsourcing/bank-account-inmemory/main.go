@@ -3,6 +3,7 @@ package main
 import (
 	"bank-account/slices/commands/createaccount"
 	"bank-account/slices/commands/fundaccount"
+	"bank-account/slices/queries/getaccount"
 	"bank-account/slices/queries/listaccounts"
 	"log/slog"
 	"net/http"
@@ -17,6 +18,8 @@ func main() {
 	mux := http.NewServeMux()
 	createAccountHandler := createaccount.NewHTTPHandler(createaccount.NewHandler(store))
 	createAccountHandler.Register(mux)
+	getAccountHandler := getaccount.NewHTTPHandler(getaccount.NewQueryHandler(store))
+	getAccountHandler.Register(mux)
 	listAccountsHandler := listaccounts.NewHTTPHandler(listaccounts.NewQueryHandler(store))
 	listAccountsHandler.Register(mux)
 	fundAccountHandler := fundaccount.NewHTTPHandler(fundaccount.NewHandler(store))

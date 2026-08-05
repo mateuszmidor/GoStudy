@@ -1,6 +1,6 @@
 # bank-account-inmemory
 
-- simulates bank account; CreateAccount, FundAccount, ListAccounts
+- simulates bank account; CreateAccount, FundAccount, ListAccounts, GetAccount
 - uses in-memory event storage and event bus
 
 
@@ -16,4 +16,7 @@ make list
 # 2. successfuly create & fund & list accounts
 make fund
 make list # archived=false
+
+# 3. get account
+make get id=<uuid from the list>
 ```
