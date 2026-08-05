@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bank-account/slices/createaccount"
-	"bank-account/slices/fundaccount"
-	"bank-account/slices/listaccounts"
+	"bank-account/slices/commands/createaccount"
+	"bank-account/slices/commands/fundaccount"
+	"bank-account/slices/queries/listaccounts"
 	"log/slog"
 	"net/http"
 
