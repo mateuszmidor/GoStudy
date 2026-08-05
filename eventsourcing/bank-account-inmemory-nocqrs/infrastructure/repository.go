@@ -15,10 +15,12 @@ import (
 
 var ErrAccountNotFound = errors.New("account not found")
 
+// Repository persists and reconstructs accounts from an event store.
 type Repository struct {
 	store eventsourcing.EventStore
 }
 
+// NewRepository builds a repository backed by the provided event store.
 func NewRepository(store eventsourcing.EventStore) *Repository {
 	return &Repository{
 		store: store,

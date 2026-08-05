@@ -12,16 +12,19 @@ import (
 	"bank-account/infrastructure"
 )
 
+// HttpController exposes the account use cases over HTTP.
 type HttpController struct {
 	repository *infrastructure.Repository
 }
 
+// NewHttpController creates a controller wired to the repository.
 func NewHttpController(repository *infrastructure.Repository) *HttpController {
 	return &HttpController{
 		repository: repository,
 	}
 }
 
+// RegisterRoutes connects the controller handlers to HTTP routes.
 func (c *HttpController) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /accounts", c.handleCreateAccount)
 	mux.HandleFunc("POST /accounts/{id}/deposits", c.handleDeposit)
