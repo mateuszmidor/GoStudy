@@ -14,3 +14,14 @@ func (list AccountList) GetByID(accountID uuid.UUID) *Account {
 	}
 	return nil
 }
+
+func (list* AccountList) GetOrInsert(accountID uuid.UUID) *Account {
+	account := list.GetByID(accountID)
+	if account != nil {
+		return account
+	} else {
+		account := Account{ID: accountID}
+		*list = append(*list, account)
+		return  &(*list)[len(*list)-1] // return pointer to the newly added account
+	}
+}

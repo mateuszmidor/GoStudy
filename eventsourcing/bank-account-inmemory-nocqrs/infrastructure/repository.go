@@ -40,19 +40,18 @@ func (r *Repository) Get(id uuid.UUID) (*application.Account, error) {
 	}
 
 	// Replay the stream into a single account snapshot.
-	var state application.Account
+	var account application.Account
 	for iter.Next(context.Background()) {
-		state = evolve(state, iter.Value())
+		account = evolve(account, iter.Value())
 	}
 	if err := iter.Err(); err != nil {
 		return nil, err
 	}
 
-	state.ID = id
-	return &state, nil
+	return &account, nil
 }
 
-// GetAll rebuilds the state of all accounts by replaying all events in the event store.
+// List rebuilds the state of all accounts by replaying all events in the event store.
 func (r *Repository) List() (application.AccountList, error) {
 	iter, err := r.store.LoadFromAll(context.Background(), eventsourcing.Revision(0))
 	if err != nil {
@@ -64,21 +63,15 @@ func (r *Repository) List() (application.AccountList, error) {
 	}
 
 	// Fold all events into an in-memory account list.
-	state := application.AccountList{}
+	list := application.AccountList{}
 	for iter.Next(context.Background()) {
-		state = evolveAll(state, iter.Value())
+		list = evolveList(list, iter.Value())
 	}
 	if err := iter.Err(); err != nil {
 		return nil, err
 	}
 
-	accounts := make(application.AccountList, 0, len(state))
-	for i := range state {
-		account := state[i]
-		accounts = append(accounts, account)
-	}
-
-	return accounts, nil
+	return list, nil
 }
 
 // Save persists the given events to the event store using optimistic concurrency.
@@ -150,32 +143,30 @@ func (r *Repository) nextStreamRevision(ctx context.Context, streamID string) (e
 	return nextRevision, nil
 }
 
+// evolveList folds a single event into the current state of all accounts.
+func evolveList(state application.AccountList, envelope *eventsourcing.Envelope) application.AccountList {
+	id := uuid.MustParse(envelope.Event.AggregateID()) // will always parse; the ID is a stringified UUID
+	account := state.GetOrInsert(id) // get account, or insert a new one if it doesn't exist yet
+	*account = evolve(*account, envelope) // apply the event to the account
+	return state // return the updated list
+}
+
+// evolve folds a single event into the current state of an account.
 func evolve(state application.Account, envelope *eventsourcing.Envelope) application.Account {
-	switch e := envelope.Event.(type) {
+	return apply(state, envelope.Event) // simply apply the event to the account state
+}
+
+// apply folds a single event into the current state of an account.
+// The valid event order is guaranteed by the repository, so we can safely apply events in the order they are received.
+func apply (state application.Account, event events.Event) application.Account {
+	switch e := event.(type) {
 	case *events.AccountCreated:
+		state.ID = e.AccountID
 		state.CreatedAt = e.CreatedAt
 		state.OwnerName = e.OwnerName
 		state.Balance = 0
 	case *events.AccountFunded:
 		state.Balance += e.Dollars
-	}
-
-	return state
-}
-
-func evolveAll(state application.AccountList, envelope *eventsourcing.Envelope) application.AccountList {
-	switch e := envelope.Event.(type) {
-	case *events.AccountCreated:
-		state = append(state, application.Account{
-			ID:        e.AccountID,
-			Balance:   0,
-			OwnerName: e.OwnerName,
-			CreatedAt: e.CreatedAt,
-		})
-	case *events.AccountFunded:
-		// Account always exists - enforced by "FundAccount" command before it emits "AccountFunded" event
-		acc := state.GetByID(e.AccountID)
-		acc.Balance += e.Dollars
 	}
 
 	return state
