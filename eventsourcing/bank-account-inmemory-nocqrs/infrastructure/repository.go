@@ -14,6 +14,7 @@ import (
 )
 
 var ErrAccountNotFound = errors.New("account not found")
+var ErrOptimisticLocking = errors.New("optimistic locking conflict")
 
 // Repository persists and reconstructs accounts from an event store.
 type Repository struct {
@@ -52,12 +53,12 @@ func (r *Repository) Get(id uuid.UUID) (*application.Account, error) {
 }
 
 // GetAll rebuilds the state of all accounts by replaying all events in the event store.
-func (r *Repository) List() ([]*application.Account, error) {
+func (r *Repository) List() (application.AccountList, error) {
 	iter, err := r.store.LoadFromAll(context.Background(), eventsourcing.Revision(0))
 	if err != nil {
 		// An empty store is a valid list result.
 		if errors.Is(err, eventsourcing.ErrInvalidRevision) {
-			return []*application.Account{}, nil
+			return application.AccountList{}, nil
 		}
 		return nil, err
 	}
@@ -71,20 +72,24 @@ func (r *Repository) List() ([]*application.Account, error) {
 		return nil, err
 	}
 
-	accounts := make([]*application.Account, 0, len(state))
+	accounts := make(application.AccountList, 0, len(state))
 	for i := range state {
 		account := state[i]
-		accounts = append(accounts, &account)
+		accounts = append(accounts, account)
 	}
 
 	return accounts, nil
 }
 
-// Save persists the given events to the event store.
+// Save persists the given events to the event store using optimistic concurrency.
+// If it returns ErrOptimisticLocking, reload the aggregate, reapply the command,
+// and retry Save. Or simply surface the conflict to the caller (HTTP 409).
 func (r *Repository) Save(events []events.Event) error {
 	if len(events) == 0 {
 		return nil
 	}
+
+	ctx := context.Background()
 
 	// Repository.Save only accepts one aggregate at a time.
 	streamID := events[0].AggregateID()
@@ -94,21 +99,14 @@ func (r *Repository) Save(events []events.Event) error {
 		}
 	}
 
-	// Load the current stream so the new envelopes get the right versions.
-	iter, err := r.store.LoadStream(context.Background(), streamID)
-	if err != nil && !errors.Is(err, eventsourcing.ErrStreamNotFound) {
+	// Determine current stream revision so new envelopes get sequential versions.
+	revision, err := r.nextStreamRevision(ctx, streamID)
+	if err != nil {
 		return err
 	}
 
-	var revision eventsourcing.StreamState = eventsourcing.Revision(0)
-	if err == nil {
-		for iter.Next(context.Background()) {
-			revision = eventsourcing.Revision(iter.Value().Version + 1)
-		}
-		if err := iter.Err(); err != nil {
-			return err
-		}
-	}
+	// Save must receive the expected pre-append stream revision.
+	expectedRevision := revision
 
 	// Wrap domain events once before appending them.
 	envelopes := make([]eventsourcing.Envelope, len(events))
@@ -117,13 +115,39 @@ func (r *Repository) Save(events []events.Event) error {
 			EventID:    uuid.New(),
 			StreamID:   streamID,
 			Event:      event,
-			Version:    uint64(i) + uint64(revision.ToRawInt64()),
+			Version:    uint64(expectedRevision) + uint64(i),
 			OccurredAt: time.Now(),
 		}
 	}
 
-	_, err = r.store.Save(context.Background(), envelopes, revision)
+	_, err = r.store.Save(ctx, envelopes, expectedRevision)
+	if err != nil {
+		if _, ok := errors.AsType[*eventsourcing.StreamRevisionConflictError](err); ok {
+			return fmt.Errorf("%w: %w", ErrOptimisticLocking, err)
+		}
+	}
 	return err
+}
+
+// nextStreamRevision returns the current expected revision for appending to streamID.
+func (r *Repository) nextStreamRevision(ctx context.Context, streamID string) (eventsourcing.Revision, error) {
+	iter, err := r.store.LoadStream(ctx, streamID)
+	if err != nil {
+		if errors.Is(err, eventsourcing.ErrStreamNotFound) {
+			return eventsourcing.Revision(0), nil
+		}
+		return 0, err
+	}
+
+	nextRevision := eventsourcing.Revision(0)
+	for iter.Next(ctx) {
+		nextRevision++
+	}
+	if err := iter.Err(); err != nil {
+		return 0, err
+	}
+
+	return nextRevision, nil
 }
 
 func evolve(state application.Account, envelope *eventsourcing.Envelope) application.Account {

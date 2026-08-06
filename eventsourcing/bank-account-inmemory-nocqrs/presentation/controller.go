@@ -52,6 +52,10 @@ func (c *HttpController) handleCreateAccount(w http.ResponseWriter, req *http.Re
 	}
 
 	if err := c.repository.Save(account.FlushEvents()); err != nil {
+		if errors.Is(err, infrastructure.ErrOptimisticLocking) {
+			http.Error(w, err.Error(), http.StatusConflict)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -96,6 +100,10 @@ func (c *HttpController) handleDeposit(w http.ResponseWriter, req *http.Request)
 	}
 
 	if err := c.repository.Save(account.FlushEvents()); err != nil {
+		if errors.Is(err, infrastructure.ErrOptimisticLocking) {
+			http.Error(w, err.Error(), http.StatusConflict)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -137,7 +145,7 @@ func (c *HttpController) handleGetAccount(w http.ResponseWriter, req *http.Reque
 // handleListAccounts returns every reconstructed account as a JSON array.
 func (c *HttpController) handleListAccounts(w http.ResponseWriter, req *http.Request) {
 	// HTTP preamble
-	slog.Info(req.Method+" "+req.URL.Path)
+	slog.Info(req.Method + " " + req.URL.Path)
 
 	// Call business logic
 	accounts, err := c.repository.List()
