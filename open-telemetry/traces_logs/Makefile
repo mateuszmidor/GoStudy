@@ -8,4 +8,4 @@ run:
 	go run .
 
 houses:
-	while true; do curl -s http://localhost:8080/build-house; sleep 3; done
+	while true; do curl -s http://localhost:8080/build-house; echo; sleep 3; done
