@@ -64,7 +64,9 @@ span.End()
 ## Custom metrics
 
 ```go
-...
+meter := s.mp.Meter("sand-service")
+sandGatheringFailures, _ := meter.Int64Counter("sand_gathering_failures", metric.WithDescription("Sand gather failed"))
+sandGatheringFailures.Add(r.Context(), 1, metric.WithAttributes(attribute.String("result", "failure")))
 ```
 
 ## How metrics work
