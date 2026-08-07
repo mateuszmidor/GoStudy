@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"math/rand"
 	"net/http"
+	"time"
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/codes"
@@ -79,8 +80,13 @@ func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
 
 // BUSINESS LOGIC
 func gatherSand() (result string, err error) {
-	// simulate random failure 50% of the time
-	if rand.Intn(2) == 0 {
+	// simulate random lag
+	if rand.Intn(5) == 0 {
+		time.Sleep(time.Second)
+	}
+
+	// simulate random failure 
+	if rand.Intn(5) == 0 {
 		err := fmt.Errorf("failed to gather sand - dump track crashed")
 		return "", err
 	}
