@@ -75,7 +75,7 @@ func (r *Repository) List() (application.AccountList, error) {
 }
 
 // Save persists the given events to the event store using optimistic concurrency.
-// If it returns ErrOptimisticLocking, reload the aggregate, reapply the command,
+// If it returns ErrOptimisticLocking, caller needs to reload the aggregate, reapply the mutating command,
 // and retry Save. Or simply surface the conflict to the caller (HTTP 409).
 func (r *Repository) Save(events []events.Event) error {
 	if len(events) == 0 {
@@ -84,7 +84,7 @@ func (r *Repository) Save(events []events.Event) error {
 
 	ctx := context.Background()
 
-	// Repository.Save only accepts one aggregate at a time.
+	// Repository.Save only accepts one aggregate at a time so let's validate it here
 	streamID := events[0].AggregateID()
 	for _, event := range events[1:] {
 		if event.AggregateID() != streamID {
@@ -113,7 +113,7 @@ func (r *Repository) Save(events []events.Event) error {
 		}
 	}
 
-	_, err = r.store.Save(ctx, envelopes, expectedRevision)
+	_, err = r.store.Save(ctx, envelopes, expectedRevision) // passing the expected revision ensures optimistic concurrency
 	if err != nil {
 		if _, ok := errors.AsType[*eventsourcing.StreamRevisionConflictError](err); ok {
 			return fmt.Errorf("%w: %w", ErrOptimisticLocking, err)
@@ -123,6 +123,7 @@ func (r *Repository) Save(events []events.Event) error {
 }
 
 // nextStreamRevision returns the current expected revision for appending to streamID.
+// It is basically the number of events in the stream, or 0 if the stream does not exist yet.
 func (r *Repository) nextStreamRevision(ctx context.Context, streamID string) (eventsourcing.Revision, error) {
 	iter, err := r.store.LoadStream(ctx, streamID)
 	if err != nil {
@@ -143,12 +144,12 @@ func (r *Repository) nextStreamRevision(ctx context.Context, streamID string) (e
 	return nextRevision, nil
 }
 
-// evolveList folds a single event into the current state of all accounts.
+// evolveList folds a single event into the current state of account list.
 func evolveList(state application.AccountList, envelope *eventsourcing.Envelope) application.AccountList {
-	id := uuid.MustParse(envelope.Event.AggregateID()) // will always parse; the ID is a stringified UUID
-	account := state.GetOrInsert(id) // get account, or insert a new one if it doesn't exist yet
-	*account = evolve(*account, envelope) // apply the event to the account
-	return state // return the updated list
+	id := uuid.MustParse(envelope.Event.AggregateID()) // will always parse; the ID is sourced from UUID
+	account := state.GetOrInsert(id)                   // get account, or insert a new one if it doesn't exist yet
+	*account = evolve(*account, envelope)              // apply the event to the account on the list
+	return state                                       // return the updated list
 }
 
 // evolve folds a single event into the current state of an account.
@@ -157,8 +158,8 @@ func evolve(state application.Account, envelope *eventsourcing.Envelope) applica
 }
 
 // apply folds a single event into the current state of an account.
-// The valid event order is guaranteed by the repository, so we can safely apply events in the order they are received.
-func apply (state application.Account, event events.Event) application.Account {
+// The valid event order is guaranteed by the Account aggregate and event storage, so we can safely apply events in the order they are received.
+func apply(state application.Account, event events.Event) application.Account {
 	switch e := event.(type) {
 	case *events.AccountCreated:
 		state.ID = e.AccountID
