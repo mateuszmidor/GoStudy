@@ -21,7 +21,7 @@ stdout ← logs (JSON, per-service name)
 ```bash
 make up      # start Jaeger
 make run     # start the Go services
-make house   # trigger a chain of service→service→service requests
+make houses  # trigger a chain of service→service→service requests
 ```
 
 1. Open http://localhost:16686 in your browser

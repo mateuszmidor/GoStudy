@@ -26,7 +26,7 @@ Go App (building:8080 → concrete:8081 → sand:8082)
 ```bash
 make up      # start Grafana + Tempo + Loki + Prometheus + OTel Collector
 make run     # start the Go services
-make house   # trigger a chain of service→service→service requests
+make houses   # trigger a chain of service→service→service requests
 ```
 
 1. Open http://localhost:3000 in your browser (no login required)

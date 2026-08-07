@@ -14,5 +14,5 @@ run:
 down:
 	docker stop jaeger
 
-house:
-	curl -s http://localhost:8080/build-house
+houses:
+	while true; do curl -s http://localhost:8080/build-house; sleep 3; done
