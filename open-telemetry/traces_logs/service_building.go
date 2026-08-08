@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/codes"
@@ -79,10 +80,10 @@ func (s *BuildingService) handleBuildHouse(w http.ResponseWriter, r *http.Reques
 
 	// handle error
 	if err != nil {
-		s.logger.ErrorContext(r.Context(), err.Error())                           // log the error
-		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error()) // set the span status to error
-		apitrace.SpanFromContext(r.Context()).RecordError(err)                    // attach the error to the span
-		http.Error(w, err.Error(), http.StatusInternalServerError)                // return the error
+		s.logger.ErrorContext(r.Context(), err.Error())                                          // log the error
+		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error())                // set the span status to error
+		apitrace.SpanFromContext(r.Context()).RecordError(err)                                   // attach the error to the span
+		http.Error(w, strings.ReplaceAll(err.Error(), "\n", ""), http.StatusInternalServerError) // return the error
 		return
 	}
 

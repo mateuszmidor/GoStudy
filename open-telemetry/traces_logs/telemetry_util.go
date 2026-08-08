@@ -7,7 +7,6 @@ import (
 
 	slogmulti "github.com/samber/slog-multi"
 	"go.opentelemetry.io/contrib/bridges/otelslog"
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
@@ -28,7 +27,7 @@ func newTracerProvider(serviceName string) (*trace.TracerProvider, error) {
 
 	r := makeResource(serviceName)
 	tp := trace.NewTracerProvider(
-		trace.WithSampler(trace.AlwaysSample()),
+		trace.WithSampler(trace.AlwaysSample()), // use TraceIDRatioBased for production 
 		trace.WithBatcher(exp),
 		trace.WithResource(r),
 	)
@@ -70,7 +69,7 @@ func makeResource(serviceName string) *resource.Resource {
 			semconv.SchemaURL,
 			semconv.ServiceName(serviceName),
 			semconv.ServiceVersion("v0.1.0"),
-			attribute.String("environment", "demo"),
+			semconv.DeploymentEnvironment("demo"),
 		),
 	)
 	return r

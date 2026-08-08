@@ -53,7 +53,6 @@ func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
 	// note: trace span is automatically created by otelhttp middleware so nothing to do here
 	sandLogger.InfoContext(r.Context(), r.Method+" "+r.URL.RequestURI())
 
-
 	// call business logic
 	result, err := gatherSand()
 
@@ -77,7 +76,7 @@ func gatherSand() (result string, err error) {
 		time.Sleep(time.Second)
 	}
 
-	// simulate random failure 
+	// simulate random failure
 	if rand.Intn(5) == 0 {
 		err := fmt.Errorf("failed to gather sand - dump track crashed")
 		return "", err

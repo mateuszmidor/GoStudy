@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/codes"
@@ -19,11 +20,11 @@ import (
 
 // BuildingService represents both: http controller and business logic, for brevity.
 type BuildingService struct {
-	client *http.Client              // http client that automatically creates trace spans for outgoing requests
-	logger *slog.Logger              // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
-	lp     *sdklog.LoggerProvider    // logger provider that sends logs to open telemetry collector
-	tp     *trace.TracerProvider     // tracer provider that sends traces to open telemetry collector
-	mp     *sdkmetric.MeterProvider  // meter provider that sends metrics to open telemetry collector
+	client *http.Client             // http client that automatically creates trace spans for outgoing requests
+	logger *slog.Logger             // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
+	lp     *sdklog.LoggerProvider   // logger provider that sends logs to open telemetry collector
+	tp     *trace.TracerProvider    // tracer provider that sends traces to open telemetry collector
+	mp     *sdkmetric.MeterProvider // meter provider that sends metrics to open telemetry collector
 }
 
 func NewBuildingService(ctx context.Context) *BuildingService {
@@ -91,10 +92,10 @@ func (s *BuildingService) handleBuildHouse(w http.ResponseWriter, r *http.Reques
 
 	// handle error
 	if err != nil {
-		s.logger.ErrorContext(r.Context(), err.Error())                           // log the error
-		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error()) // set the span status to error
-		apitrace.SpanFromContext(r.Context()).RecordError(err)                    // attach the error to the span
-		http.Error(w, err.Error(), http.StatusInternalServerError)                // return the error
+		s.logger.ErrorContext(r.Context(), err.Error())                                          // log the error
+		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error())                // set the span status to error
+		apitrace.SpanFromContext(r.Context()).RecordError(err)                                   // attach the error to the span
+		http.Error(w, strings.ReplaceAll(err.Error(), "\n", ""), http.StatusInternalServerError) // return the error
 		return
 	}
 

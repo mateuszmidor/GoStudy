@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/codes"
@@ -41,7 +42,7 @@ func NewBuildingService(ctx context.Context) *BuildingService {
 	}
 
 	return &BuildingService{
-		tp:     tp,     // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
+		tp:     tp, // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
 		client: client,
 	}
 }
@@ -73,12 +74,12 @@ func (s *BuildingService) handleBuildHouse(w http.ResponseWriter, r *http.Reques
 		buildingLogger.ErrorContext(r.Context(), err.Error())                     // log the error
 		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error()) // set the span status to error
 		apitrace.SpanFromContext(r.Context()).RecordError(err)                    // attach the error to the span
-		http.Error(w, err.Error(), http.StatusInternalServerError)                // return the error
+		http.Error(w, strings.ReplaceAll(err.Error(), "\n", ""), http.StatusInternalServerError)
 		return
 	}
 
 	// handle success
-	w.Write([]byte(result))
+	fmt.Fprintln(w, result)
 }
 
 // BUSINESS LOGIC

@@ -20,10 +20,10 @@ import (
 
 // SandService represents both: http controller and business logic, for brevity.
 type SandService struct {
-	logger *slog.Logger              // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
-	lp     *sdklog.LoggerProvider    // logger provider that sends logs to open telemetry collector
-	tp     *trace.TracerProvider     // tracer provider that sends traces to open telemetry collector
-	mp     *sdkmetric.MeterProvider  // meter provider that sends metrics to open telemetry collector
+	logger *slog.Logger             // logger that prints logs (with trace ID and span ID) to stdout and appends them to open telemetry log batcher
+	lp     *sdklog.LoggerProvider   // logger provider that sends logs to open telemetry collector
+	tp     *trace.TracerProvider    // tracer provider that sends traces to open telemetry collector
+	mp     *sdkmetric.MeterProvider // meter provider that sends metrics to open telemetry collector
 }
 
 func NewSandService(ctx context.Context) *SandService {
@@ -97,7 +97,7 @@ func gatherSand() (result string, err error) {
 		time.Sleep(time.Second)
 	}
 
-	// simulate random failure 
+	// simulate random failure
 	if rand.Intn(5) == 0 {
 		err := fmt.Errorf("failed to gather sand - dump track crashed")
 		return "", err

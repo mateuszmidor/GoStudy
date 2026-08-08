@@ -42,7 +42,7 @@ func NewConcreteService(ctx context.Context) *ConcreteService {
 	}
 
 	return &ConcreteService{
-		tp:     tp,     // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
+		tp:     tp, // or in actual microservice just set tp globally with: otel.SetTracerProvider(tp)
 		client: client,
 	}
 }

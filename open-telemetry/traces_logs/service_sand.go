@@ -85,7 +85,7 @@ func gatherSand() (result string, err error) {
 		time.Sleep(time.Second)
 	}
 
-	// simulate random failure 
+	// simulate random failure
 	if rand.Intn(5) == 0 {
 		err := fmt.Errorf("failed to gather sand - dump track crashed")
 		return "", err
