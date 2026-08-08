@@ -3,7 +3,7 @@ receivers:
   otlp:
     protocols:
       http:
-        endpoint: "0.0.0.0:4318"  # Go app sends to localhost:4318
+        endpoint: "0.0.0.0:4318"  # Go app sends all telemetry to localhost:4318
 
 # Forward data to the appropriate backend
 exporters:
@@ -14,7 +14,7 @@ exporters:
     endpoint: "http://loki:3100/otlp"  # Loki OTLP ingest path
 
   prometheus:
-    endpoint: "0.0.0.0:8889"  # Prometheus scrapes /metrics from this port
+    endpoint: "0.0.0.0:8889"  # Prometheus scrapes /metrics from this port of OTel Collector
 
 # Batch spans/logs/metrics before exporting to reduce network overhead
 processors:
