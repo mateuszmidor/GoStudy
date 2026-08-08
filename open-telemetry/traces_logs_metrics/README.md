@@ -3,24 +3,6 @@
 This demo showcases OpenTelemetry distributed tracing, logging, and metrics across a chain of Go microservices.
 Traces, logs, and metrics are collected by the OpenTelemetry Collector and visualized in Grafana (Tempo for traces, Loki for logs, Prometheus for metrics).
 
-## Architecture
-
-```
-Go App (building:8080 → concrete:8081 → sand:8082)
-        │
-        │ OTLP/HTTP :4318 (traces, logs, metrics)
-        ▼
-  OTel Collector :4318
-   ├── traces   OTLP/HTTP :4318  ──► Tempo      :4318 (ingest)
-   ├── logs     OTLP/HTTP :3100  ──► Loki       :3100/otlp
-   └── metrics  Prometheus :8889 ──► Prometheus :9090 (scrapes /metrics)
-
-                      Tempo      :3200 (HTTP queries)  ◄──┐
-                      Tempo      :9095 (gRPC queries)  ◄──┤
-                      Loki       :3100 (HTTP queries)  ◄──┤
-                      Prometheus :9090 (HTTP queries)  ◄──┴── Grafana :3000 (web ui)
-```
-
 ## Run
 
 ```bash
