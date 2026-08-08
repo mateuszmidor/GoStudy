@@ -94,7 +94,7 @@ func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
 func gatherSand() (result string, err error) {
 	// simulate random lag
 	if rand.Intn(5) == 0 {
-		time.Sleep(time.Second)
+		time.Sleep(time.Millisecond*750)
 	}
 
 	// simulate random failure
