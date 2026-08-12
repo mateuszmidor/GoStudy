@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// EmploymentType represents a salary/contract type (e.g. B2B, permanent) with a salary range.
 type EmploymentType struct {
 	From           *float64 `json:"from"`
 	FromPerUnit    *float64 `json:"fromPerUnit"`
@@ -22,6 +23,7 @@ type EmploymentType struct {
 	Gross          bool     `json:"gross"`
 }
 
+// Location represents a job offer's geographic location.
 type Location struct {
 	Slug      string  `json:"slug"`
 	City      string  `json:"city"`
@@ -30,16 +32,19 @@ type Location struct {
 	Longitude float64 `json:"longitude"`
 }
 
+// Skill represents a skill with a name and proficiency level.
 type Skill struct {
 	Name  string `json:"name"`
 	Level int    `json:"level"`
 }
 
+// Category represents a job category with an optional parent category.
 type Category struct {
 	Key       string  `json:"key"`
 	ParentKey *string `json:"parentKey"`
 }
 
+// Offer represents a job offer from the JustJoin API.
 type Offer struct {
 	GUID                   string           `json:"guid"`
 	Slug                   string           `json:"slug"`
@@ -67,14 +72,16 @@ type Offer struct {
 	ApplyUrl               *string          `json:"applyUrl"`
 	LastPublishedAt        time.Time        `json:"lastPublishedAt"`
 	ExpiredAt              time.Time        `json:"expiredAt"`
-	Details                string           `json:"-"`
+	OfferURL               string           `json:"-"` // actual offer URL
 }
 
+// APICursor represents pagination cursor with item count.
 type APICursor struct {
 	Cursor     *int `json:"cursor"`
-	ItemsCount int  `json:"itemsCount"`
+	ItemsCount int   `json:"itemsCount"`
 }
 
+// APIMeta represents metadata for API pagination (from, total, prev/next cursor).
 type APIMeta struct {
 	From       int        `json:"from"`
 	TotalItems int        `json:"totalItems"`
@@ -82,6 +89,7 @@ type APIMeta struct {
 	Next       *APICursor `json:"next"`
 }
 
+// APIResponse represents the response from the job offers API containing data and metadata.
 type APIResponse struct {
 	Data []Offer `json:"data"`
 	Meta APIMeta `json:"meta"`
@@ -92,6 +100,8 @@ const (
 	pageSize   = 100
 )
 
+// formatSalary formats employment types into a human-readable salary string.
+// Returns "N/A" if no salary info is available.
 func formatSalary(types []EmploymentType) string {
 	if len(types) == 0 {
 		return "N/A"
@@ -110,6 +120,7 @@ func formatSalary(types []EmploymentType) string {
 	return "N/A"
 }
 
+// skillNames extracts skill names from a skill slice.
 func skillNames(skills []Skill) []string {
 	names := make([]string, len(skills))
 	for i, s := range skills {
@@ -118,6 +129,7 @@ func skillNames(skills []Skill) []string {
 	return names
 }
 
+// fetchPage fetches a page of job offers from the API with given offset.
 func fetchPage(from int) (*APIResponse, error) {
 	params := url.Values{
 		"categories": {"go"},
@@ -156,6 +168,7 @@ func fetchPage(from int) (*APIResponse, error) {
 	return &apiResp, nil
 }
 
+// FetchAllOffers fetches all job offers by paginating through the API.
 func FetchAllOffers() ([]Offer, error) {
 	var allOffers []Offer
 	from := 0
@@ -182,12 +195,13 @@ func FetchAllOffers() ([]Offer, error) {
 	}
 
 	for i := range allOffers {
-		allOffers[i].Details = "https://justjoin.it/job-offer/" + allOffers[i].Slug
+		allOffers[i].OfferURL = "https://justjoin.it/job-offer/" + allOffers[i].Slug
 	}
 
 	return allOffers, nil
 }
 
+// main is the entry point - fetches and prints all job offers.
 func main() {
 	offers, err := FetchAllOffers()
 	if err != nil {
@@ -208,7 +222,7 @@ func main() {
 		}
 		skills := skillNames(o.RequiredSkills)
 		fmt.Printf("   - Technologies: %s\n", strings.Join(skills, ", "))
-		fmt.Printf("   - Link: %s\n", o.Details)
+		fmt.Printf("   - Link: %s\n", o.OfferURL)
 		fmt.Println()
 	}
 }
