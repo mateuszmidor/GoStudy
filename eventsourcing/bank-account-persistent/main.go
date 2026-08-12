@@ -64,10 +64,12 @@ func main() {
 	// initialize command handlers
 	createAccountHandler := createaccount.NewHTTPHandler(createaccount.NewHandler(store))
 	fundAccountHandler := fundaccount.NewHTTPHandler(fundaccount.NewHandler(store))
+
+	// initialize query handlers
 	listAccountsHandler := listaccounts.NewHTTPHandler(listaccounts.NewQueryHandler(projector))
 	getAccountHandler := getaccount.NewHTTPHandler(getaccount.NewQueryHandler(store))
 
-	// initialize&run http server
+	// finally, initialize&run http server
 	mux := http.NewServeMux()
 	createAccountHandler.Register(mux)
 	listAccountsHandler.Register(mux)
