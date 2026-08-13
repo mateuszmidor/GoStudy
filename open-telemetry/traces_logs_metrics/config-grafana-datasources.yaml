@@ -9,8 +9,18 @@ datasources:
     isDefault: true
     jsonData:
       grpcEndpoint: tempo:9095
+      tracesToLogsV2:
+        datasourceUid: loki
+        customQuery: true
+        query: '{service_name=~".+"} | trace_id=`$${__trace.traceId}` | span_id=`$${__span.spanId}`'
+        tags:
+          - key: service.name
+            value: service_name
+        spanStartTimeShift: "-5m"
+        spanEndTimeShift: "5m"
   - name: Loki
     type: loki
+    uid: loki
     access: proxy
     url: http://loki:3100
     jsonData:
