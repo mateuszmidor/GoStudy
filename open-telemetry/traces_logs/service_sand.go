@@ -63,7 +63,7 @@ func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
 	s.logger.InfoContext(r.Context(), r.Method+" "+r.URL.RequestURI())
 
 	// call business logic
-	result, err := gatherSand()
+	result, err := s.gatherSand(r.Context())
 
 	// handle error
 	if err != nil {
@@ -79,10 +79,11 @@ func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
 }
 
 // BUSINESS LOGIC
-func gatherSand() (result string, err error) {
+func (s *SandService) gatherSand(ctx context.Context) (result string, err error) {
 	// simulate random lag
 	if rand.Intn(5) == 0 {
-		time.Sleep(time.Second)
+		s.logger.WarnContext(ctx, "unexpected delay of 750ms")
+		time.Sleep(time.Millisecond * 750)
 	}
 
 	// simulate random failure

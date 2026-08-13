@@ -1,25 +1,36 @@
+---
 apiVersion: 1
 datasources:
   - name: Tempo
     type: tempo
-    uid: tempo          # referenced by Loki's derivedFields to link logs → traces
+    uid: tempo
     access: proxy
-    url: http://tempo:3200        # Tempo HTTP API for TraceQL queries
+    url: http://tempo:3200
     isDefault: true
+    # add "Logs for this span" button in span view
     jsonData:
-      grpcEndpoint: tempo:9095    # Tempo gRPC API — required for Grafana's Traces tab
+      grpcEndpoint: tempo:9095
+      tracesToLogsV2:
+        datasourceUid: loki
+        customQuery: true
+        query: '{service_name=~".+"} | trace_id=`$${__trace.traceId}` | span_id=`$${__span.spanId}`'
+        tags:
+          - key: service.name
+            value: service_name
+        spanStartTimeShift: "-5m"
+        spanEndTimeShift: "5m"
 
   - name: Loki
     type: loki
+    uid: loki
     access: proxy
-    url: http://loki:3100         # Loki HTTP API for LogQL queries
+    url: http://loki:3100
+    # add "View Trace" button in log entry view
     jsonData:
       derivedFields:
-        # Match the trace_id structured metadata field that Loki stores when
-        # logs arrive via OTLP ingest (traceId from the OTLP record becomes
-        # the "trace_id" label/metadata field — it is NOT in the log body text).
         - name: TraceID
+          matcherType: label
+          matcherRegex: trace[_]?id
+          url: '$${__value.raw}'
           datasourceUid: tempo
-          type: label                # match a Loki label or structured metadata field
-          matcherRegex: 'trace[_]?id' # regex against label keys; matches trace_id / traceid
-          url: '${__value.raw}'
+          urlDisplayLabel: View Trace
