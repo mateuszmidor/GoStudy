@@ -18,11 +18,11 @@ make houses   # trigger a chain of service→service→service requests
     - to filter by trace id: `{service_name=~".+"} | trace_id = "41df8208f8908c978d1bc2e96a0eecb5"`
 - **Explore → Tempo** to view traces
 - **Explore → Prometheus** to view metrics
-    - request duration per service: 
+    - num of http status codes from /build-house per-minute: 
         ```
-        sum by (http_route, job) (rate(http_server_request_duration_seconds_sum[$__range]))
-        /
-        sum by (http_route, job) (rate(http_server_request_duration_seconds_count[$__range]))
+        sum by (http_response_status_code) (
+        increase(http_server_request_duration_seconds_count{http_route="/build-house"}[1m])
+        )
         ```
     - raw metrics available at http://localhost:8889/metrics
 ```bash
