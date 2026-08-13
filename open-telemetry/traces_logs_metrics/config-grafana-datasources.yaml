@@ -7,6 +7,7 @@ datasources:
     access: proxy
     url: http://tempo:3200
     isDefault: true
+    # add "Logs for this span" button in span view
     jsonData:
       grpcEndpoint: tempo:9095
       tracesToLogsV2:
@@ -18,11 +19,13 @@ datasources:
             value: service_name
         spanStartTimeShift: "-5m"
         spanEndTimeShift: "5m"
+
   - name: Loki
     type: loki
     uid: loki
     access: proxy
     url: http://loki:3100
+    # add "View Trace" button in log entry view
     jsonData:
       derivedFields:
         - name: TraceID
@@ -31,6 +34,7 @@ datasources:
           url: '$${__value.raw}'
           datasourceUid: tempo
           urlDisplayLabel: View Trace
+          
   - name: Prometheus
     type: prometheus
     access: proxy
