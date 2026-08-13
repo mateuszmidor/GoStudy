@@ -35,6 +35,10 @@ func newTracerProvider(serviceName string) (*trace.TracerProvider, error) {
 		trace.WithResource(r),
 	)
 	// otel.SetTracerProvider(tp) // call this in microservice to set global trace provider
+	// then anywhere in the app (no need to pass the provider around):
+	//   tracer := otel.Tracer("my-instrumentation")
+	//   ctx, span := tracer.Start(ctx, "my-operation")
+	//   defer span.End()
 	return tp, nil
 }
 
@@ -61,7 +65,9 @@ func newLoggerProvider(serviceName string) (*sdklog.LoggerProvider, *slog.Logger
 	)
 	logger := slog.New(handler)
 	// global.SetLoggerProvider(lp) // call this in microservice to set global log provider
-	// slog.SetDefault(logger) // call this in microservice to set global logger
+	// slog.SetDefault(logger)      // call this in microservice to set global logger
+	// then anywhere in the app:
+	//   slog.Info("hello", "key", "value") // stdlib slog -> OTel + stdout
 	return lp, logger, nil
 }
 
@@ -80,6 +86,11 @@ func newMeterProvider(serviceName string) (*sdkmetric.MeterProvider, error) {
 		sdkmetric.WithReader(sdkmetric.NewPeriodicReader(exp)),
 		sdkmetric.WithResource(r),
 	)
+	// otel.SetMeterProvider(mp) // call this in microservice to set global meter provider
+	// then anywhere in the app:
+	//   meter := otel.Meter("my-instrumentation")
+	//   counter, _ := meter.Int64Counter("my.counter")
+	//   counter.Add(ctx, 1)
 	return mp, nil
 }
 
