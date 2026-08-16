@@ -19,10 +19,11 @@ func runServer(port int) {
 		server.WithToolCapabilities(false),
 	)
 
+	const categories = "ai, go, java, python, javascript, php, ruby, net, scala, c, mobile, testing, devops, admin, ux, pm, game, analytics, security, data, support, erp, architecture"
 	tool := mcp.NewTool(
 		"find_jobs",
-		mcp.WithDescription("Finds IT job offers on JustJoin.it by category (e.g. go, java, python, javascript, ai)"),
-		mcp.WithString("category", mcp.Required(), mcp.Description("Job category, e.g. go, java, python")),
+		mcp.WithDescription("Finds IT job offers on JustJoin.it by category, e.g.: "+categories),
+		mcp.WithString("category", mcp.Required(), mcp.Description("Job category. Allowed: "+categories)),
 	)
 
 	s.AddTool(tool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
