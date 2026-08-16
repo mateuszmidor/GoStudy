@@ -5,7 +5,20 @@ import (
 	"strings"
 
 	"findjobsmcp/api"
+	"findjobsmcp/justjoinit"
 )
+
+func justPrintOffers(category string) bool {
+	offers, err := justjoinit.FetchAllOffers([]string{category})
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return true
+	}
+
+	fmt.Printf("Fetched %d offers\n\n", len(offers.Jobs))
+	printOffers(offers.Jobs)
+	return false
+}
 
 // printOffers prints the given job offers to standard output.
 func printOffers(offers []api.EldoradoOffer) {

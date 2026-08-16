@@ -1,19 +1,27 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-
-	"findjobsmcp/justjoinit"
 )
 
-// main is the entry point - fetches Go job offers and prints them.
+const (
+	serverName    = "find-jobs-mcp"
+	serverVersion = "1.0.0"
+	addr          = "localhost:8080"
+)
+
+// main is the entry point - serves job offers over MCP by default,
+// or prints them to stdout when -demo is given.
 func main() {
-	offers, err := justjoinit.FetchAllOffers([]string{"go"})
-	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+	demo := flag.Bool("demo", false, "only print the job offers to stdout instead of running the MCP server")
+	flag.Parse()
+
+	if *demo {
+		justPrintOffers("go")
 		return
 	}
 
-	fmt.Printf("Fetched %d offers\n\n", len(offers.Jobs))
-	printOffers(offers.Jobs)
+	fmt.Println("Running MCP server. To just print the jobs, pass -demo flag")
+	runServer()
 }
