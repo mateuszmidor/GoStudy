@@ -1,8 +1,6 @@
-// This unit defines Offer structure that follows "czyjesteldorado.pl" MCP result structure
-package main
+package api
 
-// EldoradoOffers is the top-level wrapper for a CzyJestEldorado response;
-// the whole API response is a single object with one "jobs" key.
+// EldoradoOffers is the format returned from czyjesteldorado.pl MCP server
 type EldoradoOffers struct {
 	Jobs []EldoradoOffer `json:"jobs"` // e.g. 53 offers
 }
