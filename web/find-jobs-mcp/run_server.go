@@ -12,7 +12,7 @@ import (
 )
 
 // runServer starts the MCP server exposing job search by category.
-func runServer() {
+func runServer(port int) {
 	s := server.NewMCPServer(
 		serverName,
 		serverVersion,
@@ -47,6 +47,7 @@ func runServer() {
 	})
 
 	httpServer := server.NewStreamableHTTPServer(s)
+	addr := fmt.Sprintf("localhost:%d", port)
 
 	log.Printf("Starting %s v%s on http://%s", serverName, serverVersion, addr)
 	log.Printf("OpenCode config: add to .opencode.json:")
