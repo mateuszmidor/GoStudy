@@ -27,7 +27,7 @@ The script produces `bootstrap.zip` in the current directory.
 2. Name it (e.g. `find-jobs-mcp`), runtime **Amazon Linux 2023**, architecture
    **x86_64** (must match the `GOARCH` used to build), handler `bootstrap`
 3. **Upload** the zip as the function code
-4. **Configuration → General configuration**: memory 256 MB, timeout 30 s
+4. **Configuration → General configuration**: memory 128 MB, timeout 10 s
 5. **Configuration → Function URL → Create function URL**:
    Auth type `NONE` (anyone with the URL can invoke it - fine for a demo),
    CORS: allow origin `*`, methods `POST, GET, DELETE`, headers `*`
