@@ -49,20 +49,28 @@ func eldoradoWorkMode(workplaceType string) string {
 	return workplaceType
 }
 
-// eldoradoContractTypes maps JustJoin employment types to Eldorado contract types.
+// eldoradoContractTypes maps JustJoin employment types to Eldorado contract
+// types, deduplicated (the API repeats the same type once per currency).
 func eldoradoContractTypes(types []employmentType) []string {
 	contracts := make([]string, 0, len(types))
+	seen := make(map[string]bool)
 	for _, t := range types {
+		var contract string
 		switch strings.ToLower(t.Type) {
 		case "b2b":
-			contracts = append(contracts, "b2b")
-		case "uop":
-			contracts = append(contracts, "employment_contract")
+			contract = "b2b"
+		case "uop", "permanent":
+			contract = "employment_contract"
 		case "uoz":
-			contracts = append(contracts, "mandate_contract")
+			contract = "mandate_contract"
 		default:
-			contracts = append(contracts, strings.ToLower(t.Type))
+			contract = strings.ToLower(t.Type)
 		}
+		if contract == "" || seen[contract] {
+			continue
+		}
+		seen[contract] = true
+		contracts = append(contracts, contract)
 	}
 	return contracts
 }
