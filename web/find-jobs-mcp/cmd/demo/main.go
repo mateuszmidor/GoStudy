@@ -2,6 +2,8 @@
 package main
 
 import (
+	"encoding/json"
+	"flag"
 	"fmt"
 	"strings"
 
@@ -10,14 +12,32 @@ import (
 )
 
 func main() {
+	jsonOut := flag.Bool("json", false, "print offers as formatted JSON")
+	flag.Parse()
+
 	offers, err := justjoinit.FetchAllOffers([]string{"go"})
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
 
+	if *jsonOut {
+		printOffersJSON(offers)
+		return
+	}
+
 	fmt.Printf("Fetched %d offers\n\n", len(offers.Jobs))
 	printOffers(offers.Jobs)
+}
+
+// printOffersJSON prints the given offers as indented JSON to standard output.
+func printOffersJSON(offers api.EldoradoOffers) {
+	out, err := json.MarshalIndent(offers, "", "  ")
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+	fmt.Println(string(out))
 }
 
 // printOffers prints the given job offers to standard output.
