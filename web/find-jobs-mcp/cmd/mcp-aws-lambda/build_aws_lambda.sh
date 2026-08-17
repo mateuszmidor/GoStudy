@@ -3,7 +3,7 @@
 set -euo pipefail
 
 echo "Building AWS Lambda deployment package for GO..."
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bootstrap ./lambda
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bootstrap .
 
 zip bootstrap.zip bootstrap
 rm bootstrap

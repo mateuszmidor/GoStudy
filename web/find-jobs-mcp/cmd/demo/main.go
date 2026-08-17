@@ -1,3 +1,4 @@
+// Command demo prints the latest Go job offers from JustJoin.it to stdout.
 package main
 
 import (
@@ -8,16 +9,15 @@ import (
 	"findjobsmcp/justjoinit"
 )
 
-func justPrintOffers(category string) bool {
-	offers, err := justjoinit.FetchAllOffers([]string{category})
+func main() {
+	offers, err := justjoinit.FetchAllOffers([]string{"go"})
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
-		return true
+		return
 	}
 
 	fmt.Printf("Fetched %d offers\n\n", len(offers.Jobs))
 	printOffers(offers.Jobs)
-	return false
 }
 
 // printOffers prints the given job offers to standard output.

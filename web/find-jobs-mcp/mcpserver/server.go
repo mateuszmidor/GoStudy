@@ -8,13 +8,12 @@ import (
 	"fmt"
 	"log"
 
+	"findjobsmcp/api"
 	"findjobsmcp/justjoinit"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
-
-const categories = "ai, go, java, python, javascript, php, ruby, net, scala, c, mobile, testing, devops, admin, ux, pm, game, analytics, security, data, support, erp, architecture"
 
 // New builds the MCP server exposing the find_jobs tool.
 func New(serverName, serverVersion string) *server.MCPServer {
@@ -26,8 +25,8 @@ func New(serverName, serverVersion string) *server.MCPServer {
 
 	tool := mcp.NewTool(
 		"find_jobs",
-		mcp.WithDescription("Finds IT job offers on JustJoin.it by category, e.g.: "+categories),
-		mcp.WithString("category", mcp.Required(), mcp.Description("Job category. Allowed: "+categories)),
+		mcp.WithDescription("Finds IT job offers on JustJoin.it by category, e.g.: "+api.OfferCategoriesStr),
+		mcp.WithString("category", mcp.Required(), mcp.Description("Job category. Allowed: "+api.OfferCategoriesStr)),
 	)
 
 	s.AddTool(tool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
