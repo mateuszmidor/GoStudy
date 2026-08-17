@@ -33,6 +33,27 @@ The script produces `bootstrap.zip` in the current directory.
    CORS: allow origin `*`, methods `POST, GET, DELETE`, headers `*`
 6. Copy the Function URL, e.g. `https://abcd1234.lambda-url.eu-central-1.on.aws`
 
+## Test it in AWS console
+
+Add test event json - find `go` jobs:
+```json
+{
+  "version": "2.0",
+  "rawPath": "/mcp",
+  "headers": {
+    "content-type": "application/json",
+    "accept": "application/json, text/event-stream"
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/mcp"
+    }
+  },
+  "body": "{\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"tools/call\",\"params\":{\"name\":\"find_jobs\",\"arguments\":{\"category\":\"go\"}}}"
+}
+```
+
 ## Add it to OpenCode
 
 ```sh
