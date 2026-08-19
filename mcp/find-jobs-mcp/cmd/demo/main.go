@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	category := flag.String("category", "go", "job category: "+api.OfferCategoriesStr)
+	category := flag.String("category", "", "job category: "+api.OfferCategoriesStr)
 	keywords := flag.String("keywords", "", "full-text search, e.g. golang, react developer")
 	city := flag.String("city", "", "filter by city, e.g. Warszawa, Kraków")
 	experienceLevels := flag.String("experience-levels", "", "comma-separated: intern, junior, mid, senior, manager, c_level")
@@ -20,6 +20,8 @@ func main() {
 	remoteWorkOptions := flag.String("work-modes", "", "comma-separated: remote, hybrid, office")
 	withSalary := flag.Bool("with-salary", false, "only offers with disclosed salary")
 	minSalary := flag.Int("min-salary", 0, "minimum salary threshold in PLN")
+	sortBy := flag.String("sort-by", "publishedAt", "sort field: publishedAt, salary")
+	orderBy := flag.String("order-by", "descending", "sort direction: ascending, descending")
 	jsonOut := flag.Bool("json", false, "print offers as formatted JSON")
 	flag.Parse()
 
@@ -32,6 +34,8 @@ func main() {
 	params.RemoteWorkOptions = splitTrim(*remoteWorkOptions)
 	params.WithSalary = withSalary
 	params.MinSalary = minSalary
+	params.SortBy = *sortBy
+	params.OrderBy = *orderBy
 
 	fmt.Printf("Listing offers for %+v\n", params)
 	offers, err := justjoinit.FetchAllOffers(params)

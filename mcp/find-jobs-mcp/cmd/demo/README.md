@@ -7,7 +7,7 @@ returns without starting a server.
 ## Run it
 
 ```sh
-go run ./cmd/demo
+go run . -category=go
 ```
 
 Sample output:

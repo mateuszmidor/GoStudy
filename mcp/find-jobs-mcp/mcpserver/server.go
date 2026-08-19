@@ -36,6 +36,8 @@ func New(serverName, serverVersion string) *server.MCPServer {
 		mcp.WithString("remoteWorkOptions", mcp.Description("Comma-separated workplace modes. Allowed: remote, hybrid, office")),
 		mcp.WithBoolean("withSalary", mcp.Description("When true, only return offers that disclose salary")),
 		mcp.WithNumber("minSalary", mcp.Description("Minimum salary threshold in PLN, e.g. 15000")),
+		mcp.WithString("sortBy", mcp.Description("Sort field. Allowed: publishedAt (default), salary")),
+		mcp.WithString("orderBy", mcp.Description("Sort direction. Allowed: descending (default), ascending")),
 	)
 
 	s.AddTool(tool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
@@ -66,6 +68,12 @@ func New(serverName, serverVersion string) *server.MCPServer {
 		if v, ok := args["minSalary"].(float64); ok {
 			n := int(v)
 			params.MinSalary = &n
+		}
+		if v, _ := args["sortBy"].(string); v != "" {
+			params.SortBy = v
+		}
+		if v, _ := args["orderBy"].(string); v != "" {
+			params.OrderBy = v
 		}
 
 		slog.Info("mcp tool call: find_jobs", slog.Any("params", params))
