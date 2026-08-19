@@ -5,7 +5,7 @@ import (
 )
 
 // OfferCategories are the searchable offer categories :)
-var OfferCategories = []string{"ai", "go", "java", "python", "javascript", "php", "ruby", "net", "scala", "c", "mobile", "testing", "devops", "admin", "ux", "pm", "game", "analytics", "security", "data", "support", "erp", "architecture"}
+var OfferCategories = []string{"ai", "go", "html", "java", "python", "javascript", "php", "ruby", "net", "scala", "c", "mobile", "testing", "devops", "admin", "ux", "pm", "game", "analytics", "security", "data", "support", "erp", "architecture"}
 var OfferCategoriesStr = strings.Join(OfferCategories, ", ")
 
 // EldoradoOffers is the format returned from czyjesteldorado.pl MCP server

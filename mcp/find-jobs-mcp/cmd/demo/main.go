@@ -1,4 +1,4 @@
-// Command demo prints the latest Go job offers from JustJoin.it to stdout.
+// Command demo prints job offers from JustJoin.it to stdout.
 package main
 
 import (
@@ -12,10 +12,29 @@ import (
 )
 
 func main() {
+	category := flag.String("category", "go", "job category: "+api.OfferCategoriesStr)
+	keywords := flag.String("keywords", "", "full-text search, e.g. golang, react developer")
+	city := flag.String("city", "", "filter by city, e.g. Warszawa, Kraków")
+	experienceLevels := flag.String("experience-levels", "", "comma-separated: intern, junior, mid, senior, manager, c_level")
+	employmentTypes := flag.String("employment-types", "", "comma-separated: b2b, permanent, uoz, internship")
+	remoteWorkOptions := flag.String("work-modes", "", "comma-separated: remote, hybrid, office")
+	withSalary := flag.Bool("with-salary", false, "only offers with disclosed salary")
+	minSalary := flag.Int("min-salary", 0, "minimum salary threshold in PLN")
 	jsonOut := flag.Bool("json", false, "print offers as formatted JSON")
 	flag.Parse()
 
-	offers, err := justjoinit.FetchAllOffers([]string{"go"})
+	params := justjoinit.SearchParams{}
+	params.Categories = []string{*category}
+	params.Keywords = *keywords
+	params.City = *city
+	params.ExperienceLevels = splitTrim(*experienceLevels)
+	params.EmploymentTypes = splitTrim(*employmentTypes)
+	params.RemoteWorkOptions = splitTrim(*remoteWorkOptions)
+	params.WithSalary = withSalary
+	params.MinSalary = minSalary
+
+	fmt.Printf("Listing offers for %+v\n", params)
+	offers, err := justjoinit.FetchAllOffers(params)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
@@ -28,6 +47,19 @@ func main() {
 
 	fmt.Printf("Fetched %d offers\n\n", len(offers.Jobs))
 	printOffers(offers.Jobs)
+}
+
+// splitTrim splits a comma-separated string and trims whitespace from each part.
+func splitTrim(s string) []string {
+	parts := strings.Split(s, ",")
+	result := make([]string, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			result = append(result, p)
+		}
+	}
+	return result
 }
 
 // printOffersJSON prints the given offers as indented JSON to standard output.

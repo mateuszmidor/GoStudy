@@ -16,6 +16,52 @@ const (
 	pageSize   = 100
 )
 
+// SearchParams holds optional filters for the JustJoin.it candidate API.
+// All fields are optional; zero values are omitted from the query.
+// Multiple filters are combined with AND logic.
+type SearchParams struct {
+	// Categories filters by job category slug.
+	// Allowed values: "ai", "go", "html", "java", "python", "javascript", "php",
+	// "ruby", "net", "scala", "c", "mobile", "testing", "devops", "admin",
+	// "ux", "pm", "game", "analytics", "security", "data", "support",
+	// "erp", "architecture".
+	Categories []string
+
+	// Keywords is a full-text search phrase matched against job titles
+	// and required/nice-to-have skills, e.g. "golang", "react developer".
+	Keywords string
+
+	// City filters by city name (diacritics optional, e.g. "Krakow" or "Kraków").
+	City string
+
+	// ExperienceLevels filters by seniority level.
+	// Allowed values: "intern", "junior", "mid", "senior", "manager", "c_level".
+	ExperienceLevels []string
+
+	// EmploymentTypes filters by contract type.
+	// Allowed values: "b2b", "permanent", "uoz" (mandate contract),
+	// "internship" (specific-task contract).
+	EmploymentTypes []string
+
+	// RemoteWorkOptions filters by workplace arrangement.
+	// Allowed values: "remote", "hybrid", "office".
+	RemoteWorkOptions []string
+
+	// WithSalary when non-nil and true, returns only offers that disclose salary.
+	WithSalary *bool
+
+	// MinSalary when non-nil, sets a minimum salary threshold in PLN.
+	MinSalary *int
+
+	// SortBy controls the sort field. Default: "publishedAt".
+	// Allowed values: "publishedAt", "salary".
+	SortBy string
+
+	// OrderBy controls the sort direction. Default: "descending".
+	// Allowed values: "ascending", "descending".
+	OrderBy string
+}
+
 // employmentType represents a salary/contract type (e.g. B2B, permanent) with a salary range.
 type employmentType struct {
 	From           *float64 `json:"from"`           // monthly amount in Currency, e.g. 26765.0
@@ -101,17 +147,47 @@ type apiResponse struct {
 	Meta apiMeta `json:"meta"` // e.g. {From 0, TotalItems 81, Next {81, 81}}
 }
 
-// fetchPage fetches a page of job offers from the API with given offset and categories.
-func fetchPage(categories []string, from int) (*apiResponse, error) {
-	params := url.Values{
-		"categories": categories,
-		"sortBy":     {"publishedAt"},
-		"orderBy":    {"descending"},
-		"from":       {fmt.Sprintf("%d", from)},
-		"itemsCount": {fmt.Sprintf("%d", pageSize)},
+// fetchPage fetches a page of job offers from the API with given offset and search params.
+func fetchPage(params SearchParams, from int) (*apiResponse, error) {
+	q := url.Values{}
+	for _, c := range params.Categories {
+		q.Add("categories", c)
 	}
+	for _, v := range params.ExperienceLevels {
+		q.Add("experienceLevels", v)
+	}
+	for _, v := range params.EmploymentTypes {
+		q.Add("employmentTypes", v)
+	}
+	for _, v := range params.RemoteWorkOptions {
+		q.Add("remoteWorkOptions", v)
+	}
+	if params.Keywords != "" {
+		q.Set("keywords", params.Keywords)
+	}
+	if params.City != "" {
+		q.Set("city", params.City)
+	}
+	if params.WithSalary != nil && *params.WithSalary {
+		q.Set("withSalary", "true")
+	}
+	if params.MinSalary != nil {
+		q.Set("minSalary", fmt.Sprintf("%d", *params.MinSalary))
+	}
+	sortBy := params.SortBy
+	if sortBy == "" {
+		sortBy = "publishedAt"
+	}
+	orderBy := params.OrderBy
+	if orderBy == "" {
+		orderBy = "descending"
+	}
+	q.Set("sortBy", sortBy)
+	q.Set("orderBy", orderBy)
+	q.Set("from", fmt.Sprintf("%d", from))
+	q.Set("itemsCount", fmt.Sprintf("%d", pageSize))
 
-	req, err := http.NewRequest(http.MethodGet, baseAPIURL+"?"+params.Encode(), nil)
+	req, err := http.NewRequest(http.MethodGet, baseAPIURL+"?"+q.Encode(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
@@ -140,15 +216,15 @@ func fetchPage(categories []string, from int) (*apiResponse, error) {
 	return &apiResp, nil
 }
 
-// FetchAllOffers fetches all job offers for the given categories and translates
-// them into the Eldorado representation. Example categories: go, c, java,
-// python, javascript, ai (any other JustJoin category works as well).
-func FetchAllOffers(categories []string) (api.EldoradoOffers, error) {
+// FetchAllOffers fetches all job offers matching the given search parameters
+// and translates them into the Eldorado representation. When params is empty
+// (zero value), all offers are returned sorted by most recently published.
+func FetchAllOffers(params SearchParams) (api.EldoradoOffers, error) {
 	var allOffers []offer
 	from := 0
 
 	for {
-		page, err := fetchPage(categories, from)
+		page, err := fetchPage(params, from)
 		if err != nil {
 			return api.EldoradoOffers{}, fmt.Errorf("fetching from offset %d: %w", from, err)
 		}
