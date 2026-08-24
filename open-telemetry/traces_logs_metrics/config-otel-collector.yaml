@@ -16,8 +16,29 @@ exporters:
   prometheus:
     endpoint: "0.0.0.0:8889"  # Prometheus scrapes /metrics from this port of OTel Collector
 
-# Batch spans/logs/metrics before exporting to reduce network overhead
 processors:
+  # Tail sampling buffers each trace for decision_wait (so all its spans arrive),
+  # then keeps the whole trace if ANY policy matches (policies are OR-ed):
+  # - errors-always: any span has ERROR status
+  # - slow-traces: trace took longer than threshold_ms
+  # - baseline-sample: lucky 10% of the remaining traces
+  tail_sampling:
+    decision_wait: 10s
+    policies:
+      - name: errors-always
+        type: status_code
+        status_code:
+          status_codes: [ERROR]
+      - name: slow-traces
+        type: latency
+        latency:
+          threshold_ms: 500
+      - name: baseline-sample
+        type: probabilistic
+        probabilistic:
+          sampling_percentage: 50
+
+  # Batch spans/logs/metrics before exporting to reduce network overhead
   batch:
 
 # Wire receivers → processors → exporters per signal type
@@ -25,7 +46,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]
+      processors: [tail_sampling, batch]  # sample first, then batch what survived
       exporters: [otlp_http/tempo]
     logs:
       receivers: [otlp]

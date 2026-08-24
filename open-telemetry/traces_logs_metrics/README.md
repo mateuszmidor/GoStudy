@@ -65,5 +65,32 @@ App  ──OTLP/HTTP push──►  OTel Collector :4318
                                │
                                │ exposes GET :8889/metrics
                                ▼
-                          Prometheus :9090  (scrapes every 15s)
+                         Prometheus :9090  (scrapes every 15s)
+```
+
+## How tail sampling works
+
+The collector does **not** forward every trace to Tempo. The `tail_sampling` processor buffers each trace
+for 10s (`decision_wait`) so all its spans arrive, then keeps the whole trace if **any** policy matches
+(policies are OR-ed):
+
+- `errors-always` - any span in the trace has ERROR status
+- `slow-traces` - the trace took longer than 500ms
+- `baseline-sample` - random 50% of the remaining traces
+
+Consequences: failed and slow requests are always visible in Tempo, healthy fast ones mostly are not,
+and traces arrive up to ~10s later than logs/metrics because of the buffering window.
+
+```
+spans ──► otlp receiver ──► tail_sampling (drop or keep whole trace) ──► batch ──► Tempo
+```
+
+**Production note:** tail sampling only works correctly if *all* spans of a trace reach the **same collector
+instance** - the decision is made per-trace on one node. This demo runs a single collector, so it just works.
+In production with multiple collectors you must use a tiered setup: agent collectors forward spans to a
+gateway tier through the `loadbalancing` exporter keyed by `traceID` (routing_table), and only the gateway
+instances run `tail_sampling`.
+
+```
+app ──► agent collectors ──► loadbalancing exporter (hash by traceID) ──► gateway collectors (tail_sampling) ──► backends
 ```
