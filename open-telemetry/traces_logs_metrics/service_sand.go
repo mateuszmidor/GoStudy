@@ -11,6 +11,7 @@ import (
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/metric"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/trace"
@@ -94,12 +95,18 @@ func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
 func (s *SandService) gatherSand(ctx context.Context) (result string, err error) {
 	// simulate random lag
 	if rand.Intn(5) == 0 {
+		// add custom metric
+		delayedGathers, _ := s.mp.Meter("sand-service").Int64Counter("sand_gathering_delays", metric.WithDescription("Delayed gather-sand calls"))
+		delayedGathers.Add(ctx, 1)
 		s.logger.WarnContext(ctx, "unexpected delay of 750ms")
 		time.Sleep(time.Millisecond * 750)
 	}
 
 	// simulate random failure
 	if rand.Intn(5) == 0 {
+		// add custom metric
+		failedGathers, _ := s.mp.Meter("sand-service").Int64Counter("sand_gathering_failures", metric.WithDescription("Failed gather-sand calls"))
+		failedGathers.Add(ctx, 1)
 		err := fmt.Errorf("failed to gather sand - dump track crashed")
 		return "", err
 	}
