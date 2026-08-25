@@ -80,10 +80,10 @@ func (s *SandService) handleGetSand(w http.ResponseWriter, r *http.Request) {
 
 	// handle error
 	if err != nil {
-		s.logger.ErrorContext(r.Context(), err.Error())                           // log the error
-		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error()) // set the span status to error
-		apitrace.SpanFromContext(r.Context()).RecordError(err)                    // trace the error
-		http.Error(w, err.Error(), http.StatusInternalServerError)                // return the error
+		s.logger.ErrorContext(r.Context(), err.Error())                                       // log the error
+		apitrace.SpanFromContext(r.Context()).SetStatus(codes.Error, err.Error())             // set the span status to error
+		apitrace.SpanFromContext(r.Context()).RecordError(err, apitrace.WithStackTrace(true)) // trace the error
+		http.Error(w, err.Error(), http.StatusInternalServerError)                            // return the error
 		return
 	}
 
@@ -110,5 +110,13 @@ func (s *SandService) gatherSand(ctx context.Context) (result string, err error)
 		err := fmt.Errorf("failed to gather sand - dump track crashed")
 		return "", err
 	}
+
+	// add manual span for education purposes :)
+	_, span := s.tp.Tracer("sand-service").Start(ctx, "gather_sand", apitrace.WithSpanKind(apitrace.SpanKindInternal))
+	span.AddEvent("collecting sand")
+	time.Sleep(time.Millisecond * 50)
+	span.AddEvent("sand collected")
+	span.End()
+
 	return "1 ton of sand", nil
 }
