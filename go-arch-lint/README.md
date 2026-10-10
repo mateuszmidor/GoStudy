@@ -7,6 +7,17 @@ the go-arch-lint consistency tool would verify.
 
 Requires Go 1.26+.
 
+## The point: Architecture lint
+
+The project's layering (`cmd → slices → api`, with independent slices) is
+declared as rules in [.go-arch-lint.yml](.go-arch-lint.yml) and enforced with
+[go-arch-lint](https://github.com/fe3dback/go-arch-lint):
+
+```sh
+make tools    # install go-arch-lint (once)
+make lint     # check imports against the rules; exits non-zero on violations
+```
+
 ## Run
 
 ```sh
@@ -42,3 +53,12 @@ curl "http://localhost:9090/multiply?a=3&b=4"
 curl "http://localhost:9090/power?a=2&b=10"
 # {"result":1024}
 ```
+
+## Dependency graph
+
+![Dependency graph: cmd wires the slices, each slice depends only on api](go-arch-lint-graph.svg)
+
+`make lint` reports violations like *"component `power` shouldn't depend on
+`go-arch-lint/slices/add`"* — exactly what happens if a slice starts
+importing another slice. The dependency graph above is regenerated with
+`make graph` (it writes `go-arch-lint-graph.svg` to the project root).

@@ -1,0 +1,37 @@
+# Architecture rules for the go-arch-lint demo app.
+#
+# One-way dependency flow:
+#
+#      cmd/calc            (entrypoint, wiring)
+#          |
+#   +------+-------+-------+
+#   v      v        v
+#  add  multiply  power    (vertical slices — independent of each other)
+#   |      |        |
+#   v      v        v
+#  api                    (shared kernel: wire format + helpers)
+version: 3
+
+components:
+  main:     { in: cmd/* }         # entrypoint
+  api:      { in: api }           # shared JSON wire format + parse helpers
+  add:      { in: slices/add }
+  multiply: { in: slices/multiply }
+  power:    { in: slices/power }
+
+deps:
+  main:
+    mayDependOn: [add, multiply, power]   # entrypoint wires the slices
+
+  # Each slice may depend only on the shared api package.
+  # No slice may import another slice (independence), and nothing
+  # may depend back on a slice (enforced by the absence of rules).
+  add:
+    mayDependOn: [api]
+  multiply:
+    mayDependOn: [api]
+  power:
+    mayDependOn: [api]
+
+  # api has no entry: it must not depend on any other project code
+  # (it is the bottom of the dependency graph).
