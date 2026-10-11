@@ -1,13 +1,16 @@
 module github.com/mateuszmidor/GoStudy/infrastructure/kafka
 
-go 1.25.5
+go 1.26.0
 
 require (
 	github.com/confluentinc/confluent-kafka-go/v2 v2.13.0
 	github.com/segmentio/kafka-go v0.4.50
+	github.com/twmb/franz-go v1.22.1
+	github.com/twmb/franz-go/pkg/kadm v1.19.0
 )
 
 require (
-	github.com/klauspost/compress v1.17.9 // indirect
-	github.com/pierrec/lz4/v4 v4.1.15 // indirect
+	github.com/klauspost/compress v1.20.0 // indirect
+	github.com/pierrec/lz4/v4 v4.1.30 // indirect
+	github.com/twmb/franz-go/pkg/kmsg v1.14.0 // indirect
 )

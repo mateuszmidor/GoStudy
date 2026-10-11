@@ -6,6 +6,14 @@ Tutorials:
 ## Producer-Consumer demo in a single process
 - segmentio/ - good for experiments, automatically handles rebalancing
 - confluent/ - good for production, notifies you about rebalancing to handle
+- franz-go/ - full feature support, pure Go (no cgo, unlike confluent), notifies you about rebalancing via callbacks
+
+## Run "franz-go/" version
+
+```sh
+docker-compose up # run kafka_broker and kafka_gui
+go run franz-go/main.go # run producer-consumer
+```
 
 ## Run "confluent/" version
 
