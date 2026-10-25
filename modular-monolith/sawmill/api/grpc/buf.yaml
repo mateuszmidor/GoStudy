@@ -4,7 +4,7 @@ breaking:
     - FILE
 lint:
   use:
-    - DEFAULT
+    - STANDARD
 deps:
   - buf.build/srikrsna/protoc-gen-gotag
 

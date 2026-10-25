@@ -8,7 +8,7 @@ import (
 	"github.com/bufbuild/connect-go"
 	sawmillgrpc "github.com/mateuszmidor/GoStudy/modular-monolith/sawmill/api/grpc/gen/sawmill/v1"
 	sawmillconnect "github.com/mateuszmidor/GoStudy/modular-monolith/sawmill/api/grpc/gen/sawmill/v1/sawmillv1connect"
-	"github.com/mateuszmidor/GoStudy/modular-monolith/sawmill/cmd/sawmill/internal"
+	"github.com/mateuszmidor/GoStudy/modular-monolith/sawmill/internal"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )
